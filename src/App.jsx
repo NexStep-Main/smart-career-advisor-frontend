@@ -4,6 +4,9 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import OnboardingQuizPage from "./pages/student/OnboardingQuizPage";
 import DashboardPage from "./pages/student/DashboardPage";
+import CareerExplorerPage from "./pages/student/CareerExplorerPage";
+import CareerDetailsPage from "./pages/student/CareerDetailsPage";
+import RoadmapPage from "./pages/student/RoadmapPage";
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/onboarding" element={<OnboardingQuizPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/careers" element={<CareerExplorerPage />} />
+        <Route path="/careers/:id" element={<CareerDetailsPage />} />
+        <Route path="/roadmap/:id" element={<RoadmapPage />} />
       </Routes>
     </BrowserRouter>
   );
