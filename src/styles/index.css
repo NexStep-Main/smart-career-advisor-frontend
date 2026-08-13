@@ -1,0 +1,58 @@
+/* Google Fonts — Sora (headings), Inter (body), JetBrains Mono (code/tags).
+   Must precede @import "tailwindcss" — Tailwind's import inlines rules
+   immediately, and @import must come before any other rule in the output. */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+@import "tailwindcss";
+
+/* ── Design tokens — see Frontend Guide.md § Design System ── */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-primary: #1a56db;
+  --color-primary-dark: #1e429f;
+  --color-primary-light: #dbeafe;
+
+  --color-secondary: #0694a2;
+  --color-secondary-dark: #0e7490;
+  --color-secondary-light: #cffafe;
+
+  --color-surface: #ffffff;
+  --color-background: #f9fafb;
+  --color-border: #e5e7eb;
+
+  --color-accent-green: #057a55;
+  --color-accent-orange: #d03801;
+
+  --color-domain-tech: #1a56db;
+  --color-domain-healthcare: #057a55;
+  --color-domain-arts: #7e3af2;
+  --color-domain-commerce: #d97706;
+  --color-domain-science: #0694a2;
+  --color-domain-law: #c27803;
+  --color-domain-design: #e02424;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body,
+  #root {
+    @apply min-h-screen w-full;
+  }
+
+  body {
+    @apply bg-background text-slate-900 font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+}
