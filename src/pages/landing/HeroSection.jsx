@@ -12,19 +12,19 @@ export default function HeroSection() {
         transition={{ duration: 0.5 }}
         className="mx-auto flex max-w-3xl flex-col items-center"
       >
-        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-slate-600">
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
           <GraduationCap size={14} className="text-primary" />
           Free career guidance for every Indian student
         </span>
 
-        <h1 className="font-heading text-4xl font-bold leading-tight text-slate-900 sm:text-5xl md:text-6xl">
-          Discover your perfect career path after{" "}
+        <h1 className="font-heading text-4xl font-bold leading-tight text-slate-900 dark:text-slate-50 sm:text-5xl md:text-6xl">
+          Discover your perfect career path after{""}
           <span className="text-primary">Class 10, 12 & Graduation</span>
         </h1>
 
-        <p className="mt-6 max-w-xl text-base text-slate-500 sm:text-lg">
-          Personalised roadmaps, skill plans, and AI-powered recommendations — so you
-          always know exactly what to do next.
+        <p className="mt-6 max-w-xl text-base text-slate-500 dark:text-slate-400 sm:text-lg">
+          Personalised roadmaps, skill plans, and AI-powered recommendations — so you always know
+          exactly what to do next.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -39,7 +39,7 @@ export default function HeroSection() {
           </Button>
         </div>
 
-        <p className="mt-6 text-xs text-slate-400">
+        <p className="mt-6 text-xs text-slate-400 dark:text-slate-500">
           No credit card · No sign-up to browse · 100% free forever
         </p>
       </motion.div>

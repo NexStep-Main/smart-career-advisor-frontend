@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const APP_NAME = import.meta.env.VITE_APP_NAME || "Smart Career Advisor";
+const APP_NAME = import.meta.env.VITE_APP_NAME || "NexStep";
 
 /** Per-page <title>/<meta description> via react-helmet-async. */
 export default function SEOHead({ title, description }) {

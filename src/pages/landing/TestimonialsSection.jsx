@@ -7,7 +7,7 @@ const TESTIMONIALS = [
     name: "Priya Mehta",
     role: "Class 12 Science, Kolkata",
     quote:
-      "I had no idea what to do after boards. Smart Career Advisor showed me options in my stream I hadn't even heard of.",
+      "I had no idea what to do after boards. NexStep showed me options in my stream I hadn't even heard of.",
   },
   {
     name: "Arjun Das",
@@ -31,7 +31,10 @@ const TESTIMONIALS = [
 
 export default function TestimonialsSection() {
   return (
-    <section id="testimonials" className="border-y border-border bg-slate-50 px-6 py-20">
+    <section
+      id="testimonials"
+      className="border-y border-border bg-slate-50 dark:bg-slate-800/60 px-6 py-20"
+    >
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="Student stories" title="What students say" />
 
@@ -44,16 +47,21 @@ export default function TestimonialsSection() {
                     <Star key={idx} size={14} fill="currentColor" strokeWidth={0} />
                   ))}
                 </div>
-                <p className="mb-5 text-sm italic leading-relaxed text-slate-600">
+                <p className="mb-5 text-sm italic leading-relaxed text-slate-600 dark:text-slate-300">
                   “{t.quote}”
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="flex size-9 items-center justify-center rounded-full bg-primary-light text-xs font-semibold text-primary-dark">
-                    {t.name.split(" ").map((n) => n[0]).join("")}
+                    {t.name
+                      .split("")
+                      .map((n) => n[0])
+                      .join("")}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-500">{t.role}</div>
+                    <div className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                      {t.name}
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t.role}</div>
                   </div>
                 </div>
               </div>

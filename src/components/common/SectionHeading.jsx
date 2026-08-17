@@ -7,10 +7,10 @@ export default function SectionHeading({ eyebrow, title, subtitle }) {
           {eyebrow}
         </span>
       )}
-      <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl">
+      <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 dark:text-slate-50 sm:text-4xl">
         {title}
       </h2>
-      {subtitle && <p className="mt-3 text-slate-500">{subtitle}</p>}
+      {subtitle && <p className="mt-3 text-slate-500 dark:text-slate-400">{subtitle}</p>}
     </div>
   );
 }

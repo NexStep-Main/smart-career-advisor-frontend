@@ -17,10 +17,10 @@ export default class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-          <h1 className="font-heading text-2xl font-bold text-slate-900">
+          <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
             Something went wrong
           </h1>
-          <p className="max-w-sm text-sm text-slate-500">
+          <p className="max-w-sm text-sm text-slate-500 dark:text-slate-400">
             Please refresh the page. If the problem continues, contact support.
           </p>
           <Button onClick={() => window.location.assign("/")}>Back to home</Button>

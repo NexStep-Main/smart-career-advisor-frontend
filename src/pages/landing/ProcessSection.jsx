@@ -33,13 +33,13 @@ export default function ProcessSection() {
           {STEPS.map((step, i) => (
             <FadeIn key={step.num} delay={i * 0.1}>
               <div className="h-full rounded-xl border border-border bg-surface p-6">
-                <div className="mb-4 font-heading text-2xl font-bold text-primary">
-                  {step.num}
-                </div>
-                <h3 className="mb-2 font-heading text-base font-semibold text-slate-900">
+                <div className="mb-4 font-heading text-2xl font-bold text-primary">{step.num}</div>
+                <h3 className="mb-2 font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
                   {step.title}
                 </h3>
-                <p className="text-sm leading-relaxed text-slate-500">{step.desc}</p>
+                <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                  {step.desc}
+                </p>
               </div>
             </FadeIn>
           ))}

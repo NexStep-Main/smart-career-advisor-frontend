@@ -2,14 +2,13 @@ import { forwardRef, cloneElement, isValidElement } from "react";
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
-  primary:
-    "bg-primary text-white shadow-sm hover:bg-primary-dark focus-visible:outline-primary",
+  primary: "bg-primary text-white shadow-sm hover:bg-primary-dark focus-visible:outline-primary",
   secondary:
     "bg-secondary text-white shadow-sm hover:bg-secondary-dark focus-visible:outline-secondary",
   outline:
-    "bg-surface text-slate-700 border border-border hover:bg-slate-50 focus-visible:outline-primary",
+    "bg-surface text-slate-700 dark:text-slate-200 border border-border hover:bg-slate-50 dark:hover:bg-slate-800/60 focus-visible:outline-primary",
   ghost:
-    "bg-transparent text-slate-600 hover:bg-slate-100 focus-visible:outline-primary",
+    "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-primary",
 };
 
 const SIZES = {
@@ -23,7 +22,7 @@ const SIZES = {
  */
 const Button = forwardRef(function Button(
   { className, variant = "primary", size = "md", asChild = false, children, ...props },
-  ref
+  ref,
 ) {
   const buttonClassName = cn(
     "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors",
@@ -31,7 +30,7 @@ const Button = forwardRef(function Button(
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
     VARIANTS[variant],
     SIZES[size],
-    className
+    className,
   );
 
   // asChild merges button styling onto the single child element (e.g. a

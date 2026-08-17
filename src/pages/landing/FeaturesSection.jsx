@@ -32,7 +32,10 @@ const FEATURES = [
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="border-y border-border bg-slate-50 px-6 py-20">
+    <section
+      id="features"
+      className="border-y border-border bg-slate-50 dark:bg-slate-800/60 px-6 py-20"
+    >
       <div className="mx-auto max-w-5xl">
         <SectionHeading
           eyebrow="What we offer"
@@ -49,12 +52,14 @@ export default function FeaturesSection() {
                 </div>
                 <div>
                   <div className="mb-1.5 flex items-center gap-2">
-                    <h3 className="font-heading text-base font-semibold text-slate-900">
+                    <h3 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
                       {feature.title}
                     </h3>
                     <Badge variant="primary">{feature.tag}</Badge>
                   </div>
-                  <p className="text-sm leading-relaxed text-slate-500">{feature.desc}</p>
+                  <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    {feature.desc}
+                  </p>
                 </div>
               </div>
             </FadeIn>

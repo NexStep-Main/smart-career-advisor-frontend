@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export default function Skeleton({ className, ...props }) {
   return (
     <div
-      className={cn("animate-pulse rounded-lg bg-slate-200", className)}
+      className={cn("animate-pulse rounded-lg bg-slate-200 dark:bg-slate-700", className)}
       {...props}
     />
   );

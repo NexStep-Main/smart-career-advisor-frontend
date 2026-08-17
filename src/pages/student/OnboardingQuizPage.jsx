@@ -1,78 +1,219 @@
 import { useState } from "react";
-import { GraduationCap, ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle,
+  School,
+  BookOpen,
+  GraduationCap,
+  FlaskConical,
+  Dna,
+  BarChart3,
+  Palette,
+  Cog,
+  ClipboardList,
+  Laptop,
+  HeartPulse,
+  Briefcase,
+  Drama,
+  Telescope,
+  Scale,
+  Brain,
+  Sparkles,
+  Handshake,
+  Wrench,
+  IndianRupee,
+  Heart,
+  Shield,
+  TrendingUp,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import Logo from "@/components/common/Logo";
+import SEOHead from "@/components/common/SEOHead";
+import ThemeToggle from "@/components/common/ThemeToggle";
+import useAuthStore from "@/store/useAuthStore";
+import { submitQuiz } from "@/services/recommendations";
+import { cn } from "@/lib/utils";
 
-/* ── Quiz Data ── */
-const quizSteps = [
+const QUIZ_STEPS = [
   {
-    step: 1,
     title: "What is your current education level?",
-    subtitle: "We will personalise your career options based on this.",
+    subtitle: "We'll personalise your career options based on this.",
     field: "educationLevel",
     options: [
-      { value: "class10", label: "Class 10", desc: "Just finished or appearing for boards", icon: "🏫" },
-      { value: "class12", label: "Class 12", desc: "Completed or appearing for 12th boards", icon: "📚" },
-      { value: "graduation", label: "Graduation", desc: "Currently in college or just graduated", icon: "🎓" },
+      {
+        value: "class10",
+        label: "Class 10",
+        desc: "Just finished or appearing for boards",
+        icon: School,
+      },
+      {
+        value: "class12",
+        label: "Class 12",
+        desc: "Completed or appearing for 12th boards",
+        icon: BookOpen,
+      },
+      {
+        value: "graduation",
+        label: "Graduation",
+        desc: "Currently in college or just graduated",
+        icon: GraduationCap,
+      },
     ],
   },
   {
-    step: 2,
     title: "Which stream or field are you in?",
     subtitle: "Select the one that best matches your current studies.",
     field: "stream",
     options: [
-      { value: "science", label: "Science (PCM)", desc: "Physics, Chemistry, Maths", icon: "🔬" },
-      { value: "science_bio", label: "Science (PCB)", desc: "Physics, Chemistry, Biology", icon: "🧬" },
-      { value: "commerce", label: "Commerce", desc: "Accounts, Business, Economics", icon: "📊" },
-      { value: "arts", label: "Arts / Humanities", desc: "History, Political Science, Literature", icon: "🎨" },
-      { value: "engineering", label: "Engineering", desc: "B.Tech / B.E. student", icon: "⚙️" },
-      { value: "other", label: "Other", desc: "Diploma, Vocational or other streams", icon: "📋" },
+      {
+        value: "science",
+        label: "Science (PCM)",
+        desc: "Physics, Chemistry, Maths",
+        icon: FlaskConical,
+      },
+      {
+        value: "science_bio",
+        label: "Science (PCB)",
+        desc: "Physics, Chemistry, Biology",
+        icon: Dna,
+      },
+      {
+        value: "commerce",
+        label: "Commerce",
+        desc: "Accounts, Business, Economics",
+        icon: BarChart3,
+      },
+      {
+        value: "arts",
+        label: "Arts / Humanities",
+        desc: "History, Political Science, Literature",
+        icon: Palette,
+      },
+      {
+        value: "engineering",
+        label: "Engineering",
+        desc: "B.Tech / B.E. student",
+        icon: Cog,
+      },
+      {
+        value: "other",
+        label: "Other",
+        desc: "Diploma, Vocational or other streams",
+        icon: ClipboardList,
+      },
     ],
   },
   {
-    step: 3,
     title: "What are your areas of interest?",
     subtitle: "Select all that excite you. You can pick more than one.",
     field: "interests",
     multiple: true,
     options: [
-      { value: "technology", label: "Technology", desc: "Coding, AI, Software, Cybersecurity", icon: "💻" },
-      { value: "healthcare", label: "Healthcare", desc: "Medicine, Nursing, Pharmacy", icon: "🏥" },
-      { value: "business", label: "Business", desc: "Management, Finance, Entrepreneurship", icon: "💼" },
-      { value: "creative", label: "Creative Arts", desc: "Design, Film, Music, Writing", icon: "🎭" },
-      { value: "science", label: "Pure Science", desc: "Research, Physics, Chemistry, Biology", icon: "🔭" },
-      { value: "law", label: "Law", desc: "Legal studies, Criminal justice", icon: "⚖️" },
-      { value: "education", label: "Education", desc: "Teaching, Training, Academic research", icon: "📖" },
-      { value: "government", label: "Government", desc: "Civil services, Defence, Public sector", icon: "🏛️" },
+      {
+        value: "technology",
+        label: "Technology",
+        desc: "Coding, AI, Software, Cybersecurity",
+        icon: Laptop,
+      },
+      {
+        value: "healthcare",
+        label: "Healthcare",
+        desc: "Medicine, Nursing, Pharmacy",
+        icon: HeartPulse,
+      },
+      {
+        value: "business",
+        label: "Business",
+        desc: "Management, Finance, Entrepreneurship",
+        icon: Briefcase,
+      },
+      {
+        value: "creative",
+        label: "Creative Arts",
+        desc: "Design, Film, Music, Writing",
+        icon: Drama,
+      },
+      {
+        value: "science",
+        label: "Pure Science",
+        desc: "Research, Physics, Chemistry, Biology",
+        icon: Telescope,
+      },
+      { value: "law", label: "Law", desc: "Legal studies, Criminal justice", icon: Scale },
     ],
   },
   {
-    step: 4,
     title: "How do you prefer to work?",
     subtitle: "This helps us match careers that suit your personality.",
     field: "workStyle",
     options: [
-      { value: "analytical", label: "Analytical", desc: "I love solving problems with logic and data", icon: "🧠" },
-      { value: "creative", label: "Creative", desc: "I enjoy designing, writing, and building new things", icon: "✨" },
-      { value: "social", label: "Social", desc: "I thrive working with people and teams", icon: "🤝" },
-      { value: "technical", label: "Technical", desc: "I enjoy working with machines, tools, or code", icon: "🔧" },
+      {
+        value: "analytical",
+        label: "Analytical",
+        desc: "I love solving problems with logic and data",
+        icon: Brain,
+      },
+      {
+        value: "creative",
+        label: "Creative",
+        desc: "I enjoy designing, writing, and building new things",
+        icon: Sparkles,
+      },
+      {
+        value: "social",
+        label: "Social",
+        desc: "I thrive working with people and teams",
+        icon: Handshake,
+      },
+      {
+        value: "technical",
+        label: "Technical",
+        desc: "I enjoy working with machines, tools, or code",
+        icon: Wrench,
+      },
     ],
   },
   {
-    step: 5,
     title: "What matters most to you in a career?",
     subtitle: "Pick your top priority. This shapes your recommendations.",
     field: "priority",
     options: [
-      { value: "salary", label: "High Salary", desc: "I want financial security and high earnings", icon: "💰" },
-      { value: "passion", label: "Passion & Purpose", desc: "I want to love what I do every day", icon: "❤️" },
-      { value: "stability", label: "Job Stability", desc: "I value a secure and steady career", icon: "🛡️" },
-      { value: "growth", label: "Growth & Learning", desc: "I want to constantly grow and upskill", icon: "📈" },
+      {
+        value: "salary",
+        label: "High Salary",
+        desc: "I want financial security and high earnings",
+        icon: IndianRupee,
+      },
+      {
+        value: "passion",
+        label: "Passion & Purpose",
+        desc: "I want to love what I do every day",
+        icon: Heart,
+      },
+      {
+        value: "stability",
+        label: "Job Stability",
+        desc: "I value a secure and steady career",
+        icon: Shield,
+      },
+      {
+        value: "growth",
+        label: "Growth & Learning",
+        desc: "I want to constantly grow and upskill",
+        icon: TrendingUp,
+      },
     ],
   },
 ];
 
 export default function OnboardingQuizPage() {
+  const navigate = useNavigate();
+  const updateProfile = useAuthStore((state) => state.updateProfile);
   const [currentStep, setCurrentStep] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [completed, setCompleted] = useState(false);
   const [answers, setAnswers] = useState({
     educationLevel: "",
     stream: "",
@@ -80,328 +221,203 @@ export default function OnboardingQuizPage() {
     workStyle: "",
     priority: "",
   });
-  const [completed, setCompleted] = useState(false);
 
-  const step = quizSteps[currentStep];
-  const progress = ((currentStep + 1) / quizSteps.length) * 100;
+  const step = QUIZ_STEPS[currentStep];
+  const progress = ((currentStep + 1) / QUIZ_STEPS.length) * 100;
 
-  /* Handle single select */
-  const handleSingleSelect = (field, value) => {
-    setAnswers({ ...answers, [field]: value });
+  const select = (value) => {
+    setAnswers((prev) => {
+      if (!step.multiple) return { ...prev, [step.field]: value };
+      const current = prev[step.field];
+      return {
+        ...prev,
+        [step.field]: current.includes(value)
+          ? current.filter((v) => v !== value)
+          : [...current, value],
+      };
+    });
   };
 
-  /* Handle multi select */
-  const handleMultiSelect = (field, value) => {
-    const current = answers[field];
-    if (current.includes(value)) {
-      setAnswers({ ...answers, [field]: current.filter(v => v !== value) });
-    } else {
-      setAnswers({ ...answers, [field]: [...current, value] });
+  const isSelected = (value) =>
+    step.multiple ? answers[step.field].includes(value) : answers[step.field] === value;
+
+  const isStepValid = step.multiple ? answers[step.field].length > 0 : answers[step.field] !== "";
+
+  const handleNext = async () => {
+    if (currentStep < QUIZ_STEPS.length - 1) {
+      setCurrentStep((s) => s + 1);
+      return;
     }
-  };
 
-  /* Check if current step has a valid answer */
-  const isStepValid = () => {
-    const val = answers[step.field];
-    if (step.multiple) return val.length > 0;
-    return val !== "";
-  };
-
-  /* Go to next step */
-  const handleNext = () => {
-    if (currentStep < quizSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
+    setSubmitting(true);
+    try {
+      const { data } = await submitQuiz(answers);
+      updateProfile(data.data.user);
       setCompleted(true);
-      console.log("Quiz Answers:", answers);
+    } catch {
+      toast.error("Couldn't submit your quiz. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  /* Go back */
-  const handleBack = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  };
-
-  /* Check if option is selected */
-  const isSelected = (field, value) => {
-    if (step.multiple) return answers[field].includes(value);
-    return answers[field] === value;
-  };
+  if (completed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+        <SEOHead title="Quiz Complete" />
+        <div className="max-w-md text-center">
+          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark shadow-lg shadow-primary/25">
+            <CheckCircle size={40} className="text-white" />
+          </div>
+          <h1 className="font-heading text-3xl font-bold text-slate-900 dark:text-slate-50">
+            Your profile is ready!
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-slate-500 dark:text-slate-400">
+            We've analysed your answers and matched you to career paths that fit. Check out your
+            personalised recommendations.
+          </p>
+          <button
+            onClick={() => navigate("/recommendations")}
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 hover:bg-primary-dark"
+          >
+            View My Recommendations
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8f9ff", fontFamily: "'DM Sans', sans-serif" }}>
+    <div className="min-h-screen bg-background">
+      <SEOHead title="Career Quiz" />
 
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f8f9ff; }
-
-        .grad-text {
-          background: linear-gradient(135deg, #1e293b 20%, #6366f1 70%, #38bdf8 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        /* Option card */
-        .option-card {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding: 16px 20px;
-          border: 2px solid rgba(99,102,241,0.12);
-          border-radius: 14px;
-          background: #ffffff;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          box-shadow: 0 2px 8px rgba(99,102,241,0.05);
-        }
-        .option-card:hover {
-          border-color: rgba(99,102,241,0.35);
-          box-shadow: 0 4px 20px rgba(99,102,241,0.12);
-          transform: translateY(-1px);
-        }
-        .option-card.selected {
-          border-color: #6366f1;
-          background: rgba(99,102,241,0.04);
-          box-shadow: 0 4px 20px rgba(99,102,241,0.15);
-        }
-
-        /* Next button */
-        .next-btn {
-          padding: 14px 32px;
-          border: none;
-          border-radius: 12px;
-          font-size: 1rem;
-          font-weight: 600;
-          font-family: 'DM Sans', sans-serif;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #6366f1, #4f46e5);
-          color: #ffffff;
-          transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-        }
-        .next-btn:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(99,102,241,0.35);
-        }
-        .next-btn:disabled {
-          opacity: 0.45;
-          cursor: not-allowed;
-        }
-
-        /* Back button */
-        .back-btn {
-          padding: 14px 24px;
-          border: 1.5px solid rgba(99,102,241,0.2);
-          border-radius: 12px;
-          font-size: 1rem;
-          font-weight: 500;
-          font-family: 'DM Sans', sans-serif;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #ffffff;
-          color: #64748b;
-          transition: border-color 0.2s, color 0.2s;
-        }
-        .back-btn:hover {
-          border-color: rgba(99,102,241,0.4);
-          color: #6366f1;
-        }
-
-        /* Progress bar */
-        .progress-fill {
-          height: 100%;
-          border-radius: 4px;
-          background: linear-gradient(90deg, #6366f1, #818cf8);
-          transition: width 0.4s ease;
-        }
-
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeUp 0.4s ease forwards; }
-
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-        .scale-in { animation: scaleIn 0.5s ease forwards; }
-
-        /* Options grid */
-        .options-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .options-grid-1 { display: grid; grid-template-columns: 1fr; gap: 12px; }
-
-        @media (max-width: 600px) {
-          .options-grid-2 { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-
-      {/* ── NAVBAR ── */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: "rgba(255,255,255,0.92)",
-        borderBottom: "1px solid rgba(99,102,241,0.12)",
-        backdropFilter: "blur(20px)",
-      }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <GraduationCap size={24} color="#6366f1" />
-            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: "1.1rem" }}>
-              <span className="grad-text">Smart Career</span>
-              <span style={{ color: "#6366f1" }}> Advisor</span>
+      <nav className="fixed inset-x-0 top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
+          <Logo size="md" to="/" />
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              Step <strong className="text-primary">{currentStep + 1}</strong> of{" "}
+              {QUIZ_STEPS.length}
             </span>
-          </a>
-          <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
-            Step <strong style={{ color: "#6366f1" }}>{currentStep + 1}</strong> of {quizSteps.length}
-          </span>
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 
-      {/* ── MAIN CONTENT ── */}
-      <div style={{ paddingTop: 64, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-        {/* Progress bar */}
-        <div style={{ height: 4, background: "rgba(99,102,241,0.1)", position: "sticky", top: 64, zIndex: 99 }}>
-          <div className="progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-
-        {/* ── COMPLETED STATE ── */}
-        {completed ? (
-          <div className="scale-in" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 24px" }}>
-            <div style={{ textAlign: "center", maxWidth: 480 }}>
-              <div style={{
-                width: 80, height: 80, borderRadius: "50%",
-                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 24px",
-                boxShadow: "0 8px 32px rgba(99,102,241,0.35)",
-              }}>
-                <CheckCircle size={40} color="#ffffff" />
-              </div>
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: "2rem", fontWeight: 800, color: "#1e293b", marginBottom: 12 }}>
-                Your profile is ready!
-              </h2>
-              <p style={{ color: "#64748b", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: 32 }}>
-                We have analysed your answers and found the best career paths for you. Let's explore your personalised dashboard.
-              </p>
-              <a href="/dashboard" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                color: "#ffffff", padding: "14px 36px", borderRadius: 12,
-                fontWeight: 600, fontSize: "1rem", textDecoration: "none",
-                fontFamily: "'DM Sans', sans-serif",
-                boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
-                transition: "transform 0.2s",
-              }}
-                onMouseEnter={e => e.target.style.transform = "translateY(-2px)"}
-                onMouseLeave={e => e.target.style.transform = "translateY(0)"}>
-                Go to My Dashboard <ArrowRight size={18} />
-              </a>
-            </div>
-          </div>
-
-        ) : (
-
-          /* ── QUIZ STEPS ── */
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "48px 24px 80px" }}>
-            <div style={{ width: "100%", maxWidth: 720 }} key={currentStep} className="fade-up">
-
-              {/* Step indicator dots */}
-              <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 40 }}>
-                {quizSteps.map((_, i) => (
-                  <div key={i} style={{
-                    height: 8, borderRadius: 4,
-                    width: i === currentStep ? 24 : 8,
-                    background: i <= currentStep ? "#6366f1" : "rgba(99,102,241,0.15)",
-                    transition: "all 0.3s ease",
-                  }} />
-                ))}
-              </div>
-
-              {/* Question */}
-              <div style={{ textAlign: "center", marginBottom: 36 }}>
-                <span style={{ color: "#6366f1", fontSize: "0.8rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                  Question {step.step} of {quizSteps.length}
-                </span>
-                <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: "clamp(1.4rem, 3vw, 2rem)", fontWeight: 800, color: "#1e293b", marginTop: 10, marginBottom: 10, lineHeight: 1.3 }}>
-                  {step.title}
-                </h2>
-                <p style={{ color: "#64748b", fontSize: "0.95rem" }}>{step.subtitle}</p>
-                {step.multiple && (
-                  <span style={{ display: "inline-block", marginTop: 8, background: "rgba(99,102,241,0.08)", color: "#6366f1", padding: "4px 14px", borderRadius: 50, fontSize: "0.78rem", fontWeight: 600, border: "1px solid rgba(99,102,241,0.2)" }}>
-                    Select all that apply
-                  </span>
-                )}
-              </div>
-
-              {/* Options */}
-              <div className={step.options.length > 4 ? "options-grid-2" : "options-grid-1"}>
-                {step.options.map((opt) => (
-                  <div key={opt.value}
-                    className={`option-card ${isSelected(step.field, opt.value) ? "selected" : ""}`}
-                    onClick={() => step.multiple
-                      ? handleMultiSelect(step.field, opt.value)
-                      : handleSingleSelect(step.field, opt.value)
-                    }>
-
-                    {/* Icon box */}
-                    <div style={{
-                      width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                      background: isSelected(step.field, opt.value) ? "rgba(99,102,241,0.12)" : "#f8f9ff",
-                      border: isSelected(step.field, opt.value) ? "1px solid rgba(99,102,241,0.3)" : "1px solid rgba(99,102,241,0.08)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: "1.4rem", transition: "all 0.2s",
-                    }}>
-                      {opt.icon}
-                    </div>
-
-                    {/* Text */}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: "0.95rem", color: isSelected(step.field, opt.value) ? "#6366f1" : "#1e293b", marginBottom: 3, transition: "color 0.2s" }}>
-                        {opt.label}
-                      </div>
-                      <div style={{ fontSize: "0.82rem", color: "#64748b", lineHeight: 1.4 }}>
-                        {opt.desc}
-                      </div>
-                    </div>
-
-                    {/* Selected checkmark */}
-                    {isSelected(step.field, opt.value) && (
-                      <CheckCircle size={20} color="#6366f1" style={{ flexShrink: 0 }} />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Navigation buttons */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 40 }}>
-                <div>
-                  {currentStep > 0 && (
-                    <button className="back-btn" onClick={handleBack}>
-                      <ArrowLeft size={18} /> Back
-                    </button>
-                  )}
-                </div>
-                <button className="next-btn" onClick={handleNext} disabled={!isStepValid()}>
-                  {currentStep === quizSteps.length - 1 ? "Get My Results" : "Next"}
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-
-            </div>
-          </div>
-        )}
+      <div className="sticky top-16 z-30 h-1 bg-primary-light">
+        <div
+          className="h-full bg-primary transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
+      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pb-20 pt-12">
+        <div className="mb-10 flex gap-2">
+          {QUIZ_STEPS.map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                "h-2 rounded-full transition-all",
+                i === currentStep
+                  ? "w-6 bg-primary"
+                  : i < currentStep
+                    ? "w-2 bg-primary"
+                    : "w-2 bg-primary-light",
+              )}
+            />
+          ))}
+        </div>
+
+        <div className="mb-9 w-full text-center">
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+            Question {currentStep + 1} of {QUIZ_STEPS.length}
+          </span>
+          <h1 className="mt-2.5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">
+            {step.title}
+          </h1>
+          <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">{step.subtitle}</p>
+          {step.multiple && (
+            <span className="mt-2 inline-block rounded-full bg-primary-light px-3.5 py-1 text-xs font-semibold text-primary-dark">
+              Select all that apply
+            </span>
+          )}
+        </div>
+
+        <div
+          className={cn(
+            "grid w-full gap-3",
+            step.options.length > 4 ? "sm:grid-cols-2" : "grid-cols-1",
+          )}
+        >
+          {step.options.map((opt) => {
+            const selected = isSelected(opt.value);
+            return (
+              <button
+                key={opt.value}
+                onClick={() => select(opt.value)}
+                className={cn(
+                  "flex items-center gap-4 rounded-2xl border-2 bg-surface p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+                  selected ? "border-primary bg-primary-light/40 shadow-md" : "border-border",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex size-12 shrink-0 items-center justify-center rounded-xl",
+                    selected ? "bg-primary-light" : "bg-background",
+                  )}
+                >
+                  <opt.icon
+                    size={22}
+                    strokeWidth={1.8}
+                    className={selected ? "text-primary-dark" : "text-slate-500 dark:text-slate-400"}
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block font-heading text-sm font-bold",
+                      selected ? "text-primary-dark" : "text-slate-900 dark:text-slate-50",
+                    )}
+                  >
+                    {opt.label}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-snug text-slate-500 dark:text-slate-400">
+                    {opt.desc}
+                  </span>
+                </span>
+                {selected && <CheckCircle size={20} className="shrink-0 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-10 flex w-full items-center justify-between">
+          <div>
+            {currentStep > 0 && (
+              <button
+                onClick={() => setCurrentStep((s) => s - 1)}
+                className="flex items-center gap-2 rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary"
+              >
+                <ArrowLeft size={18} />
+                Back
+              </button>
+            )}
+          </div>
+          <button
+            onClick={handleNext}
+            disabled={!isStepValid || submitting}
+            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-45"
+          >
+            {submitting
+              ? "Submitting…"
+              : currentStep === QUIZ_STEPS.length - 1
+                ? "Get My Results"
+                : "Next"}
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

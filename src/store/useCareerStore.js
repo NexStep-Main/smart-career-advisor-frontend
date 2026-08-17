@@ -3,22 +3,15 @@ import { persist } from "zustand/middleware";
 
 const MAX_COMPARE = 3;
 
-/** Saved careers + comparison tray, shared across Explorer/Details/Compare pages. */
+// Comparison tray only — there's no backend model for "careers being
+// compared right now" (nor should there be, it's ephemeral UI state), so
+// this stays client-side. Saved/bookmarked careers are NOT here: those are
+// backed by the real /api/bookmarks endpoints (see services/bookmarks.js),
+// used directly by CareerCard/BookmarksPage/CareerDetailsPage.
 const useCareerStore = create(
   persist(
     (set, get) => ({
-      savedCareers: [],
       compareList: [],
-
-      toggleSave: (career) =>
-        set((state) => {
-          const exists = state.savedCareers.some((c) => c.id === career.id);
-          return {
-            savedCareers: exists
-              ? state.savedCareers.filter((c) => c.id !== career.id)
-              : [...state.savedCareers, career],
-          };
-        }),
 
       addToCompare: (career) => {
         const { compareList } = get();
@@ -31,8 +24,8 @@ const useCareerStore = create(
       removeFromCompare: (id) =>
         set((state) => ({ compareList: state.compareList.filter((c) => c.id !== id) })),
     }),
-    { name: "sca-careers" }
-  )
+    { name: "nexstep-compare" },
+  ),
 );
 
 export default useCareerStore;

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const FAQS = [
   {
-    q: "Is Smart Career Advisor free to use?",
+    q: "Is NexStep free to use?",
     a: "Yes — 100% free for all students. We believe career guidance should be accessible to everyone, not just those who can afford counsellors.",
   },
   {
@@ -41,19 +41,21 @@ export default function FaqSection() {
                   className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
                   aria-expanded={isOpen}
                 >
-                  <span className="font-heading text-sm font-semibold text-slate-900">
+                  <span className="font-heading text-sm font-semibold text-slate-900 dark:text-slate-50">
                     {faq.q}
                   </span>
                   <ChevronDown
                     size={18}
                     className={cn(
                       "shrink-0 text-primary transition-transform",
-                      isOpen && "rotate-180"
+                      isOpen && "rotate-180",
                     )}
                   />
                 </button>
                 {isOpen && (
-                  <p className="px-5 pb-4 text-sm leading-relaxed text-slate-500">{faq.a}</p>
+                  <p className="px-5 pb-4 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                    {faq.a}
+                  </p>
                 )}
               </div>
             );

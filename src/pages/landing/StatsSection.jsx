@@ -13,10 +13,10 @@ export default function StatsSection() {
       <FadeIn className="mx-auto grid max-w-4xl grid-cols-2 gap-8 sm:grid-cols-4">
         {STATS.map((stat) => (
           <div key={stat.label} className="text-center">
-            <div className="font-heading text-3xl font-bold text-slate-900 sm:text-4xl">
+            <div className="font-heading text-3xl font-bold text-slate-900 dark:text-slate-50 sm:text-4xl">
               {stat.value}
             </div>
-            <div className="mt-1 text-sm text-slate-500">{stat.label}</div>
+            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">{stat.label}</div>
           </div>
         ))}
       </FadeIn>

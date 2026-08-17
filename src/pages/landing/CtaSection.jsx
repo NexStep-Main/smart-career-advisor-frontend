@@ -7,12 +7,11 @@ export default function CtaSection() {
   return (
     <section className="px-6 py-20">
       <FadeIn className="mx-auto max-w-3xl rounded-2xl border border-primary-light bg-primary-light/40 px-8 py-14 text-center">
-        <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl">
+        <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">
           Ready to find your perfect career path?
         </h2>
-        <p className="mx-auto mt-3 max-w-md text-sm text-slate-600">
-          Join thousands of students who found their direction using Smart Career Advisor.
-          It’s completely free.
+        <p className="mx-auto mt-3 max-w-md text-sm text-slate-600 dark:text-slate-300">
+          Join thousands of students who found their direction using NexStep. It’s completely free.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Button asChild size="lg">

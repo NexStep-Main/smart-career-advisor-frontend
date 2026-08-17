@@ -1,17 +1,10 @@
 import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Compass,
-  Sparkles,
-  Scale,
-  Bookmark,
-  User,
-  GraduationCap,
-} from "lucide-react";
+import { LayoutDashboard, Compass, Sparkles, Scale, Bookmark, User } from "lucide-react";
+import Logo from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
 
 // Routes match the app's existing registered paths (App.jsx). See
-// "Route naming" in the migration punch-list for the Guide's proposed names.
+//"Route naming" in the migration punch-list for the Guide's proposed names.
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Explore", to: "/careers", icon: Compass },
@@ -25,9 +18,8 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
-      <div className="flex h-16 items-center gap-2 border-b border-border px-6 font-heading text-base font-bold text-slate-900">
-        <GraduationCap className="text-primary" size={22} />
-        Career Advisor
+      <div className="flex h-16 items-center border-b border-border px-6">
+        <Logo size="md" />
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-4">
@@ -40,7 +32,7 @@ export default function Sidebar() {
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary-light text-primary-dark"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-50",
               )
             }
           >

@@ -14,15 +14,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Log the user out on a 401 so stale tokens don't loop forever.
+// Log the user out on a 401 so stale tokens don't loop forever — unless
+// running under the dev bypass (no backend/DB yet), where every call 401s
+// and would otherwise bounce the admin straight back to the login screen.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !localStorage.getItem("sca-dev-bypass")) {
       useAuthStore.getState().logout();
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
