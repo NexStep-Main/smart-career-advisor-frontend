@@ -1,29 +1,55 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import FadeIn from "@/components/common/FadeIn";
 import Button from "@/components/ui/Button";
+import { getPublicStats } from "@/services/publicStats";
+
+// Below this, a raw headcount reads as embarrassing rather than reassuring
+// ("Join 3 students") — falls back to an honest invite instead of a
+// fabricated-sounding number. Shares StatsSection's query cache/key, so this
+// costs no extra request.
+const SOCIAL_PROOF_THRESHOLD = 20;
 
 export default function CtaSection() {
+  const { data } = useQuery({
+    queryKey: ["publicStats"],
+    queryFn: () => getPublicStats().then((res) => res.data.data),
+  });
+  const totalStudents = data?.totalStudents ?? 0;
+
   return (
-    <section className="px-6 py-20">
-      <FadeIn className="mx-auto max-w-3xl rounded-2xl border border-primary-light bg-primary-light/40 px-8 py-14 text-center">
-        <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl">
-          Ready to find your perfect career path?
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-sm text-slate-600">
-          Join thousands of students who found their direction using Smart Career Advisor.
-          It’s completely free.
+    <section className="px-6 py-28 sm:py-40">
+      <FadeIn className="mx-auto max-w-6xl">
+        <p className="mb-10 font-mono text-xs uppercase tracking-[0.2em] text-ink-muted">
+          {totalStudents >= SOCIAL_PROOF_THRESHOLD
+            ? `Join ${totalStudents}+ students already mapping their path`
+            : "Be one of the first students to map your path"}
         </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg">
+
+        <h2 className="font-display text-[clamp(2.5rem,8vw,7rem)] leading-[0.95] tracking-tight text-ink">
+          Your next step
+          <br />
+          starts with <span className="italic">one quiz</span>
+          <span className="text-ink-faint">.</span>
+        </h2>
+
+        <div className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-6 border-t border-rule pt-10">
+          <Button asChild variant="ink" size="lg">
             <Link to="/register">
               Start free today
               <ArrowRight size={16} />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/careers">Browse careers</Link>
-          </Button>
+          <Link
+            to="/careers"
+            className="font-mono text-xs uppercase tracking-[0.2em] text-ink underline underline-offset-8 transition-opacity hover:opacity-60"
+          >
+            Or browse careers first
+          </Link>
+          <p className="ml-auto max-w-xs text-sm text-ink-muted">
+            Five minutes now saves months of second-guessing later. Free — no credit card, no catch.
+          </p>
         </div>
       </FadeIn>
     </section>

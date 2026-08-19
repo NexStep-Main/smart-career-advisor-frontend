@@ -3,10 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Career Advisor — Find Your Perfect Career Path</title>
-    <meta name="description" content="Free career guidance platform for Indian students after Class 10, 12, and Graduation. Personalised roadmaps, skill plans, and AI recommendations." />
+    <title>NexStep — Find Your Perfect Career Path</title>
+    <meta name="description" content="Free career guidance platform for Indian students after Class 10, 12, and Graduation. Personalised roadmaps, skill plans, and smart recommendations." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      (function () {
+        var stored = localStorage.getItem("nexstep-theme");
+        var theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.classList.toggle("dark", theme === "dark");
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

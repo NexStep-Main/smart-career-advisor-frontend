@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Logo from "@/components/common/Logo";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 
@@ -29,74 +31,90 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors",
-        scrolled ? "bg-surface/90 shadow-sm backdrop-blur-md" : "bg-transparent"
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
+        scrolled ? "border-b border-rule bg-paper/90 backdrop-blur-md" : "border-b border-transparent",
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2 font-heading text-lg font-bold text-slate-900">
-          <GraduationCap className="text-primary" size={24} />
-          Smart Career Advisor
-        </Link>
+      <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+        <Logo size="md" mono />
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-10 md:flex">
           {NAV_LINKS.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
-              className="text-sm text-slate-600 transition-colors hover:text-slate-900"
+              className="group relative py-1 font-mono text-xs uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
             >
               {link.label}
+              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ink transition-transform duration-300 group-hover:scale-x-100" />
             </NavLink>
           ))}
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-5 md:flex">
+          <ThemeToggle className="rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
           {isAuthenticated ? (
-            <Button asChild size="sm">
+            <Button asChild variant="ink" size="sm">
               <Link to="/dashboard">Dashboard</Link>
             </Button>
           ) : (
             <>
-              <Link to="/login" className="text-sm text-slate-600 hover:text-slate-900">
+              <Link
+                to="/login"
+                className="font-mono text-xs uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
+              >
                 Login
               </Link>
-              <Button asChild size="sm">
+              <Button asChild variant="ink" size="sm">
                 <Link to="/register">Get Started</Link>
               </Button>
             </>
           )}
         </div>
 
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="flex items-center justify-center rounded-lg border border-border p-2 md:hidden"
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle className="rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="flex items-center justify-center p-2 text-ink"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-border bg-surface px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-4">
+        <div className="border-t border-rule bg-paper px-6 py-6 md:hidden">
+          <div className="flex flex-col gap-5">
             {NAV_LINKS.map((link) => (
-              <NavLink key={link.to} to={link.to} className="text-sm text-slate-600" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className="font-display text-2xl text-ink"
+                onClick={() => setMenuOpen(false)}
+              >
                 {link.label}
               </NavLink>
             ))}
-            <div className="flex flex-col gap-2 border-t border-border pt-4">
+            <div className="flex flex-col gap-3 border-t border-rule pt-5">
               {isAuthenticated ? (
-                <Button asChild size="sm">
-                  <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                <Button asChild variant="ink" size="sm">
+                  <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
+                    Dashboard
+                  </Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
+                  <Button asChild variant="inkOutline" size="sm">
+                    <Link to="/login" onClick={() => setMenuOpen(false)}>
+                      Login
+                    </Link>
                   </Button>
-                  <Button asChild size="sm">
-                    <Link to="/register" onClick={() => setMenuOpen(false)}>Get Started</Link>
+                  <Button asChild variant="ink" size="sm">
+                    <Link to="/register" onClick={() => setMenuOpen(false)}>
+                      Get Started
+                    </Link>
                   </Button>
                 </>
               )}

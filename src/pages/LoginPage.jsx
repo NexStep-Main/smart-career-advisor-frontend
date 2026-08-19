@@ -23,23 +23,28 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(loginSchema) });
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: location.state?.prefillEmail ?? "" },
+  });
 
   const onSubmit = async (values) => {
     try {
       const { data } = await loginRequest(values);
-      login(data.user, data.token);
+      login(data.data.user, data.data.token, values.rememberMe ?? true);
       navigate(location.state?.from?.pathname ?? "/dashboard", { replace: true });
-    } catch {
-      toast.error("Invalid email or password.");
+    } catch (error) {
+      toast.error(error.response?.data?.message ?? "Invalid email or password.");
     }
   };
 
   return (
     <>
       <SEOHead title="Login" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900">Welcome back</h1>
-      <p className="mb-6 text-sm text-slate-500">
+      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+        Welcome back
+      </h1>
+      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
         Log in to continue your career journey.
       </p>
 
@@ -70,7 +75,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -80,13 +85,17 @@ export default function LoginPage() {
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2 text-slate-600">
-            <input type="checkbox" className="size-4 rounded border-border" {...register("rememberMe")} />
+          <label className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+            <input
+              type="checkbox"
+              className="size-4 rounded border-border"
+              {...register("rememberMe")}
+            />
             Remember me
           </label>
-          <a href="#" className="font-medium text-primary hover:underline">
+          <Link to="/forgot-password" className="font-medium text-primary hover:underline">
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
@@ -95,7 +104,7 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Don't have an account?{" "}
         <Link to="/register" className="font-medium text-primary hover:underline">
           Sign up

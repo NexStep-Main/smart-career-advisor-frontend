@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, UserRound } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -21,6 +21,7 @@ const EDUCATION_LEVELS = [
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [existingEmail, setExistingEmail] = useState(null);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
 
@@ -33,26 +34,76 @@ export default function RegisterPage() {
   const onSubmit = async (values) => {
     try {
       const { data } = await registerRequest(values);
-      login(data.user, data.token);
+      login(data.data.user, data.data.token);
       navigate("/onboarding", { replace: true });
-    } catch {
-      toast.error("Couldn't create your account. Please try again.");
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setExistingEmail(values.email);
+        return;
+      }
+      toast.error(
+        error.response?.data?.message ?? "Couldn't create your account. Please try again.",
+      );
     }
   };
+
+  if (existingEmail) {
+    return (
+      <>
+        <SEOHead title="Account already exists" />
+        <div className="flex flex-col items-center text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-primary-light">
+            <UserRound className="text-primary" size={26} strokeWidth={1.8} />
+          </div>
+          <h1 className="mt-5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+            You already have an account
+          </h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <span className="font-medium text-slate-700 dark:text-slate-200">{existingEmail}</span>{" "}
+            is already registered. Log in instead, or use a different email to sign up.
+          </p>
+
+          <Link
+            to="/login"
+            state={{ prefillEmail: existingEmail }}
+            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+          >
+            <LogIn size={16} />
+            Log in instead
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setExistingEmail(null)}
+            className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:underline"
+          >
+            Use a different email
+          </button>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <SEOHead title="Create Account" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900">Create your account</h1>
-      <p className="mb-6 text-sm text-slate-500">
+      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+        Create your account
+      </h1>
+      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
         Free forever — get your personalised career roadmap.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <div>
-          <Label htmlFor="name">Full name</Label>
-          <Input id="name" placeholder="Riya Sharma" error={!!errors.name} {...register("name")} />
-          <FormError message={errors.name?.message} />
+          <Label htmlFor="fullName">Full name</Label>
+          <Input
+            id="fullName"
+            placeholder="Riya Sharma"
+            error={!!errors.fullName}
+            {...register("fullName")}
+          />
+          <FormError message={errors.fullName?.message} />
         </div>
 
         <div>
@@ -72,7 +123,7 @@ export default function RegisterPage() {
           <select
             id="educationLevel"
             defaultValue=""
-            className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             {...register("educationLevel")}
           >
             <option value="" disabled>
@@ -101,7 +152,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 hover:text-slate-600"
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -128,7 +179,7 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Already have an account?{" "}
         <Link to="/login" className="font-medium text-primary hover:underline">
           Log in

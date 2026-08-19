@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Menu, LogOut, X } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
+import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
 
 /**
@@ -25,9 +26,12 @@ export default function DashboardLayout() {
       {/* Mobile sidebar drawer */}
       {mobileNavOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setMobileNavOpen(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={() => setMobileNavOpen(false)}
+          />
           <div className="absolute inset-y-0 left-0 w-64 bg-surface shadow-lg">
-            <Sidebar />
+            <Sidebar mobile onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </div>
       )}
@@ -43,15 +47,16 @@ export default function DashboardLayout() {
           </button>
 
           <div className="ml-auto flex items-center gap-4">
-            <span className="hidden text-sm text-slate-600 sm:inline">
-              {user?.name ?? "Student"}
+            <span className="hidden text-sm text-slate-600 dark:text-slate-300 sm:inline">
+              {user?.fullName ?? "Student"}
             </span>
             <div className="flex size-9 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
-              {(user?.name ?? "S").charAt(0).toUpperCase()}
+              {(user?.fullName ?? "S").charAt(0).toUpperCase()}
             </div>
+            <ThemeToggle />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-500"
+              className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-red-500"
             >
               <LogOut size={16} />
               <span className="hidden sm:inline">Logout</span>

@@ -1,37 +1,150 @@
-/* Google Fonts — Sora (headings), Inter (body), JetBrains Mono (code/tags).
+/* Google Fonts — Bricolage Grotesque (headings, a distinctive premium display
+   face), Inter (body, best-in-class readability), JetBrains Mono (code/tags).
    Must precede @import "tailwindcss" — Tailwind's import inlines rules
    immediately, and @import must come before any other rule in the output. */
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-/* ── Design tokens — see Frontend Guide.md § Design System ── */
+/* Tailwind v4 has no tailwind.config.js `darkMode` option — this is the
+   CSS-first equivalent. Toggling the `.dark` class on <html> (see
+   store/useThemeStore.js) flips every `dark:` utility below. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens — see Frontend Guide.md § Design System ──
+   Semantic colors (primary/secondary/surface/background/border/accents) are
+   defined as runtime CSS custom properties on :root / .dark, then re-exposed
+   through @theme so Tailwind still generates bg-primary/text-primary/etc
+   utilities — but their actual value now depends on the active theme class
+   instead of being baked in at build time. */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-primary: #1a56db;
-  --color-primary-dark: #1e429f;
-  --color-primary-light: #dbeafe;
+  /* Editorial (landing page only) — a strict near-black/near-white scale that
+     flips with the theme. Deliberately separate from the app's semantic
+     tokens below: the dashboard/admin portal keeps its emerald UI, while the
+     public landing page runs monochrome. Hierarchy there comes from type
+     scale and spacing, so these are the only "colors" it needs. */
+  --color-paper: var(--nx-paper);
+  --color-ink: var(--nx-ink);
+  --color-ink-muted: var(--nx-ink-muted);
+  --color-ink-faint: var(--nx-ink-faint);
+  --color-rule: var(--nx-rule);
 
-  --color-secondary: #0694a2;
-  --color-secondary-dark: #0e7490;
-  --color-secondary-light: #cffafe;
+  --color-primary: var(--nx-primary);
+  --color-primary-dark: var(--nx-primary-dark);
+  --color-primary-light: var(--nx-primary-light);
 
-  --color-surface: #ffffff;
-  --color-background: #f9fafb;
-  --color-border: #e5e7eb;
+  --color-secondary: var(--nx-secondary);
+  --color-secondary-dark: var(--nx-secondary-dark);
+  --color-secondary-light: var(--nx-secondary-light);
 
-  --color-accent-green: #057a55;
-  --color-accent-orange: #d03801;
+  --color-surface: var(--nx-surface);
+  --color-background: var(--nx-background);
+  --color-border: var(--nx-border);
 
-  --color-domain-tech: #1a56db;
-  --color-domain-healthcare: #057a55;
+  --color-accent-green: var(--nx-accent-green);
+  --color-accent-orange: var(--nx-accent-orange);
+
+  --color-domain-tech: var(--nx-primary);
+  --color-domain-healthcare: var(--nx-accent-green);
   --color-domain-arts: #7e3af2;
-  --color-domain-commerce: #d97706;
+  --color-domain-commerce: var(--nx-secondary);
   --color-domain-science: #0694a2;
   --color-domain-law: #c27803;
   --color-domain-design: #e02424;
+}
+
+/* NexStep palette — ONE accent signal: confident emerald (growth, forward
+   motion, "green light to proceed" — the most literal fit for a career-
+   advancement product), used consistently for every CTA/highlight instead
+   of splitting attention between two competing hues. `secondary` is now a
+   true neutral (graphite/slate) for lower-emphasis UI, not a second accent —
+   see Frontend Guide.md § Design System. */
+:root {
+  --nx-primary: #059669;
+  --nx-primary-dark: #047857;
+  --nx-primary-light: #d1fae5;
+
+  --nx-secondary: #475569;
+  --nx-secondary-dark: #334155;
+  --nx-secondary-light: #f1f5f9;
+
+  --nx-surface: #ffffff;
+  --nx-background: #f8f7fc;
+  --nx-border: #e7e4f4;
+
+  --nx-accent-green: #057a55;
+  --nx-accent-orange: #d03801;
+
+  /* Editorial scale — warm off-white paper, near-black ink. */
+  --nx-paper: #faf9f7;
+  --nx-ink: #0f0f0f;
+  --nx-ink-muted: #6b6a67;
+  --nx-ink-faint: #9d9c98;
+  --nx-rule: #e3e1dc;
+}
+
+.dark {
+  --nx-primary: #34d399;
+  --nx-primary-dark: #6ee7b7;
+  --nx-primary-light: #0a2e22;
+
+  --nx-secondary: #94a3b8;
+  --nx-secondary-dark: #cbd5e1;
+  --nx-secondary-light: #1e293b;
+
+  --nx-surface: #14131c;
+  --nx-background: #0b0a12;
+  --nx-border: #27253a;
+
+  --nx-accent-green: #34d399;
+  --nx-accent-orange: #fb923c;
+
+  --nx-paper: #0b0b0b;
+  --nx-ink: #f5f4f2;
+  --nx-ink-muted: #8f8e8a;
+  --nx-ink-faint: #5f5e5b;
+  --nx-rule: #242422;
+}
+
+/* Film-grain texture — a faint noise layer so gradient/glow sections read as
+   a designed surface instead of a flat CSS gradient. Applied at very low
+   opacity via a wrapping element, never directly on text-bearing containers. */
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* Marquee — the track holds the content twice, so translating exactly -50%
+   lands on the identical copy and loops with no visible seam. */
+@keyframes nx-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: nx-marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: nx-marquee var(--marquee-duration, 40s) linear infinite reverse;
+}
+
+/* Anything that scrolls or counts on its own must stop for users who ask the
+   OS to reduce motion — the marquee freezes mid-strip (still readable) and
+   CountUp renders its final value immediately (see components/common). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-reverse {
+    animation: none;
+  }
 }
 
 @layer base {
@@ -46,7 +159,7 @@
   }
 
   body {
-    @apply bg-background text-slate-900 font-sans antialiased;
+    @apply bg-background text-slate-900 dark:text-slate-50 font-sans antialiased transition-colors duration-200;
   }
 
   h1,

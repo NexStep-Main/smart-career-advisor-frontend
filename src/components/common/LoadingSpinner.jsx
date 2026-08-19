@@ -8,7 +8,7 @@ export default function LoadingSpinner({ fullPage = false, className }) {
       className={cn(
         "flex items-center justify-center",
         fullPage && "min-h-screen w-full",
-        className
+        className,
       )}
     >
       <Loader2 className="animate-spin text-primary" size={28} strokeWidth={2} />

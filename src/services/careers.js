@@ -1,6 +1,10 @@
 import api from "./api";
 
 export const getCareers = (filters) => api.get("/careers", { params: filters });
+export const getTrendingCareers = (limit) => api.get("/careers/trending", { params: { limit } });
 export const getCareerById = (id) => api.get(`/careers/${id}`);
-export const getRecommendations = () => api.get("/recommendations");
-export const saveCareer = (id) => api.post(`/careers/${id}/save`);
+
+// Admin mutations — server requires an admin-role JWT for all three.
+export const createCareer = (payload) => api.post("/careers", payload);
+export const updateCareer = (id, payload) => api.put(`/careers/${id}`, payload);
+export const deleteCareer = (id) => api.delete(`/careers/${id}`);

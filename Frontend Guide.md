@@ -1,6 +1,6 @@
-# 🎯 Smart Career Advisor — Frontend Developer Guide
+# 🎯 NexStep — Frontend Developer Guide
 
-> **Project:** Smart Career Advisor — Final Year Project (B.Tech CSE)  
+> **Project:** NexStep — Final Year Project (B.Tech CSE)  
 > **Goal:** A career guidance web platform for students after Class 10, 12, or Graduation  
 > **Frontend Lead:** Anirban  
 > **Stack:** React (Vite) + Tailwind CSS  
@@ -414,7 +414,7 @@ Use these prompt templates when asking Claude to build any component:
 
 ### 🔧 Template 1 — Build a New Component
 ```
-I'm building "Smart Career Advisor" — a React (Vite) + Tailwind CSS + shadcn/ui 
+I'm building "NexStep" — a React (Vite) + Tailwind CSS + shadcn/ui 
 career guidance platform for Indian students.
 
 Build me the [COMPONENT NAME] component.
@@ -437,7 +437,7 @@ Current page context: [WHICH PAGE THIS IS FOR]
 
 ### 🔧 Template 2 — Fix / Modify a Component
 ```
-This is my [COMPONENT NAME] from Smart Career Advisor (React + Tailwind):
+This is my [COMPONENT NAME] from NexStep (React + Tailwind):
 
 [PASTE YOUR CODE]
 
@@ -448,7 +448,7 @@ Keep the existing design system (Sora/Inter fonts, #1A56DB primary color).
 
 ### 🔧 Template 3 — Build a Full Page
 ```
-Build the [PAGE NAME] page for Smart Career Advisor.
+Build the [PAGE NAME] page for NexStep.
 
 Tech: React (Vite), Tailwind CSS, shadcn/ui, Lucide React, Framer Motion
 Route: [ROUTE PATH]
@@ -551,11 +551,11 @@ npm install date-fns react-hot-toast react-helmet-async
 ```bash
 # frontend/.env.local  (never commit this file)
 VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=Smart Career Advisor
+VITE_APP_NAME=NexStep
 
 # frontend/.env.example  (commit this as reference)
 VITE_API_URL=http://localhost:5000/api
-VITE_APP_NAME=Smart Career Advisor
+VITE_APP_NAME=NexStep
 ```
 
 ---
