@@ -40,14 +40,31 @@ const useAuthStore = create(
         // AdminLoginPage's "skip login" button) — otherwise the stale flag
         // makes api.js's 401 interceptor swallow errors it shouldn't.
         localStorage.removeItem("sca-dev-bypass");
+        localStorage.removeItem("nexstep-dev-preview");
         localStorage.setItem(REMEMBER_KEY, String(rememberMe));
         set({ user, token, isAuthenticated: true });
       },
 
       logout: () => {
         localStorage.removeItem(REMEMBER_KEY);
+        localStorage.removeItem("nexstep-dev-preview");
         set({ user: null, token: null, isAuthenticated: false });
       },
+
+      startDevPreview: () =>
+        set({
+          user: {
+            id: "dev-student",
+            fullName: "Preview Student",
+            email: "student@local",
+            role: "admin",
+            educationLevel: "class12",
+            stream: "science",
+            quizCompleted: false,
+          },
+          token: "dev-preview-token",
+          isAuthenticated: true,
+        }),
 
       updateProfile: (data) =>
         set((state) => ({ user: state.user ? { ...state.user, ...data } : state.user })),

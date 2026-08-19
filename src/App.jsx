@@ -35,6 +35,17 @@ import AdminRoadmapsPage from "./pages/admin/AdminRoadmapsPage";
 import AdminRoadmapFormPage from "./pages/admin/AdminRoadmapFormPage";
 import AdminStudentsPage from "./pages/admin/AdminStudentsPage";
 
+const DEV_PREVIEW_KEY = "nexstep-dev-preview";
+const isDevPreview =
+  import.meta.env.DEV &&
+  (localStorage.getItem(DEV_PREVIEW_KEY) === "true" ||
+    new URLSearchParams(window.location.search).has("preview"));
+
+if (isDevPreview) {
+  localStorage.setItem(DEV_PREVIEW_KEY, "true");
+  useAuthStore.getState().startDevPreview();
+}
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
@@ -47,7 +58,7 @@ function App() {
   // the dev bypass is active; only a real token needs the async check.
   const [checkingSession, setCheckingSession] = useState(() => {
     const { token } = useAuthStore.getState();
-    return !!token && !localStorage.getItem("sca-dev-bypass");
+    return !!token && !localStorage.getItem("sca-dev-bypass") && !isDevPreview;
   });
 
   useEffect(() => {

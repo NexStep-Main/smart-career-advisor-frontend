@@ -19,16 +19,24 @@ export default function RecommendationPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <SEOHead title="Recommendations" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Recommended for You
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Careers matched to your quiz answers, education level, and stream.
-        </p>
+      <div className="relative overflow-hidden rounded-2xl border border-indigo-100 bg-linear-to-br from-white via-white to-indigo-50/80 p-6 shadow-[0_18px_45px_-32px_rgba(79,70,229,0.6)] dark:border-slate-700 dark:from-slate-950 dark:via-slate-950 dark:to-indigo-950/40">
+        <div className="relative z-10">
+          <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary">
+            <Sparkles size={14} />
+            Your career matches
+          </div>
+          <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
+            Recommended for <span className="text-primary">You</span>
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            Careers matched to your quiz answers, education level, and stream.
+          </p>
+        </div>
+        <div className="absolute -right-12 -top-16 size-44 rounded-full bg-indigo-200/50 blur-3xl dark:bg-indigo-500/15" />
+        <div className="absolute -bottom-20 right-24 size-32 rounded-full bg-primary/10 blur-2xl" />
       </div>
 
       {!quizCompleted ? (
@@ -43,9 +51,9 @@ export default function RecommendationPage() {
           }
         />
       ) : isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full" />
+            <Skeleton key={i} className="h-52 w-full rounded-xl" />
           ))}
         </div>
       ) : recommendations?.length === 0 ? (
@@ -60,7 +68,7 @@ export default function RecommendationPage() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {recommendations.map((career) => (
             <CareerCard key={career.id} career={career} />
           ))}
