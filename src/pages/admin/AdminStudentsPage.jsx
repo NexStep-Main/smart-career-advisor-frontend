@@ -101,11 +101,11 @@ export default function AdminStudentsPage() {
               <tbody>
                 {users.map((student) => (
                   <tr key={student.id} className="border-b border-border last:border-0">
-                    <td className="px-4 py-3 sm:px-6">
-                      <div className="font-medium text-slate-900 dark:text-slate-50">
+                    <td className="max-w-40 px-4 py-3 sm:max-w-none sm:px-6">
+                      <div className="truncate font-medium text-slate-900 dark:text-slate-50">
                         {student.fullName}
                       </div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500">
+                      <div className="truncate text-xs text-slate-400 dark:text-slate-500">
                         {student.email}
                       </div>
                     </td>

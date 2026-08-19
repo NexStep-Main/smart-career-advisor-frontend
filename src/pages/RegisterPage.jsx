@@ -180,7 +180,7 @@ export default function RegisterPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-        Already have an account?{""}
+        Already have an account?{" "}
         <Link to="/login" className="font-medium text-primary hover:underline">
           Log in
         </Link>

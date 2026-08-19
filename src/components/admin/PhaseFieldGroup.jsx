@@ -65,7 +65,7 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
           <FormError message={phaseErrors?.description?.message} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <Label htmlFor={`phases.${index}.skills`}>Skills (comma-separated)</Label>
             <Input
@@ -110,12 +110,12 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
                 >
                   <input
                     placeholder="Name"
-                    className="h-9 min-w-30 flex-1 rounded-md border border-border bg-surface px-3 text-xs text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-primary focus:outline-none"
+                    className="h-9 min-w-30 flex-1 basis-full rounded-md border border-border bg-surface px-3 text-xs text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-primary focus:outline-none sm:basis-auto"
                     {...register(`phases.${index}.resources.${rIndex}.name`)}
                   />
                   <input
                     placeholder="URL"
-                    className="h-9 min-w-35 flex-2 rounded-md border border-border bg-surface px-3 text-xs text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-primary focus:outline-none"
+                    className="h-9 min-w-35 flex-2 basis-full rounded-md border border-border bg-surface px-3 text-xs text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:border-primary focus:outline-none sm:basis-auto"
                     {...register(`phases.${index}.resources.${rIndex}.url`)}
                   />
                   <select

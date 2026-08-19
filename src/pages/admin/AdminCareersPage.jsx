@@ -33,7 +33,10 @@ export default function AdminCareersPage() {
       ),
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin", "careers"] });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "careers"] });
+    queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+  };
 
   const createMutation = useMutation({
     mutationFn: createCareer,
@@ -230,7 +233,7 @@ export default function AdminCareersPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title={`Delete"${deleteTarget?.title}"?`}
+        title={`Delete "${deleteTarget?.title}"?`}
         description="This will permanently remove the career from the platform. This action cannot be undone."
         loading={deleteMutation.isPending}
         onCancel={() => setDeleteTarget(null)}

@@ -28,7 +28,7 @@ export default function AdminLayout() {
             onClick={() => setMobileNavOpen(false)}
           />
           <div className="absolute inset-y-0 left-0 w-64 bg-surface shadow-lg">
-            <AdminSidebar />
+            <AdminSidebar mobile onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </div>
       )}

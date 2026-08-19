@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X, Filter } from "lucide-react";
 import CareerCard from "@/components/career/CareerCard";
@@ -23,31 +24,45 @@ const DEMAND_LEVELS = [
 ];
 
 export default function CareerExplorerPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [educationLevel, setEducationLevel] = useState("");
   const [demandLevel, setDemandLevel] = useState("");
+  // Seeded from the landing page's domain chips (/careers?domain=Technology) —
+  // read once on mount so a direct link/back-nav still reflects the URL.
+  const [domain, setDomain] = useState(() => searchParams.get("domain") ?? "");
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["careers", { search, educationLevel, demandLevel, page }],
+    queryKey: ["careers", { search, educationLevel, demandLevel, domain, page }],
     queryFn: () =>
       getCareers({
         search: search || undefined,
         educationLevel: educationLevel || undefined,
         demandLevel: demandLevel || undefined,
+        domain: domain || undefined,
         page,
         limit: 12,
       }).then((res) => res.data.data),
   });
 
   const careers = data?.careers ?? [];
-  const hasFilters = search || educationLevel || demandLevel;
+  const hasFilters = search || educationLevel || demandLevel || domain;
+
+  const clearDomain = () => {
+    setDomain("");
+    setPage(1);
+    setSearchParams((params) => {
+      params.delete("domain");
+      return params;
+    });
+  };
 
   const clearFilters = () => {
     setSearch("");
     setEducationLevel("");
     setDemandLevel("");
-    setPage(1);
+    clearDomain();
   };
 
   return (
@@ -81,7 +96,7 @@ export default function CareerExplorerPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Filter
             size={15}
             className="hidden shrink-0 text-slate-400 dark:text-slate-500 sm:block"
@@ -92,7 +107,7 @@ export default function CareerExplorerPage() {
               setEducationLevel(e.target.value);
               setPage(1);
             }}
-            className="h-11 rounded-lg border border-border bg-background px-3 text-sm text-slate-700 dark:text-slate-200 focus:border-primary focus:outline-none"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-slate-700 dark:text-slate-200 focus:border-primary focus:outline-none sm:flex-none"
           >
             {EDUCATION_LEVELS.map((l) => (
               <option key={l.value} value={l.value}>
@@ -106,7 +121,7 @@ export default function CareerExplorerPage() {
               setDemandLevel(e.target.value);
               setPage(1);
             }}
-            className="h-11 rounded-lg border border-border bg-background px-3 text-sm text-slate-700 dark:text-slate-200 focus:border-primary focus:outline-none"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-slate-700 dark:text-slate-200 focus:border-primary focus:outline-none sm:flex-none"
           >
             {DEMAND_LEVELS.map((l) => (
               <option key={l.value} value={l.value}>
@@ -117,7 +132,7 @@ export default function CareerExplorerPage() {
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-3 py-2.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-100"
+              className="flex shrink-0 items-center gap-1 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-3 py-2.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-100"
             >
               <X size={13} />
               Clear
@@ -125,6 +140,18 @@ export default function CareerExplorerPage() {
           )}
         </div>
       </div>
+
+      {domain && (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={clearDomain}
+            className="flex items-center gap-1.5 rounded-full bg-primary-light px-3 py-1.5 text-xs font-semibold text-primary-dark hover:bg-primary-light/70"
+          >
+            Domain: {domain}
+            <X size={12} />
+          </button>
+        </div>
+      )}
 
       <p className="text-sm text-slate-500 dark:text-slate-400">
         {isLoading ? "Loading…" : `Showing ${careers.length} of ${data?.total ?? 0} careers`}

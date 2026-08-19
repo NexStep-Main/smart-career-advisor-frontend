@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, TrendingUp, Scale } from "lucide-react";
+import { Bookmark, TrendingUp, Scale, Flame } from "lucide-react";
 import toast from "react-hot-toast";
 import DomainBadge from "./DomainBadge";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
  * rather than as a child of the Link.
  */
 export default function CareerCard({ career }) {
-  const { id, title, domain, matchPercent, salaryRange } = career;
+  const { id, title, domain, matchPercent, salaryRange, bookmarkCount } = career;
   const queryClient = useQueryClient();
 
   const { data: bookmarks } = useQuery({
@@ -111,6 +111,13 @@ export default function CareerCard({ career }) {
         <div className="flex items-center gap-2 text-sm font-medium text-accent-green">
           <TrendingUp size={15} />
           {matchPercent}% match
+        </div>
+      )}
+
+      {typeof bookmarkCount === "number" && (
+        <div className="flex items-center gap-2 text-sm font-medium text-secondary-dark">
+          <Flame size={15} />
+          {bookmarkCount} student{bookmarkCount === 1 ? "" : "s"} interested
         </div>
       )}
     </div>

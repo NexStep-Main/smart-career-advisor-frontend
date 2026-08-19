@@ -4,7 +4,7 @@ import Logo from "@/components/common/Logo";
 import { cn } from "@/lib/utils";
 
 // Routes match the app's existing registered paths (App.jsx). See
-//"Route naming" in the migration punch-list for the Guide's proposed names.
+// "Route naming" in the migration punch-list for the Guide's proposed names.
 const NAV_ITEMS = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Explore", to: "/careers", icon: Compass },
@@ -14,10 +14,20 @@ const NAV_ITEMS = [
   { label: "Profile", to: "/profile", icon: User },
 ];
 
-/** Left nav for the authenticated dashboard shell. */
-export default function Sidebar() {
+/**
+ * Left nav for the authenticated dashboard shell. Rendered in two places:
+ * the persistent desktop rail (hidden below `md`) and inside the mobile
+ * drawer (DashboardLayout), which is only ever mounted when open — so it
+ * must always render as flex there, never `hidden`.
+ */
+export default function Sidebar({ mobile = false, onNavigate }) {
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
+    <aside
+      className={cn(
+        "w-64 shrink-0 flex-col border-r border-border bg-surface",
+        mobile ? "flex" : "hidden md:flex",
+      )}
+    >
       <div className="flex h-16 items-center border-b border-border px-6">
         <Logo size="md" />
       </div>
@@ -27,6 +37,7 @@ export default function Sidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={onNavigate}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",

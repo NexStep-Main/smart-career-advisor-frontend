@@ -116,7 +116,7 @@ export default function ProfilePage() {
                   <Input value={user?.email ?? ""} disabled />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="educationLevel">Education level</Label>
                     <select

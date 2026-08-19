@@ -10,10 +10,18 @@ const NAV_ITEMS = [
   { label: "Students", to: "/admin/students", icon: Users },
 ];
 
-/** Left nav for the authenticated admin shell. Mirrors components/layout/Sidebar.jsx. */
-export default function AdminSidebar() {
+/**
+ * Left nav for the authenticated admin shell. Mirrors components/layout/Sidebar.jsx,
+ * including the `mobile` prop needed so it renders inside AdminLayout's drawer.
+ */
+export default function AdminSidebar({ mobile = false, onNavigate }) {
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface md:flex">
+    <aside
+      className={cn(
+        "w-64 shrink-0 flex-col border-r border-border bg-surface",
+        mobile ? "flex" : "hidden md:flex",
+      )}
+    >
       <div className="flex h-16 items-center justify-between border-b border-border px-6">
         <Logo size="md" to="/admin/dashboard" />
         <span className="rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-primary-dark">
@@ -26,6 +34,7 @@ export default function AdminSidebar() {
           <NavLink
             key={to}
             to={to}
+            onClick={onNavigate}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",

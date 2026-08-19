@@ -15,11 +15,11 @@ const ROWS = [
   { label: "Demand", render: (c) => <span className="capitalize">{c.demandLevel}</span> },
   {
     label: "Education Level",
-    render: (c) => c.educationLevel?.map((l) => EDUCATION_LABELS[l] ?? l).join(",") || "—",
+    render: (c) => c.educationLevel?.map((l) => EDUCATION_LABELS[l] ?? l).join(", ") || "—",
   },
-  { label: "Streams", render: (c) => c.streams?.join(",") || "—" },
-  { label: "Skills", render: (c) => c.skills?.join(",") || "—" },
-  { label: "Top Colleges", render: (c) => c.topColleges?.join(",") || "—" },
+  { label: "Streams", render: (c) => c.streams?.join(", ") || "—" },
+  { label: "Skills", render: (c) => c.skills?.join(", ") || "—" },
+  { label: "Top Colleges", render: (c) => c.topColleges?.join(", ") || "—" },
 ];
 
 export default function CareerComparisonPage() {
@@ -59,9 +59,9 @@ export default function CareerComparisonPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="w-40 px-5 py-4" />
+                  <th className="w-28 px-4 py-4 sm:w-40 sm:px-5" />
                   {compareList.map((career) => (
-                    <th key={career.id} className="min-w-56 px-5 py-4 align-top">
+                    <th key={career.id} className="min-w-48 px-4 py-4 align-top sm:min-w-56 sm:px-5">
                       <div className="flex items-start justify-between gap-2">
                         <Link
                           to={`/careers/${career.id}`}
@@ -84,11 +84,14 @@ export default function CareerComparisonPage() {
               <tbody>
                 {ROWS.map((row) => (
                   <tr key={row.label} className="border-b border-border last:border-0">
-                    <td className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    <td className="px-4 py-4 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500 sm:px-5">
                       {row.label}
                     </td>
                     {compareList.map((career) => (
-                      <td key={career.id} className="px-5 py-4 text-slate-700 dark:text-slate-200">
+                      <td
+                        key={career.id}
+                        className="px-4 py-4 text-slate-700 dark:text-slate-200 sm:px-5"
+                      >
                         {row.render(career)}
                       </td>
                     ))}

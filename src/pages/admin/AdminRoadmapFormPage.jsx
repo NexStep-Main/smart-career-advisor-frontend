@@ -25,7 +25,7 @@ function toFormValues(roadmap) {
     phases: (roadmap.phases ?? []).map((phase) => ({
       title: phase.title,
       description: phase.description,
-      skills: (phase.skills ?? []).join(","),
+      skills: (phase.skills ?? []).join(", "),
       durationWeeks: phase.durationWeeks ?? "",
       resources: phase.resources ?? [],
     })),
