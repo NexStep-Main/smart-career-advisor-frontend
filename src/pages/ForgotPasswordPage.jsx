@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
           <div className="flex size-14 items-center justify-center rounded-full bg-primary-light">
             <MailCheck className="text-primary" size={26} strokeWidth={1.8} />
           </div>
-          <h1 className="mt-5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="mt-5 font-heading text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
             Check your inbox
           </h1>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-primary underline-offset-2 hover:underline"
           >
             <ArrowLeft size={15} />
             Back to login
@@ -60,12 +60,14 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <SEOHead title="Forgot password" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-        Forgot your password?
-      </h1>
-      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-        Enter your email and we'll send you a link to reset it.
-      </p>
+      <div className="mb-6 text-center">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          Forgot your password?
+        </h1>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          Enter your email and we'll send you a link to reset it.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <div>
@@ -90,7 +92,7 @@ export default function ForgotPasswordPage() {
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 font-medium text-primary underline-offset-2 hover:underline"
         >
           <ArrowLeft size={14} />
           Back to login

@@ -31,8 +31,10 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors",
-        scrolled ? "bg-surface/90 shadow-sm backdrop-blur-md" : "bg-transparent",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-200",
+        scrolled
+          ? "border-b border-indigo-100/80 bg-white/80 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-950/80"
+          : "bg-transparent",
       )}
     >
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -43,7 +45,7 @@ export default function Navbar() {
             <NavLink
               key={link.to}
               to={link.to}
-              className="text-sm text-slate-600 dark:text-slate-300 transition-colors hover:text-slate-900 dark:hover:text-slate-50"
+              className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
             >
               {link.label}
             </NavLink>
@@ -60,7 +62,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-50"
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
               >
                 Login
               </Link>
@@ -75,7 +77,7 @@ export default function Navbar() {
           <ThemeToggle />
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex items-center justify-center rounded-lg border border-border p-2"
+            className="flex items-center justify-center rounded-lg border border-indigo-100 bg-white/80 p-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -84,19 +86,19 @@ export default function Navbar() {
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-border bg-surface px-6 py-4 md:hidden">
+        <div className="border-t border-indigo-100 bg-white/95 px-6 py-4 shadow-lg backdrop-blur-md md:hidden dark:border-slate-700 dark:bg-slate-950/95">
           <div className="flex flex-col gap-4">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
-                className="text-sm text-slate-600 dark:text-slate-300"
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </NavLink>
             ))}
-            <div className="flex flex-col gap-2 border-t border-border pt-4">
+            <div className="flex flex-col gap-2 border-t border-indigo-100 pt-4 dark:border-slate-700">
               {isAuthenticated ? (
                 <Button asChild size="sm">
                   <Link to="/dashboard" onClick={() => setMenuOpen(false)}>

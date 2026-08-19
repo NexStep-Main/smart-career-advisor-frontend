@@ -41,12 +41,14 @@ export default function LoginPage() {
   return (
     <>
       <SEOHead title="Login" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-        Welcome back
-      </h1>
-      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-        Log in to continue your career journey.
-      </p>
+      <div className="mb-6 text-center">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          Welcome back
+        </h1>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          Log in to continue your career journey.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <div>
@@ -75,7 +77,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -88,25 +90,25 @@ export default function LoginPage() {
           <label className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
             <input
               type="checkbox"
-              className="size-4 rounded border-border"
+              className="size-4 rounded border-border accent-primary"
               {...register("rememberMe")}
             />
             Remember me
           </label>
-          <Link to="/forgot-password" className="font-medium text-primary hover:underline">
+          <Link to="/forgot-password" className="font-medium text-primary underline-offset-2 hover:underline">
             Forgot password?
           </Link>
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
+        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full shadow-[0_12px_24px_-18px_rgba(79,70,229,0.75)]">
           <LogIn size={16} />
           {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-        Don't have an account?{""}
-        <Link to="/register" className="font-medium text-primary hover:underline">
+        Don't have an account?{" "}
+        <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
           Sign up
         </Link>
       </p>

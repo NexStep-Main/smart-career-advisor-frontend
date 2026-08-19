@@ -17,13 +17,13 @@ const COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-slate-50 dark:bg-slate-800/60 px-6 py-16">
+    <footer className="border-t border-indigo-100 bg-white/80 px-6 py-16 shadow-[0_-10px_25px_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-950/60">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
           <div className="mb-3">
             <Logo size="md" />
           </div>
-          <p className="max-w-xs text-sm text-slate-500 dark:text-slate-400">
+          <p className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Free career guidance for Indian students after Class 10, 12, and Graduation.
           </p>
         </div>
@@ -38,7 +38,7 @@ export default function Footer() {
                 <li key={link}>
                   <a
                     href="#"
-                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-primary"
+                    className="text-sm text-slate-500 transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-slate-200"
                   >
                     {link}
                   </a>
@@ -49,7 +49,7 @@ export default function Footer() {
         ))}
       </div>
 
-      <div className="mx-auto mt-12 max-w-6xl border-t border-border pt-6 text-sm text-slate-400 dark:text-slate-500">
+      <div className="mx-auto mt-12 max-w-6xl border-t border-indigo-100 pt-6 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
         © {new Date().getFullYear()} NexStep. Final Year Project — B.Tech CSE.
       </div>
     </footer>
