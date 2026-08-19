@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import DomainBadge from "@/components/career/DomainBadge";
 import EmptyState from "@/components/common/EmptyState";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import useCareerStore from "@/store/useCareerStore";
 
 const EDUCATION_LABELS = { class10: "Class 10", class12: "Class 12", graduation: "Graduation" };
@@ -30,14 +31,11 @@ export default function CareerComparisonPage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="Compare Careers" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Compare Careers
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Compare up to 3 careers side by side. Add careers from the Scale icon on any career card.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Side by side"
+        title="Compare Careers"
+        subtitle="Compare up to 3 careers side by side. Add careers from the Scale icon on any career card."
+      />
 
       {compareList.length === 0 ? (
         <EmptyState

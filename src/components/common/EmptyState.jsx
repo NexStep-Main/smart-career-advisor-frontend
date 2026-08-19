@@ -9,12 +9,12 @@ export default function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border py-16 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-        <Icon className="text-slate-400 dark:text-slate-500" size={22} strokeWidth={1.8} />
+      {/* Hairline ring instead of a filled tile — same affordance, matching
+          the rule-based structure used elsewhere on the dashboard. */}
+      <div className="flex size-12 items-center justify-center rounded-full border border-border">
+        <Icon className="text-slate-400 dark:text-slate-500" size={20} strokeWidth={1.5} />
       </div>
-      <h3 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
-        {title}
-      </h3>
+      <h3 className="font-display text-xl text-slate-900 dark:text-slate-50">{title}</h3>
       {description && (
         <p className="max-w-sm text-sm text-slate-500 dark:text-slate-400">{description}</p>
       )}

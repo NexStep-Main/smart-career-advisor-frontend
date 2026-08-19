@@ -99,7 +99,9 @@ export default function CareerCard({ career }) {
         </div>
       </div>
 
-      <h3 className="mb-1 font-heading text-base font-semibold text-slate-900 dark:text-slate-50 group-hover:text-primary">
+      {/* Inter, not the display serif: card titles sit in scan-heavy grids
+          and read as data here, per the dashboard type split. */}
+      <h3 className="mb-1 text-base font-semibold text-slate-900 group-hover:text-primary dark:text-slate-50">
         {title}
       </h3>
 

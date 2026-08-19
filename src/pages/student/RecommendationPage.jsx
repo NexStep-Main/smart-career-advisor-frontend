@@ -6,6 +6,7 @@ import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import useAuthStore from "@/store/useAuthStore";
 import { getRecommendations } from "@/services/recommendations";
 
@@ -22,14 +23,11 @@ export default function RecommendationPage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="Recommendations" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Recommended for You
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Careers matched to your quiz answers, education level, and stream.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Matches"
+        title="Recommended for You"
+        subtitle="Careers matched to your quiz answers, education level, and stream."
+      />
 
       {!quizCompleted ? (
         <EmptyState

@@ -1,25 +1,13 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Sparkles,
-  Bookmark,
-  User,
-  ArrowRight,
-  ClipboardList,
-  Route,
-  Flame,
-  CheckCircle2,
-  Circle,
-  Compass,
-  Scale,
-  RefreshCw,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
+import { ArrowRight, ClipboardList, CheckCircle2, Circle } from "lucide-react";
 import Button from "@/components/ui/Button";
 import CareerCard from "@/components/career/CareerCard";
 import DomainBadge from "@/components/career/DomainBadge";
 import EmptyState from "@/components/common/EmptyState";
 import LaborMarketWidget from "@/components/common/LaborMarketWidget";
+import PageHeader from "@/components/common/PageHeader";
+import SectionHeader from "@/components/common/SectionHeader";
 import Skeleton from "@/components/ui/Skeleton";
 import SEOHead from "@/components/common/SEOHead";
 import useAuthStore from "@/store/useAuthStore";
@@ -39,16 +27,22 @@ const PROFILE_CHECKLIST = [
 ];
 
 function profileCompletion(user) {
-  const fields = [user?.fullName, user?.email, user?.educationLevel, user?.stream, user?.quizCompleted];
+  const fields = [
+    user?.fullName,
+    user?.email,
+    user?.educationLevel,
+    user?.stream,
+    user?.quizCompleted,
+  ];
   const filled = fields.filter(Boolean).length;
   return Math.round((filled / fields.length) * 100);
 }
 
 const QUICK_ACTIONS = [
-  { icon: Compass, label: "Explore careers", to: "/careers" },
-  { icon: Sparkles, label: "Recommendations", to: "/recommendations" },
-  { icon: Scale, label: "Compare careers", to: "/compare" },
-  { icon: RefreshCw, label: "Retake quiz", to: "/onboarding" },
+  { label: "Explore careers", to: "/careers" },
+  { label: "Recommendations", to: "/recommendations" },
+  { label: "Compare careers", to: "/compare" },
+  { label: "Retake quiz", to: "/onboarding" },
 ];
 
 export default function DashboardPage() {
@@ -84,45 +78,60 @@ export default function DashboardPage() {
 
   const recentBookmarks = bookmarks?.slice(0, 3) ?? [];
 
+  // Several sections only render when they have data, so section numbers are
+  // derived from what's actually on screen — hardcoding them leaves gaps
+  // (01, 03, 06…) for any student missing a roadmap or saved careers.
+  const showContinue = !loadingProgress && !!activeRoadmap;
+  const showTrending = !loadingTrending && trending?.length > 0;
+  const showRecentlySaved = !loadingBookmarks && recentBookmarks.length > 0;
+
+  const sectionOrder = [
+    "quickActions",
+    showContinue && "continue",
+    "recommended",
+    showTrending && "trending",
+    showRecentlySaved && "saved",
+    "market",
+  ].filter(Boolean);
+  const idx = (key) => String(sectionOrder.indexOf(key) + 1).padStart(2, "0");
+
   const stats = [
     {
-      icon: Sparkles,
       label: "Recommended matches",
       value: !quizCompleted ? "—" : loadingRecs ? null : (recommendations?.length ?? 0),
     },
     {
-      icon: Bookmark,
       label: "Saved careers",
       value: loadingBookmarks ? null : (bookmarks?.length ?? 0),
     },
-    { icon: User, label: "Profile completion", value: `${completion}%` },
+    { label: "Profile completion", value: `${completion}%` },
   ];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10">
       <SEOHead title="Dashboard" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Welcome back{user?.fullName ? `, ${user.fullName.split(" ")[0]}` : ""}
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Here's where your career journey stands today.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Dashboard"
+        title={`Welcome back${user?.fullName ? `, ${user.fullName.split(" ")[0]}` : ""}`}
+        subtitle="Here's where your career journey stands today."
+      />
 
       {completion < 100 && (
-        <Card className="border-primary/20 bg-primary-light/40">
-          <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="rounded-xl border border-primary/25 bg-primary-light/40 p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
+              <h2 className="font-display text-xl text-slate-900 dark:text-slate-50">
                 Finish setting up your profile
               </h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300">
                 A complete profile gets you sharper, more relevant recommendations.
               </p>
             </div>
-            <div className="flex flex-col gap-2 sm:min-w-56">
+            {/* Check/circle glyphs stay: these are binary status indicators
+                a student scans down, and a numeral can't carry done/not-done.
+                They lost the surrounding tinted box, not the icon. */}
+            <div className="flex flex-col gap-2.5 sm:min-w-60">
               {PROFILE_CHECKLIST.map((item) => {
                 const done = !!user?.[item.field];
                 return (
@@ -130,7 +139,7 @@ export default function DashboardPage() {
                     key={item.field}
                     to={item.to}
                     className={cn(
-                      "flex items-center gap-2 text-sm",
+                      "flex items-center gap-2.5 text-sm",
                       done
                         ? "text-slate-400 line-through dark:text-slate-500"
                         : "font-medium text-slate-700 hover:text-primary dark:text-slate-200",
@@ -146,101 +155,109 @@ export default function DashboardPage() {
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="flex items-center gap-4">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-light">
-                <stat.icon size={20} className="text-primary" strokeWidth={1.8} />
-              </div>
-              <div>
-                {stat.value === null ? (
-                  <Skeleton className="h-6 w-10" />
-                ) : (
-                  <div className="font-heading text-xl font-bold text-slate-900 dark:text-slate-50">
-                    {stat.value}
-                  </div>
-                )}
-                <div className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-        {QUICK_ACTIONS.map((action) => (
-          <Link
-            key={action.label}
-            to={action.to}
-            className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-          >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-light">
-              <action.icon size={17} className="text-primary" strokeWidth={1.8} />
+      {/* Stat row — typographic numerals on hairline-divided cells. The
+          `gap-px` over a border-coloured background is what draws the
+          interior hairlines without nesting extra border elements. */}
+      <section className="grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+        {stats.map((stat, i) => (
+          <div key={stat.label} className="bg-surface p-5">
+            <div className="font-mono text-xs text-slate-400 dark:text-slate-500">
+              {String(i + 1).padStart(2, "0")}
             </div>
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-              {action.label}
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      {!loadingProgress && activeRoadmap && (
-        <section>
-          <h2 className="mb-4 font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
-            Continue where you left off
-          </h2>
-          <Card>
-            <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 flex items-center gap-2">
-                  <Route size={15} className="text-primary" />
-                  <DomainBadge domain={activeRoadmap.career.domain} />
-                </div>
-                <h3 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
-                  {activeRoadmap.career.title}
-                </h3>
-                <div className="mt-3 flex items-center gap-3">
-                  <div className="h-2 w-full max-w-64 overflow-hidden rounded-full bg-primary-light">
-                    <div
-                      className="h-full rounded-full bg-accent-green transition-all duration-300"
-                      style={{ width: `${activeRoadmapPercent}%` }}
-                    />
-                  </div>
-                  <span className="shrink-0 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    {activeRoadmap.completedPhases.length}/{activeRoadmap.totalPhases} phases
-                  </span>
-                </div>
+            {stat.value === null ? (
+              <Skeleton className="mt-2 h-9 w-14" />
+            ) : (
+              <div className="mt-2 font-display text-4xl leading-none text-slate-900 dark:text-slate-50">
+                {stat.value}
               </div>
-              <Button asChild size="sm" className="shrink-0">
-                <Link to={`/roadmap/${activeRoadmap.career.id}`}>
-                  {activeRoadmapPercent >= 100 ? "Review roadmap" : "Resume"}
-                  <ArrowRight size={14} />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+            )}
+            <div className="mt-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* Quick actions — ruled rows with an index, replacing the icon-tile
+          grid. Scanability is unchanged (still one label per row) but the
+          treatment now matches the landing page's ruled link lists. */}
+      <section>
+        <SectionHeader index={idx("quickActions")} title="Quick actions" />
+        <div className="grid border-t border-border sm:grid-cols-2 lg:grid-cols-4">
+          {QUICK_ACTIONS.map((action, i) => (
+            <Link
+              key={action.label}
+              to={action.to}
+              className="group flex items-center gap-3 border-b border-border py-4 pr-4 transition-colors hover:bg-primary-light/40 sm:border-r sm:px-4"
+            >
+              <span className="font-mono text-xs text-slate-400 dark:text-slate-500">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
+                {action.label}
+              </span>
+              <ArrowRight
+                size={14}
+                className="shrink-0 text-slate-300 transition-all group-hover:translate-x-0.5 group-hover:text-primary dark:text-slate-600"
+              />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {showContinue && (
+        <section>
+          <SectionHeader index={idx("continue")} title="Continue where you left off" />
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <DomainBadge domain={activeRoadmap.career.domain} />
+              <h3 className="mt-2.5 font-display text-2xl text-slate-900 dark:text-slate-50">
+                {activeRoadmap.career.title}
+              </h3>
+              <div className="mt-4 flex items-center gap-4">
+                {/* Hairline progress track — thinner than the old pill bar,
+                    but emerald still carries the "how far along" signal. */}
+                <div className="h-px w-full max-w-72 bg-border">
+                  <div
+                    className="h-px bg-accent-green transition-all duration-500"
+                    style={{ width: `${activeRoadmapPercent}%` }}
+                  />
+                </div>
+                <span className="shrink-0 font-mono text-xs text-slate-500 dark:text-slate-400">
+                  {activeRoadmap.completedPhases.length}/{activeRoadmap.totalPhases} phases ·{" "}
+                  <span className="text-accent-green">{activeRoadmapPercent}%</span>
+                </span>
+              </div>
+            </div>
+            <Button asChild size="sm" className="shrink-0">
+              <Link to={`/roadmap/${activeRoadmap.career.id}`}>
+                {activeRoadmapPercent >= 100 ? "Review roadmap" : "Resume"}
+                <ArrowRight size={14} />
+              </Link>
+            </Button>
+          </div>
         </section>
       )}
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
-            Recommended for you
-          </h2>
-          {quizCompleted && (
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/recommendations">
-                View all
-                <ArrowRight size={14} />
-              </Link>
-            </Button>
-          )}
-        </div>
+        <SectionHeader
+          index={idx("recommended")}
+          title="Recommended for you"
+          action={
+            quizCompleted && (
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/recommendations">
+                  View all
+                  <ArrowRight size={14} />
+                </Link>
+              </Button>
+            )
+          }
+        />
 
         {!quizCompleted ? (
           <EmptyState
@@ -285,14 +302,9 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-        trending?.length > 0 && (
+        showTrending && (
           <section>
-            <div className="mb-4 flex items-center gap-2">
-              <Flame size={18} className="text-secondary-dark" />
-              <h2 className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
-                Trending with other students
-              </h2>
-            </div>
+            <SectionHeader index={idx("trending")} title="Trending with other students" />
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {trending.map((career) => (
                 <CareerCard key={career.id} career={career} />
@@ -302,35 +314,36 @@ export default function DashboardPage() {
         )
       )}
 
-      {!loadingBookmarks && recentBookmarks.length > 0 && (
+      {showRecentlySaved && (
         <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
-              Recently saved
-            </h2>
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/bookmarks">
-                View all
-                <ArrowRight size={14} />
-              </Link>
-            </Button>
-          </div>
-          <div className="flex flex-col gap-2">
+          <SectionHeader
+            index={idx("saved")}
+            title="Recently saved"
+            action={
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/bookmarks">
+                  View all
+                  <ArrowRight size={14} />
+                </Link>
+              </Button>
+            }
+          />
+          <div className="border-t border-border">
             {recentBookmarks.map((career) => (
               <Link
                 key={career.id}
                 to={`/careers/${career.id}`}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                className="group flex items-center justify-between gap-3 border-b border-border py-4 transition-colors hover:bg-primary-light/40"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <DomainBadge domain={career.domain} />
-                  <span className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <span className="truncate text-sm font-medium text-slate-800 group-hover:text-primary dark:text-slate-100">
                     {career.title}
                   </span>
                 </div>
                 {career.savedAt && (
-                  <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">
-                    Saved {timeAgo(career.savedAt)}
+                  <span className="shrink-0 font-mono text-xs text-slate-400 dark:text-slate-500">
+                    {timeAgo(career.savedAt)}
                   </span>
                 )}
               </Link>
@@ -339,7 +352,7 @@ export default function DashboardPage() {
         </section>
       )}
 
-      <LaborMarketWidget />
+      <LaborMarketWidget index={idx("market")} />
     </div>
   );
 }

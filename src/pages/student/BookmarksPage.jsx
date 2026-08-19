@@ -7,6 +7,7 @@ import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import { getBookmarks } from "@/services/bookmarks";
 
 export default function BookmarksPage() {
@@ -29,16 +30,15 @@ export default function BookmarksPage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="Saved Careers" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Saved Careers
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {isLoading
+      <PageHeader
+        eyebrow="Library"
+        title="Saved Careers"
+        subtitle={
+          isLoading
             ? "Loading…"
-            : `${careers?.length ?? 0} career${careers?.length === 1 ? "" : "s"} saved for later.`}
-        </p>
-      </div>
+            : `${careers?.length ?? 0} career${careers?.length === 1 ? "" : "s"} saved for later.`
+        }
+      />
 
       {!isLoading && careers?.length > 0 && (
         <div className="relative max-w-sm">

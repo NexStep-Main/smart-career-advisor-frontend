@@ -7,6 +7,7 @@ import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import Pagination from "@/components/common/Pagination";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import { getCareers } from "@/services/careers";
 
 const EDUCATION_LEVELS = [
@@ -69,14 +70,11 @@ export default function CareerExplorerPage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="Explore Careers" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          Explore Careers
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Browse career paths across every domain and education level.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Explore"
+        title="Explore Careers"
+        subtitle="Browse career paths across every domain and education level."
+      />
 
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
