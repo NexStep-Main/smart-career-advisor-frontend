@@ -1,5 +1,5 @@
 import FadeIn from "@/components/common/FadeIn";
-import SectionHeading from "@/components/common/SectionHeading";
+import EditorialHeading from "@/components/common/EditorialHeading";
 
 const STEPS = [
   {
@@ -19,27 +19,39 @@ const STEPS = [
   },
 ];
 
+// Split-screen: the heading holds the left rail while the steps scroll past
+// on the right — deliberately not the centred heading-over-grid pattern the
+// rest of the page used to repeat.
 export default function ProcessSection() {
   return (
-    <section id="process" className="px-6 py-20">
-      <div className="mx-auto max-w-5xl">
-        <SectionHeading
-          eyebrow="How it works"
-          title="Our proven process"
-          subtitle="From confusion to clarity in three simple steps"
-        />
+    <section id="process" className="border-b border-rule px-6 py-24 sm:py-32">
+      <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
+        <FadeIn>
+          <div className="lg:sticky lg:top-32">
+            <EditorialHeading
+              index="§ 01"
+              eyebrow="How it works"
+              title="From confusion to clarity."
+              subtitle="Three steps. Under ten minutes. No counsellor's fee."
+            />
+          </div>
+        </FadeIn>
 
-        <div className="grid gap-6 sm:grid-cols-3">
+        <div>
           {STEPS.map((step, i) => (
             <FadeIn key={step.num} delay={i * 0.1}>
-              <div className="h-full rounded-xl border border-border bg-surface p-6">
-                <div className="mb-4 font-heading text-2xl font-bold text-primary">{step.num}</div>
-                <h3 className="mb-2 font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
-                  {step.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                  {step.desc}
-                </p>
+              <div className="grid grid-cols-[auto_1fr] gap-6 border-t border-rule py-10 first:border-t-0 first:pt-0 sm:gap-10">
+                {/* The numeral is the graphic — oversized display type where
+                    an icon-in-a-box used to sit. */}
+                <div className="font-display text-5xl leading-none text-ink-faint sm:text-7xl">
+                  {step.num}
+                </div>
+                <div className="pt-1 sm:pt-2">
+                  <h3 className="font-display text-2xl text-ink sm:text-3xl">{step.title}</h3>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-muted sm:text-base">
+                    {step.desc}
+                  </p>
+                </div>
               </div>
             </FadeIn>
           ))}

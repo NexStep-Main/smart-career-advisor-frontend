@@ -132,7 +132,7 @@ export default function CareerDetailsPage() {
                 {career.educationLevel?.length > 0 && (
                   <span className="flex items-center gap-1.5">
                     <GraduationCap size={15} className="text-primary" />
-                    {career.educationLevel.map((l) => EDUCATION_LABELS[l] ?? l).join(",")}
+                    {career.educationLevel.map((l) => EDUCATION_LABELS[l] ?? l).join(", ")}
                   </span>
                 )}
               </div>

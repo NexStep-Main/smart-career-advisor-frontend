@@ -6,6 +6,7 @@ import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
 import Button from "@/components/ui/Button";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import useAuthStore from "@/store/useAuthStore";
 import { getRecommendations } from "@/services/recommendations";
 

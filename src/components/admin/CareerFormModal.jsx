@@ -37,17 +37,17 @@ function toFormValues(career) {
     domain: career.domain,
     description: career.description,
     educationLevel: career.educationLevel ?? [],
-    streams: (career.streams ?? []).join(","),
+    streams: (career.streams ?? []).join(", "),
     averageSalary: {
       min: career.averageSalary?.min ?? 0,
       max: career.averageSalary?.max ?? 0,
       currency: career.averageSalary?.currency ?? "INR",
     },
     demandLevel: career.demandLevel ?? "high",
-    skills: (career.skills ?? []).join(","),
-    topColleges: (career.topColleges ?? []).join(","),
+    skills: (career.skills ?? []).join(", "),
+    topColleges: (career.topColleges ?? []).join(", "),
     futureScope: career.futureScope ?? "",
-    tags: (career.tags ?? []).join(","),
+    tags: (career.tags ?? []).join(", "),
     isActive: career.isActive ?? true,
   };
 }
@@ -98,7 +98,7 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
             <FormError message={errors.title?.message} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="domain">Domain</Label>
               <Input
@@ -168,7 +168,7 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
             <FormError message={errors.streams?.message} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="salaryMin">Min salary (₹/yr)</Label>
               <Input

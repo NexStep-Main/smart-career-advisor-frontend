@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Clock, ExternalLink, ChevronDown, Route, Search } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  Clock,
+  ExternalLink,
+  ChevronDown,
+  Route,
+  Search,
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Skeleton from "@/components/ui/Skeleton";
@@ -10,37 +19,63 @@ import Button from "@/components/ui/Button";
 import SEOHead from "@/components/common/SEOHead";
 import { getRoadmapByCareer } from "@/services/roadmaps";
 import { getCareerById } from "@/services/careers";
+import { getProgressByCareer, updateProgress as updateProgressRequest } from "@/services/roadmapProgress";
+import { cn } from "@/lib/utils";
 
-function PhaseCard({ phase, index, defaultOpen }) {
+function PhaseCard({ phase, index, defaultOpen, completed, onToggleComplete }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <Card>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-4 p-5 text-left"
-      >
-        <div className="flex items-center gap-4">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-light font-heading text-sm font-bold text-primary-dark">
-            {index + 1}
-          </span>
-          <div>
-            <h3 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
-              {phase.title}
-            </h3>
-            {phase.durationWeeks && (
-              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <Clock size={12} />
-                {phase.durationWeeks} week{phase.durationWeeks === 1 ? "" : "s"}
-              </p>
-            )}
+    <Card className={completed ? "border-accent-green/40" : undefined}>
+      <div className="flex w-full items-center gap-4 p-5 text-left">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleComplete();
+          }}
+          aria-label={completed ? "Mark phase incomplete" : "Mark phase complete"}
+          className="shrink-0 text-accent-green transition-transform hover:scale-110"
+        >
+          {completed ? (
+            <CheckCircle2 size={22} className="fill-accent-green/15" />
+          ) : (
+            <Circle size={22} className="text-slate-300 dark:text-slate-600" />
+          )}
+        </button>
+
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex flex-1 items-center justify-between gap-4 text-left"
+        >
+          <div className="flex items-center gap-4">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-light font-heading text-sm font-bold text-primary-dark">
+              {index + 1}
+            </span>
+            <div>
+              <h3
+                className={cn(
+                  "font-heading text-base font-semibold",
+                  completed
+                    ? "text-slate-500 line-through dark:text-slate-400"
+                    : "text-slate-900 dark:text-slate-50",
+                )}
+              >
+                {phase.title}
+              </h3>
+              {phase.durationWeeks && (
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <Clock size={12} />
+                  {phase.durationWeeks} week{phase.durationWeeks === 1 ? "" : "s"}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-        <ChevronDown
-          size={18}
-          className={`shrink-0 text-slate-400 dark:text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
+          <ChevronDown
+            size={18}
+            className={`shrink-0 text-slate-400 dark:text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
 
       {open && (
         <CardContent className="flex flex-col gap-4 border-t border-border pt-4">
@@ -101,6 +136,7 @@ function PhaseCard({ phase, index, defaultOpen }) {
 export default function RoadmapPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: career } = useQuery({
     queryKey: ["career", id],
@@ -116,6 +152,35 @@ export default function RoadmapPage() {
     queryFn: () => getRoadmapByCareer(id).then((res) => res.data.data.roadmap),
     retry: false,
   });
+
+  const { data: completedPhases = [] } = useQuery({
+    queryKey: ["roadmapProgress", id],
+    queryFn: () => getProgressByCareer(id).then((res) => res.data.data.completedPhases),
+    enabled: !!roadmap,
+  });
+
+  const { mutate: toggleProgress } = useMutation({
+    mutationFn: (nextCompleted) => updateProgressRequest(id, nextCompleted),
+    onMutate: async (nextCompleted) => {
+      await queryClient.cancelQueries({ queryKey: ["roadmapProgress", id] });
+      queryClient.setQueryData(["roadmapProgress", id], nextCompleted);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["roadmapProgress", id] });
+      queryClient.invalidateQueries({ queryKey: ["roadmapProgress"] });
+    },
+  });
+
+  const togglePhase = (phaseNumber) => {
+    const next = completedPhases.includes(phaseNumber)
+      ? completedPhases.filter((n) => n !== phaseNumber)
+      : [...completedPhases, phaseNumber];
+    toggleProgress(next);
+  };
+
+  const progressPercent = roadmap?.phases.length
+    ? Math.round((completedPhases.length / roadmap.phases.length) * 100)
+    : 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -164,6 +229,18 @@ export default function RoadmapPage() {
               {roadmap.phases.length} phase{roadmap.phases.length === 1 ? "" : "s"} to get
               job-ready.
             </p>
+
+            <div className="mt-4 flex items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-primary-light">
+                <div
+                  className="h-full rounded-full bg-accent-green transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <span className="shrink-0 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                {completedPhases.length}/{roadmap.phases.length} complete
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -173,6 +250,8 @@ export default function RoadmapPage() {
                 phase={phase}
                 index={index}
                 defaultOpen={index === 0}
+                completed={completedPhases.includes(phase.phaseNumber)}
+                onToggleComplete={() => togglePhase(phase.phaseNumber)}
               />
             ))}
           </div>

@@ -89,10 +89,10 @@ export default function AdminRoadmapsPage() {
               <tbody>
                 {roadmaps.map((roadmap) => (
                   <tr key={roadmap.id} className="border-b border-border last:border-0">
-                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50 sm:px-6">
+                    <td className="max-w-48 truncate px-4 py-3 font-medium text-slate-900 dark:text-slate-50 sm:px-6">
                       {roadmap.title}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 sm:px-6">
+                    <td className="max-w-40 truncate px-4 py-3 text-slate-600 dark:text-slate-300 sm:px-6">
                       {roadmap.careerId?.title ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300 sm:px-6">
@@ -133,7 +133,7 @@ export default function AdminRoadmapsPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        title={`Delete"${deleteTarget?.title}"?`}
+        title={`Delete "${deleteTarget?.title}"?`}
         description="This removes the roadmap for this career. This action cannot be undone."
         loading={deleteMutation.isPending}
         onCancel={() => setDeleteTarget(null)}

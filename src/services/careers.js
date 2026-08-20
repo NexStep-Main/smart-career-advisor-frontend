@@ -1,6 +1,7 @@
 import api from "./api";
 
 export const getCareers = (filters) => api.get("/careers", { params: filters });
+export const getTrendingCareers = (limit) => api.get("/careers/trending", { params: { limit } });
 export const getCareerById = (id) => api.get(`/careers/${id}`);
 
 // Admin mutations — server requires an admin-role JWT for all three.

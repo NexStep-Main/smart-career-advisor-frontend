@@ -31,7 +31,7 @@ export default function DashboardLayout() {
             onClick={() => setMobileNavOpen(false)}
           />
           <div className="absolute inset-y-0 left-0 w-64 bg-surface shadow-lg">
-            <Sidebar />
+            <Sidebar mobile onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </div>
       )}

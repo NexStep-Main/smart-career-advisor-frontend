@@ -13,28 +13,37 @@ const SIZES = {
  * source of truth so the brand doesn't drift across Navbar/Footer/AuthLayout/
  * Sidebar the way plain "GraduationCap + text" copies used to.
  */
-export default function Logo({ size = "md", to = "/", iconOnly = false, className }) {
+export default function Logo({ size = "md", to = "/", iconOnly = false, mono = false, className }) {
   const s = SIZES[size];
 
+  // `mono` is the landing page's editorial treatment: a squared ink block and
+  // a single-colour wordmark, so the brand mark doesn't reintroduce the app's
+  // gradient/accent into a strictly monochrome layout.
   const content = (
     <span
       className={cn(
-        "inline-flex items-center gap-2 font-heading font-bold text-slate-900 dark:text-slate-50",
+        "inline-flex items-center gap-2 font-heading font-bold",
+        mono ? "text-ink" : "text-slate-900 dark:text-slate-50",
         s.text,
         className,
       )}
     >
       <span
         className={cn(
-          "flex shrink-0 items-center justify-center bg-linear-to-br from-primary to-primary-dark shadow-sm",
+          "flex shrink-0 items-center justify-center shadow-sm",
+          mono ? "rounded-none bg-ink" : "bg-linear-to-br from-primary to-primary-dark",
           s.badge,
         )}
       >
-        <Milestone className="text-white" size={s.icon} strokeWidth={2.3} />
+        <Milestone
+          className={mono ? "text-paper" : "text-white"}
+          size={s.icon}
+          strokeWidth={2.3}
+        />
       </span>
       {!iconOnly && (
         <span>
-          Nex<span className="text-primary">Step</span>
+          Nex<span className={mono ? undefined : "text-primary"}>Step</span>
         </span>
       )}
     </span>

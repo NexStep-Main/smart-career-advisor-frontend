@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
+import PageHeader from "@/components/common/PageHeader";
 import useAuthStore from "@/store/useAuthStore";
 import { updateProfileRequest } from "@/services/auth";
 import { getBookmarks } from "@/services/bookmarks";
@@ -72,14 +73,7 @@ export default function ProfilePage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="My Profile" />
 
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-          My Profile
-        </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Manage your account details.
-        </p>
-      </div>
+      <PageHeader eyebrow="Account" title="My Profile" subtitle="Manage your account details." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
@@ -116,7 +110,7 @@ export default function ProfilePage() {
                   <Input value={user?.email ?? ""} disabled />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="educationLevel">Education level</Label>
                     <select
