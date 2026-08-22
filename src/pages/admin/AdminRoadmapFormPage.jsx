@@ -100,7 +100,7 @@ export default function AdminRoadmapFormPage() {
           <ArrowLeft size={15} />
           Back to roadmaps
         </button>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+        <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
           {isEdit ? "Edit Roadmap" : "New Roadmap"}
         </h1>
       </div>
@@ -175,7 +175,7 @@ export default function AdminRoadmapFormPage() {
         </div>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button type="submit" variant="admin" disabled={mutation.isPending}>
             {mutation.isPending ? "Saving…" : isEdit ? "Save changes" : "Create roadmap"}
           </Button>
           <Button type="button" variant="outline" onClick={() => navigate("/admin/roadmaps")}>

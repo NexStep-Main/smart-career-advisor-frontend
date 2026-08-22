@@ -11,6 +11,12 @@ const VARIANTS = {
   ghost:
     "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-primary",
 
+  // Admin portal only — steel blue instead of emerald, otherwise identical
+  // shape/motion to `primary` so admin buttons still feel like the same
+  // component family, just a different surface.
+  admin:
+    "bg-admin-accent text-white shadow-sm hover:bg-admin-accent-dark hover:shadow-lg hover:shadow-admin-accent/25 focus-visible:outline-admin-accent",
+
   // Editorial variants — landing page only. Squared instead of pill, no
   // colour, no lift/glow: the monochrome layout gets its emphasis from the
   // ink/paper inversion on hover rather than motion or shadow. The overrides

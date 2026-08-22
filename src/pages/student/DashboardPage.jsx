@@ -118,13 +118,13 @@ export default function DashboardPage() {
       />
 
       {completion < 100 && (
-        <section className="rounded-xl border border-primary/25 bg-primary-light/40 p-6">
+        <section className="rounded-xl border border-border border-l-2 border-l-primary bg-surface p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="font-display text-xl text-slate-900 dark:text-slate-50">
                 Finish setting up your profile
               </h2>
-              <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
                 A complete profile gets you sharper, more relevant recommendations.
               </p>
             </div>

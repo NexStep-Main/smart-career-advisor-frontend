@@ -45,6 +45,21 @@ export const profileFormSchema = z.object({
   }),
 });
 
+// Admin editing a student's profile — same fields/enums as profileFormSchema
+// (the User model only has one canonical educationLevel/stream), plus email
+// since admin (unlike the student self-service form) is allowed to correct
+// it. `stream` stays optional here: a student mid-onboarding may not have
+// set it yet, and the admin form shouldn't force a value just to fix a typo
+// in their name.
+export const adminEditStudentSchema = z.object({
+  fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
+  educationLevel: z.enum(["class10", "class12", "graduation"], {
+    errorMap: () => ({ message: "Select an education level" }),
+  }),
+  stream: z.enum(["science", "commerce", "arts", "engineering"]).optional(),
+});
+
 // Comma-separated text input → trimmed, non-empty string array. Keeps the
 // admin forms to plain text inputs instead of building a tag-input widget.
 const csvRequired = (message) =>

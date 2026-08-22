@@ -48,6 +48,13 @@
   --color-accent-green: var(--nx-accent-green);
   --color-accent-orange: var(--nx-accent-orange);
 
+  /* Admin portal only — steel blue instead of emerald, so the admin shell
+     reads as a distinct control panel at a glance rather than a themed copy
+     of the student product. See Frontend Guide.md § Design System. */
+  --color-admin-accent: var(--nx-admin-accent);
+  --color-admin-accent-dark: var(--nx-admin-accent-dark);
+  --color-admin-accent-light: var(--nx-admin-accent-light);
+
   --color-domain-tech: var(--nx-primary);
   --color-domain-healthcare: var(--nx-accent-green);
   --color-domain-arts: #7e3af2;
@@ -79,6 +86,12 @@
   --nx-accent-green: #057a55;
   --nx-accent-orange: #d03801;
 
+  /* Admin accent — steel blue, deliberately not emerald and not pure
+     black/white, so the admin portal reads as a distinct surface. */
+  --nx-admin-accent: #4682b4;
+  --nx-admin-accent-dark: #386a91;
+  --nx-admin-accent-light: #e8f0f6;
+
   /* Editorial scale — warm off-white paper, near-black ink. */
   --nx-paper: #faf9f7;
   --nx-ink: #0f0f0f;
@@ -102,6 +115,10 @@
 
   --nx-accent-green: #34d399;
   --nx-accent-orange: #fb923c;
+
+  --nx-admin-accent: #7fb3d3;
+  --nx-admin-accent-dark: #a3c9de;
+  --nx-admin-accent-light: #16242e;
 
   --nx-paper: #0b0b0b;
   --nx-ink: #f5f4f2;

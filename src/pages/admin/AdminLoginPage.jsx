@@ -62,11 +62,9 @@ export default function AdminLoginPage() {
       <SEOHead title="Admin Login" />
 
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary-light">
-          <ShieldCheck className="text-primary" size={20} strokeWidth={1.8} />
-        </div>
+        <ShieldCheck className="text-admin-accent" size={22} strokeWidth={1.6} />
         <div>
-          <h1 className="font-heading text-xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="font-display text-2xl text-slate-900 dark:text-slate-50">
             Admin Sign In
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">Authorized personnel only</p>
@@ -109,7 +107,7 @@ export default function AdminLoginPage() {
           <FormError message={errors.password?.message} />
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
+        <Button type="submit" variant="admin" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Signing in…" : "Sign in to Admin Panel"}
         </Button>
       </form>

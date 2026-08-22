@@ -91,7 +91,7 @@ export default function AdminCareersPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
             Manage Careers
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -99,6 +99,7 @@ export default function AdminCareersPage() {
           </p>
         </div>
         <Button
+          variant="admin"
           onClick={() => {
             setEditingCareer(null);
             setFormOpen(true);
@@ -179,7 +180,7 @@ export default function AdminCareersPage() {
                         disabled={updateMutation.isPending}
                         className={
                           career.isActive
-                            ? "rounded-lg bg-primary-light px-2.5 py-1 text-xs font-semibold text-primary-dark"
+                            ? "rounded-lg bg-admin-accent-light px-2.5 py-1 text-xs font-semibold text-admin-accent-dark"
                             : "rounded-lg bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400"
                         }
                       >

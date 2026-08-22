@@ -11,6 +11,7 @@ import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AdminLayout from "@/layouts/AdminLayout";
+import AdminAuthLayout from "@/layouts/AdminAuthLayout";
 import useAuthStore from "@/store/useAuthStore";
 import { meRequest } from "@/services/auth";
 
@@ -34,6 +35,7 @@ import AdminCareersPage from "./pages/admin/AdminCareersPage";
 import AdminRoadmapsPage from "./pages/admin/AdminRoadmapsPage";
 import AdminRoadmapFormPage from "./pages/admin/AdminRoadmapFormPage";
 import AdminStudentsPage from "./pages/admin/AdminStudentsPage";
+import AdminStudentDetailPage from "./pages/admin/AdminStudentDetailPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -84,6 +86,10 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+              </Route>
+
+              {/* Admin login — its own shell, not the student AuthLayout */}
+              <Route element={<AdminAuthLayout />}>
                 <Route path="/admin/login" element={<AdminLoginPage />} />
               </Route>
 
@@ -115,6 +121,7 @@ function App() {
                   <Route path="/admin/roadmaps/new" element={<AdminRoadmapFormPage />} />
                   <Route path="/admin/roadmaps/:id/edit" element={<AdminRoadmapFormPage />} />
                   <Route path="/admin/students" element={<AdminStudentsPage />} />
+                  <Route path="/admin/students/:id" element={<AdminStudentDetailPage />} />
                 </Route>
               </Route>
             </Routes>

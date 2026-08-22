@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Users, Briefcase, Route, Bookmark, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 import Skeleton from "@/components/ui/Skeleton";
 import EmptyState from "@/components/common/EmptyState";
 import SEOHead from "@/components/common/SEOHead";
@@ -27,7 +28,7 @@ export default function AdminDashboardPage() {
       <SEOHead title="Admin Dashboard" />
 
       <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+        <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
           Admin Dashboard
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -39,18 +40,20 @@ export default function AdminDashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-6">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-light sm:size-11">
-                <stat.icon size={18} className="text-primary" strokeWidth={1.8} />
-              </div>
+              <stat.icon
+                size={22}
+                className="shrink-0 text-slate-400 dark:text-slate-500"
+                strokeWidth={1.6}
+              />
               <div className="min-w-0">
                 {isLoading ? (
                   <Skeleton className="h-6 w-12" />
                 ) : (
-                  <div className="font-heading text-lg font-bold text-slate-900 dark:text-slate-50 sm:text-xl">
+                  <div className="font-display text-2xl leading-none text-slate-900 dark:text-slate-50 sm:text-3xl">
                     {stat.value ?? 0}
                   </div>
                 )}
-                <div className="truncate text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
                   {stat.label}
                 </div>
               </div>
@@ -61,12 +64,12 @@ export default function AdminDashboardPage() {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
+          <h2 className="font-display text-xl text-slate-900 dark:text-slate-50">
             Recent students
           </h2>
           <Link
             to="/admin/students"
-            className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            className="flex items-center gap-1 text-sm font-medium text-admin-accent hover:underline"
           >
             View all
             <ArrowRight size={14} />
@@ -105,15 +108,9 @@ export default function AdminDashboardPage() {
                         {EDUCATION_LABELS[student.educationLevel] ?? "—"}
                       </td>
                       <td className="px-4 py-3 sm:px-6">
-                        <span
-                          className={
-                            student.quizCompleted
-                              ? "rounded-lg bg-primary-light px-2.5 py-1 text-xs font-semibold text-primary-dark"
-                              : "rounded-lg bg-slate-100 dark:bg-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-500 dark:text-slate-400"
-                          }
-                        >
+                        <Badge variant={student.quizCompleted ? "accent" : "neutral"}>
                           {student.quizCompleted ? "Done" : "Pending"}
-                        </span>
+                        </Badge>
                       </td>
                     </tr>
                   ))}

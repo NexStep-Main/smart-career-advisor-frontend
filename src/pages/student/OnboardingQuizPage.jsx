@@ -29,6 +29,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import Button from "@/components/ui/Button";
 import Logo from "@/components/common/Logo";
 import SEOHead from "@/components/common/SEOHead";
 import ThemeToggle from "@/components/common/ThemeToggle";
@@ -266,23 +267,22 @@ export default function OnboardingQuizPage() {
       <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
         <SEOHead title="Quiz Complete" />
         <div className="max-w-md text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark shadow-lg shadow-primary/25">
-            <CheckCircle size={40} className="text-white" />
+          {/* Solid emerald, no gradient/glow — a genuinely semantic "done"
+              checkmark, not decoration. */}
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary">
+            <CheckCircle size={32} className="text-white" strokeWidth={1.8} />
           </div>
-          <h1 className="font-heading text-3xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
             Your profile is ready!
           </h1>
           <p className="mt-3 text-base leading-relaxed text-slate-500 dark:text-slate-400">
             We've analysed your answers and matched you to career paths that fit. Check out your
             personalised recommendations.
           </p>
-          <button
-            onClick={() => navigate("/recommendations")}
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 hover:bg-primary-dark"
-          >
+          <Button size="lg" className="mt-8" onClick={() => navigate("/recommendations")}>
             View My Recommendations
             <ArrowRight size={18} />
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -296,49 +296,34 @@ export default function OnboardingQuizPage() {
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
           <Logo size="md" to="/" />
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              Step <strong className="text-primary">{currentStep + 1}</strong> of{" "}
-              {QUIZ_STEPS.length}
+            <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              Step <span className="text-primary">{currentStep + 1}</span> of {QUIZ_STEPS.length}
             </span>
             <ThemeToggle />
           </div>
         </div>
       </nav>
 
-      <div className="sticky top-16 z-30 h-1 bg-primary-light">
+      {/* Hairline progress track, matching the dashboard/roadmap treatment
+          instead of a heavy filled bar. */}
+      <div className="sticky top-16 z-30 h-px bg-border">
         <div
-          className="h-full bg-primary transition-all duration-300"
+          className="h-px bg-primary transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pb-20 pt-12">
-        <div className="mb-10 flex gap-2">
-          {QUIZ_STEPS.map((_, i) => (
-            <span
-              key={i}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                i === currentStep
-                  ? "w-6 bg-primary"
-                  : i < currentStep
-                    ? "w-2 bg-primary"
-                    : "w-2 bg-primary-light",
-              )}
-            />
-          ))}
-        </div>
-
         <div className="mb-9 w-full text-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
             Question {currentStep + 1} of {QUIZ_STEPS.length}
           </span>
-          <h1 className="mt-2.5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">
+          <h1 className="mt-2.5 font-display text-3xl text-slate-900 dark:text-slate-50 sm:text-4xl">
             {step.title}
           </h1>
           <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">{step.subtitle}</p>
           {step.multiple && (
-            <span className="mt-2 inline-block rounded-full bg-primary-light px-3.5 py-1 text-xs font-semibold text-primary-dark">
+            <span className="mt-2 inline-block font-mono text-xs uppercase tracking-[0.14em] text-primary">
               Select all that apply
             </span>
           )}
@@ -357,27 +342,23 @@ export default function OnboardingQuizPage() {
                 key={opt.value}
                 onClick={() => select(opt.value)}
                 className={cn(
-                  "flex items-center gap-4 rounded-2xl border-2 bg-surface p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
-                  selected ? "border-primary bg-primary-light/40 shadow-md" : "border-border",
+                  "flex items-center gap-4 rounded-xl border bg-surface p-4 text-left transition-colors",
+                  selected ? "border-primary" : "border-border hover:border-primary/40",
                 )}
               >
-                <span
+                <opt.icon
+                  size={22}
+                  strokeWidth={1.6}
                   className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-xl",
-                    selected ? "bg-primary-light" : "bg-background",
+                    "shrink-0",
+                    selected ? "text-primary" : "text-slate-400 dark:text-slate-500",
                   )}
-                >
-                  <opt.icon
-                    size={22}
-                    strokeWidth={1.8}
-                    className={selected ? "text-primary-dark" : "text-slate-500 dark:text-slate-400"}
-                  />
-                </span>
+                />
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block font-heading text-sm font-bold",
-                      selected ? "text-primary-dark" : "text-slate-900 dark:text-slate-50",
+                      "block text-sm font-semibold",
+                      selected ? "text-primary" : "text-slate-900 dark:text-slate-50",
                     )}
                   >
                     {opt.label}
@@ -386,7 +367,7 @@ export default function OnboardingQuizPage() {
                     {opt.desc}
                   </span>
                 </span>
-                {selected && <CheckCircle size={20} className="shrink-0 text-primary" />}
+                {selected && <CheckCircle size={18} className="shrink-0 text-accent-green" />}
               </button>
             );
           })}
@@ -395,27 +376,20 @@ export default function OnboardingQuizPage() {
         <div className="mt-10 flex w-full items-center justify-between">
           <div>
             {currentStep > 0 && (
-              <button
-                onClick={() => setCurrentStep((s) => s - 1)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary"
-              >
+              <Button variant="outline" size="lg" onClick={() => setCurrentStep((s) => s - 1)}>
                 <ArrowLeft size={18} />
                 Back
-              </button>
+              </Button>
             )}
           </div>
-          <button
-            onClick={handleNext}
-            disabled={!isStepValid || submitting}
-            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-45"
-          >
+          <Button size="lg" disabled={!isStepValid || submitting} onClick={handleNext}>
             {submitting
               ? "Submitting…"
               : currentStep === QUIZ_STEPS.length - 1
                 ? "Get My Results"
                 : "Next"}
             <ArrowRight size={18} />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -23,8 +23,8 @@ export default function AdminSidebar({ mobile = false, onNavigate }) {
       )}
     >
       <div className="flex h-16 items-center justify-between border-b border-border px-6">
-        <Logo size="md" to="/admin/dashboard" />
-        <span className="rounded-md bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-primary-dark">
+        <Logo size="md" to="/admin/dashboard" admin />
+        <span className="rounded-md bg-admin-accent-light px-2 py-0.5 text-[11px] font-semibold text-admin-accent-dark">
           Admin
         </span>
       </div>
@@ -39,7 +39,7 @@ export default function AdminSidebar({ mobile = false, onNavigate }) {
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-primary-light text-primary-dark"
+                  ? "bg-admin-accent-light text-admin-accent-dark"
                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-50",
               )
             }

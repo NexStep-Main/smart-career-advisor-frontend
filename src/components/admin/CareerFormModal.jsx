@@ -70,7 +70,7 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/40 p-4 py-8 sm:items-center">
       <div className="w-full max-w-lg rounded-xl border border-border bg-surface shadow-lg">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h3 className="font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
+          <h3 className="font-display text-lg text-slate-900 dark:text-slate-50">
             {career ? "Edit Career" : "Add New Career"}
           </h3>
           <button
@@ -243,7 +243,12 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
           <Button variant="outline" className="flex-1" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button className="flex-1" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
+          <Button
+            variant="admin"
+            className="flex-1"
+            onClick={handleSubmit(onSubmit)}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "Saving…" : career ? "Save changes" : "Create career"}
           </Button>
         </div>

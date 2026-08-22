@@ -6,6 +6,9 @@ const VARIANTS = {
   neutral: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300",
   green: "bg-green-50 dark:bg-green-900/20 text-accent-green",
   orange: "bg-orange-50 dark:bg-orange-900/20 text-accent-orange",
+  // Admin portal only — steel blue instead of emerald for status pills.
+  accent: "bg-admin-accent-light text-admin-accent-dark",
+  danger: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400",
 };
 
 /** Small pill tag — rounded-lg per Guide (tags/chips), not full-pill. */

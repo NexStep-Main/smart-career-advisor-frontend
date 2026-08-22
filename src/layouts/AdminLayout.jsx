@@ -47,7 +47,7 @@ export default function AdminLayout() {
             <span className="hidden text-sm text-slate-600 dark:text-slate-300 sm:inline">
               {user?.fullName ?? "Admin"}
             </span>
-            <div className="flex size-9 items-center justify-center rounded-full bg-primary-light text-sm font-semibold text-primary-dark">
+            <div className="flex size-9 items-center justify-center rounded-full border border-border font-display text-sm text-slate-900 dark:text-slate-50">
               {(user?.fullName ?? "A").charAt(0).toUpperCase()}
             </div>
             <ThemeToggle />

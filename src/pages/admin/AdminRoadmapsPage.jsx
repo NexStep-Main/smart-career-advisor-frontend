@@ -42,14 +42,12 @@ export default function AdminRoadmapsPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Roadmaps
-          </h1>
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">Roadmaps</h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {data?.total ?? 0} roadmap{data?.total === 1 ? "" : "s"} published
           </p>
         </div>
-        <Button asChild>
+        <Button asChild variant="admin">
           <Link to="/admin/roadmaps/new">
             <Plus size={16} />
             New Roadmap
@@ -69,7 +67,7 @@ export default function AdminRoadmapsPage() {
           title="No roadmaps yet"
           description="Create a phase-by-phase roadmap for a career to get started."
           action={
-            <Button asChild size="sm">
+            <Button asChild variant="admin" size="sm">
               <Link to="/admin/roadmaps/new">New Roadmap</Link>
             </Button>
           }
