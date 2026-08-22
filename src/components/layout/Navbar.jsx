@@ -31,15 +31,10 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-<<<<<<< HEAD
         "fixed inset-x-0 top-0 z-50 transition-all duration-200",
         scrolled
           ? "border-b border-indigo-100/80 bg-white/80 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-950/80"
           : "bg-transparent",
-=======
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
-        scrolled ? "border-b border-rule bg-paper/90 backdrop-blur-md" : "border-b border-transparent",
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
       )}
     >
       <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
@@ -50,11 +45,7 @@ export default function Navbar() {
             <NavLink
               key={link.to}
               to={link.to}
-<<<<<<< HEAD
               className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
-=======
-              className="group relative py-1 font-mono text-xs uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
             >
               {link.label}
               <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ink transition-transform duration-300 group-hover:scale-x-100" />
@@ -72,11 +63,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-<<<<<<< HEAD
                 className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
-=======
-                className="font-mono text-xs uppercase tracking-[0.18em] text-ink-muted transition-colors hover:text-ink"
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
               >
                 Login
               </Link>
@@ -91,11 +78,7 @@ export default function Navbar() {
           <ThemeToggle className="rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
           <button
             onClick={() => setMenuOpen((v) => !v)}
-<<<<<<< HEAD
             className="flex items-center justify-center rounded-lg border border-indigo-100 bg-white/80 p-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
-=======
-            className="flex items-center justify-center p-2 text-ink"
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
             aria-label="Toggle menu"
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -104,32 +87,19 @@ export default function Navbar() {
       </nav>
 
       {menuOpen && (
-<<<<<<< HEAD
         <div className="border-t border-indigo-100 bg-white/95 px-6 py-4 shadow-lg backdrop-blur-md md:hidden dark:border-slate-700 dark:bg-slate-950/95">
           <div className="flex flex-col gap-4">
-=======
-        <div className="border-t border-rule bg-paper px-6 py-6 md:hidden">
-          <div className="flex flex-col gap-5">
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
-<<<<<<< HEAD
                 className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300"
-=======
-                className="font-display text-2xl text-ink"
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </NavLink>
             ))}
-<<<<<<< HEAD
             <div className="flex flex-col gap-2 border-t border-indigo-100 pt-4 dark:border-slate-700">
-=======
-            <div className="flex flex-col gap-3 border-t border-rule pt-5">
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
               {isAuthenticated ? (
                 <Button asChild variant="ink" size="sm">
                   <Link to="/dashboard" onClick={() => setMenuOpen(false)}>

@@ -32,6 +32,7 @@ import toast from "react-hot-toast";
 import Logo from "@/components/common/Logo";
 import SEOHead from "@/components/common/SEOHead";
 import ThemeToggle from "@/components/common/ThemeToggle";
+import Button from "@/components/ui/Button";
 import useAuthStore from "@/store/useAuthStore";
 import { submitQuiz } from "@/services/recommendations";
 import { cn } from "@/lib/utils";
@@ -269,20 +270,21 @@ export default function OnboardingQuizPage() {
           <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark shadow-lg shadow-primary/25">
             <CheckCircle size={40} className="text-white" />
           </div>
-          <h1 className="font-heading text-3xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
             Your profile is ready!
           </h1>
           <p className="mt-3 text-base leading-relaxed text-slate-500 dark:text-slate-400">
             We've analysed your answers and matched you to career paths that fit. Check out your
             personalised recommendations.
           </p>
-          <button
+          <Button
             onClick={() => navigate("/recommendations")}
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 hover:bg-primary-dark"
+            size="lg"
+            className="mt-8"
           >
             View My Recommendations
             <ArrowRight size={18} />
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -333,7 +335,7 @@ export default function OnboardingQuizPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-primary">
             Question {currentStep + 1} of {QUIZ_STEPS.length}
           </span>
-          <h1 className="mt-2.5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">
+          <h1 className="mt-2.5 font-display text-3xl leading-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
             {step.title}
           </h1>
           <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">{step.subtitle}</p>
@@ -356,10 +358,10 @@ export default function OnboardingQuizPage() {
               <button
                 key={opt.value}
                 onClick={() => select(opt.value)}
-                className={cn(
-                  "flex items-center gap-4 rounded-2xl border-2 bg-surface p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
-                  selected ? "border-primary bg-primary-light/40 shadow-md" : "border-border",
-                )}
+                  className={cn(
+                    "flex items-center gap-4 rounded-xl border bg-surface p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+                    selected ? "border-primary bg-primary-light/40 shadow-md" : "border-border",
+                  )}
               >
                 <span
                   className={cn(
@@ -376,7 +378,7 @@ export default function OnboardingQuizPage() {
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block font-heading text-sm font-bold",
+                      "block font-medium",
                       selected ? "text-primary-dark" : "text-slate-900 dark:text-slate-50",
                     )}
                   >
@@ -397,17 +399,17 @@ export default function OnboardingQuizPage() {
             {currentStep > 0 && (
               <button
                 onClick={() => setCurrentStep((s) => s - 1)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary"
+                className="flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary"
               >
                 <ArrowLeft size={18} />
                 Back
               </button>
             )}
           </div>
-          <button
+          <Button
             onClick={handleNext}
             disabled={!isStepValid || submitting}
-            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-primary-dark disabled:pointer-events-none disabled:opacity-45"
+            size="lg"
           >
             {submitting
               ? "Submitting…"
@@ -415,7 +417,7 @@ export default function OnboardingQuizPage() {
                 ? "Get My Results"
                 : "Next"}
             <ArrowRight size={18} />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

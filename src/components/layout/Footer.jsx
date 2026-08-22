@@ -96,7 +96,6 @@ function NewsletterForm() {
 
 export default function Footer() {
   return (
-<<<<<<< HEAD
     <footer className="border-t border-indigo-100 bg-white/80 px-6 py-16 shadow-[0_-10px_25px_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-950/60">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 md:grid-cols-4">
         <div className="col-span-2 md:col-span-1">
@@ -106,16 +105,6 @@ export default function Footer() {
           <p className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Free career guidance for Indian students after Class 10, 12, and Graduation.
           </p>
-=======
-    <footer className="border-t border-rule px-6 py-20">
-      <div className="mx-auto max-w-6xl">
-        {/* Oversized wordmark as the closing visual — the type signs off the
-            page instead of a logo lockup shrinking into a corner. */}
-        <div className="mb-20 border-b border-rule pb-16">
-          <div className="font-display text-[clamp(3rem,14vw,11rem)] leading-[0.85] tracking-tight text-ink">
-            NexStep
-          </div>
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
         </div>
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
@@ -137,43 +126,18 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
-<<<<<<< HEAD
-            <ul className="flex flex-col gap-2.5">
-              {col.links.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="text-sm text-slate-500 transition-colors hover:text-primary dark:text-slate-400 dark:hover:text-slate-200"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="mx-auto mt-12 max-w-6xl border-t border-indigo-100 pt-6 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
-        © {new Date().getFullYear()} NexStep. Final Year Project — B.Tech CSE.
-=======
           ))}
-
-          <div className="col-span-2 md:col-span-1">
+          <div>
             <div className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
               Stay in the loop
             </div>
             <NewsletterForm />
           </div>
         </div>
+      </div>
 
-        <div className="mt-20 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-8">
-          <Logo size="sm" mono />
-          <p className="font-mono text-xs text-ink-faint">
-            © {new Date().getFullYear()} NexStep — Final Year Project, B.Tech CSE.
-          </p>
-        </div>
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
+      <div className="mx-auto mt-12 max-w-6xl border-t border-indigo-100 pt-6 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
+        © {new Date().getFullYear()} NexStep. Final Year Project — B.Tech CSE.
       </div>
     </footer>
   );

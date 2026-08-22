@@ -42,7 +42,7 @@ export default function LoginPage() {
     <>
       <SEOHead title="Login" />
       <div className="mb-6 text-center">
-        <h1 className="font-heading text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+        <h1 className="font-display text-3xl tracking-tight text-slate-900 dark:text-slate-50">
           Welcome back
         </h1>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -100,7 +100,7 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full shadow-[0_12px_24px_-18px_rgba(79,70,229,0.75)]">
+        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
           <LogIn size={16} />
           {isSubmitting ? "Logging in…" : "Log in"}
         </Button>
@@ -108,11 +108,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
         Don't have an account?{" "}
-<<<<<<< HEAD
         <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
-=======
-        <Link to="/register" className="font-medium text-primary hover:underline">
->>>>>>> aa472d86301b787221ea1109b23f10e0f25ac2fa
           Sign up
         </Link>
       </p>
