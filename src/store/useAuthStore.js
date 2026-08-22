@@ -36,10 +36,6 @@ const useAuthStore = create(
       isAuthenticated: false,
 
       login: (user, token, rememberMe = true) => {
-        // A real login always wins over a leftover dev-bypass session (see
-        // AdminLoginPage's "skip login" button) — otherwise the stale flag
-        // makes api.js's 401 interceptor swallow errors it shouldn't.
-        localStorage.removeItem("sca-dev-bypass");
         localStorage.setItem(REMEMBER_KEY, String(rememberMe));
         set({ user, token, isAuthenticated: true });
       },

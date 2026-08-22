@@ -11,9 +11,9 @@ const VARIANTS = {
   ghost:
     "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-primary",
 
-  // Admin portal only — steel blue instead of emerald, otherwise identical
-  // shape/motion to `primary` so admin buttons still feel like the same
-  // component family, just a different surface.
+  // Admin portal only — amber/gold console accent instead of emerald,
+  // otherwise identical shape/motion to `primary` so admin buttons still
+  // feel like the same component family, just a different surface.
   admin:
     "bg-admin-accent text-white shadow-sm hover:bg-admin-accent-dark hover:shadow-lg hover:shadow-admin-accent/25 focus-visible:outline-admin-accent",
 

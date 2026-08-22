@@ -42,7 +42,12 @@ export default function AdminRoadmapsPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">Roadmaps</h1>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+            Console / Roadmaps
+          </span>
+          <h1 className="mt-1 font-display text-3xl text-slate-900 dark:text-slate-50">
+            Roadmaps
+          </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {data?.total ?? 0} roadmap{data?.total === 1 ? "" : "s"} published
           </p>
@@ -77,26 +82,26 @@ export default function AdminRoadmapsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-border text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  <th className="px-4 py-3 font-semibold sm:px-6">Roadmap</th>
-                  <th className="px-4 py-3 font-semibold sm:px-6">Career</th>
-                  <th className="px-4 py-3 font-semibold sm:px-6">Phases</th>
-                  <th className="px-4 py-3 font-semibold sm:px-6">Actions</th>
+                <tr className="border-b border-border font-mono text-[10.5px] uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Roadmap</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Career</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Phases</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {roadmaps.map((roadmap) => (
                   <tr key={roadmap.id} className="border-b border-border last:border-0">
-                    <td className="max-w-48 truncate px-4 py-3 font-medium text-slate-900 dark:text-slate-50 sm:px-6">
+                    <td className="max-w-48 truncate px-4 py-2.5 font-medium text-slate-900 dark:text-slate-50 sm:px-6">
                       {roadmap.title}
                     </td>
-                    <td className="max-w-40 truncate px-4 py-3 text-slate-600 dark:text-slate-300 sm:px-6">
+                    <td className="max-w-40 truncate px-4 py-2.5 text-slate-600 dark:text-slate-300 sm:px-6">
                       {roadmap.careerId?.title ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 sm:px-6">
-                      {roadmap.phases?.length ?? 0}
+                    <td className="px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-300 sm:px-6">
+                      {String(roadmap.phases?.length ?? 0).padStart(2, "0")}
                     </td>
-                    <td className="px-4 py-3 sm:px-6">
+                    <td className="px-4 py-2.5 sm:px-6">
                       <div className="flex gap-1.5">
                         <button
                           onClick={() =>

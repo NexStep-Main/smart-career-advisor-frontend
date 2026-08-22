@@ -2,23 +2,28 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Menu, LogOut, X } from "lucide-react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
-import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
 
-/** Shell for every authenticated admin page. Mirrors layouts/DashboardLayout.jsx. */
+/**
+ * Shell for every authenticated admin page. Mirrors layouts/DashboardLayout.jsx,
+ * except the admin portal is a fixed dark "command console" — no light/dark
+ * toggle here, and the `dark` class is forced on regardless of the
+ * site-wide theme preference so every shared component's existing dark:
+ * styling resolves correctly against the charcoal admin tokens (see
+ * .portal-admin in styles/index.css).
+ */
 export default function AdminLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("sca-dev-bypass");
     logout();
     navigate("/admin/login");
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="portal-admin dark flex min-h-screen bg-background">
       <AdminSidebar />
 
       {mobileNavOpen && (
@@ -50,7 +55,6 @@ export default function AdminLayout() {
             <div className="flex size-9 items-center justify-center rounded-full border border-border font-display text-sm text-slate-900 dark:text-slate-50">
               {(user?.fullName ?? "A").charAt(0).toUpperCase()}
             </div>
-            <ThemeToggle />
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-red-500"

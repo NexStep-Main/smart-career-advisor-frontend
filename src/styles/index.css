@@ -48,9 +48,15 @@
   --color-accent-green: var(--nx-accent-green);
   --color-accent-orange: var(--nx-accent-orange);
 
-  /* Admin portal only — steel blue instead of emerald, so the admin shell
-     reads as a distinct control panel at a glance rather than a themed copy
-     of the student product. See Frontend Guide.md § Design System. */
+  /* Admin portal only — "command console" skin: fixed charcoal base + a
+     single amber/gold accent, always-dark regardless of the site-wide
+     toggle, so the admin shell reads as a distinct control panel at a
+     glance rather than a themed copy of the student product. See
+     Frontend Guide.md § Design System. */
+  --color-admin-bg: var(--nx-admin-bg);
+  --color-admin-surface: var(--nx-admin-surface);
+  --color-admin-surface-raised: var(--nx-admin-surface-raised);
+  --color-admin-border: var(--nx-admin-border);
   --color-admin-accent: var(--nx-admin-accent);
   --color-admin-accent-dark: var(--nx-admin-accent-dark);
   --color-admin-accent-light: var(--nx-admin-accent-light);
@@ -86,11 +92,20 @@
   --nx-accent-green: #057a55;
   --nx-accent-orange: #d03801;
 
-  /* Admin accent — steel blue, deliberately not emerald and not pure
-     black/white, so the admin portal reads as a distinct surface. */
-  --nx-admin-accent: #4682b4;
-  --nx-admin-accent-dark: #386a91;
-  --nx-admin-accent-light: #e8f0f6;
+  /* Admin portal — "command console" skin. Fixed, single-mode: unlike the
+     tokens above, these do NOT get redefined under .dark below — the admin
+     portal ignores the site-wide light/dark toggle entirely and always
+     renders this charcoal console (see .portal-admin further down, which
+     also forces the `dark` variant on regardless of the toggle so every
+     existing dark: utility used by shared components resolves correctly
+     against it, instead of duplicating every component's dark styling). */
+  --nx-admin-bg: #0a0a0c;
+  --nx-admin-surface: #131316;
+  --nx-admin-surface-raised: #1c1c21;
+  --nx-admin-border: #2c2c33;
+  --nx-admin-accent: #e0a940;
+  --nx-admin-accent-dark: #c8932c;
+  --nx-admin-accent-light: #3a2f18;
 
   /* Editorial scale — warm off-white paper, near-black ink. */
   --nx-paper: #faf9f7;
@@ -116,10 +131,6 @@
   --nx-accent-green: #34d399;
   --nx-accent-orange: #fb923c;
 
-  --nx-admin-accent: #7fb3d3;
-  --nx-admin-accent-dark: #a3c9de;
-  --nx-admin-accent-light: #16242e;
-
   --nx-paper: #0b0b0b;
   --nx-ink: #f5f4f2;
   --nx-ink-muted: #8f8e8a;
@@ -133,6 +144,121 @@
 .bg-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
+}
+
+/* Portal chrome — thin scrollbar + a custom-shaped (but otherwise ordinary,
+   un-animated) cursor, scoped to the student and admin portals only (not
+   the public landing/marketing pages). A plain CSS `cursor: url(...)`
+   swap, not a JS-tracked cursor element — it's rendered by the OS/browser's
+   own cursor pipeline, so it moves at native speed with zero lag, and any
+   descendant that sets its own cursor (buttons, links, text inputs,
+   disabled states) still overrides it exactly like a normal browser cursor.
+   Hotspot "3 3" matches the arrow tip's position inside the 24×24 SVG. */
+.portal-student,
+.portal-admin {
+  scrollbar-width: thin;
+}
+
+.portal-student {
+  scrollbar-color: var(--nx-border) transparent;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3 L3 19 L7.5 15 L10.5 22 L13.5 20.7 L10.5 14 L17 14 Z' fill='%23059669' stroke='white' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+      3 3,
+    auto;
+}
+
+.portal-admin {
+  scrollbar-color: var(--nx-border) transparent;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3 L3 19 L7.5 15 L10.5 22 L13.5 20.7 L10.5 14 L17 14 Z' fill='%23e0a940' stroke='%230a0a0c' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+      3 3,
+    auto;
+}
+
+/* Command console — always dark, independent of the site-wide light/dark
+   toggle (which is not offered inside the admin portal at all: see
+   AdminLayout/AdminAuthLayout). Repointing --nx-background/-surface/-border
+   here means every shared component already using bg-background/bg-surface/
+   border-border (Card, Input, tables, modals...) picks up the charcoal
+   console skin with no per-component changes. --nx-primary is repointed too
+   — several admin screens style raw <input>/<select> elements directly with
+   `focus:border-primary`/`ring-primary` (a pre-existing leftover-emerald
+   bug, never actually themed for admin even when the accent was steel
+   blue), so this makes every one of those correctly resolve to the admin
+   accent instead of emerald. */
+.portal-admin {
+  --nx-background: var(--nx-admin-bg);
+  --nx-surface: var(--nx-admin-surface);
+  --nx-border: var(--nx-admin-border);
+  --nx-primary: var(--nx-admin-accent);
+  --nx-primary-dark: var(--nx-admin-accent-dark);
+  --nx-primary-light: var(--nx-admin-accent-light);
+}
+
+/* Thicker hairlines in admin only — thin editorial 1px rules read as
+   "corporate SaaS"; a console wants more structural definition. Scoped to
+   Tailwind's actual border-WIDTH utilities (not `border-border`, which only
+   sets color) and split per side — a table row using just `border-b` must
+   only get a heavier bottom edge, not phantom borders on the other three
+   sides it never set a width for. */
+.portal-admin .border {
+  border-width: 1.5px;
+}
+.portal-admin .border-t {
+  border-top-width: 1.5px;
+}
+.portal-admin .border-b {
+  border-bottom-width: 1.5px;
+}
+.portal-admin .border-l {
+  border-left-width: 1.5px;
+}
+.portal-admin .border-r {
+  border-right-width: 1.5px;
+}
+.portal-admin .border-x {
+  border-left-width: 1.5px;
+  border-right-width: 1.5px;
+}
+.portal-admin .border-y {
+  border-top-width: 1.5px;
+  border-bottom-width: 1.5px;
+}
+
+/* Bolder, rectangular, mono status pills — see components/ui/Badge.jsx's
+   `nx-badge` hook class. Scoped to admin only; the student portal keeps its
+   soft pill badges untouched. */
+.portal-admin .nx-badge {
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10px;
+  padding: 2px 7px;
+}
+
+.portal-student ::-webkit-scrollbar,
+.portal-admin ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.portal-student ::-webkit-scrollbar-track,
+.portal-admin ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.portal-student ::-webkit-scrollbar-thumb {
+  background-color: var(--nx-border);
+  border-radius: 9999px;
+}
+.portal-student ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--nx-primary);
+}
+.portal-admin ::-webkit-scrollbar-thumb {
+  background-color: var(--nx-border);
+  border-radius: 9999px;
+}
+.portal-admin ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--nx-admin-accent);
 }
 
 /* Marquee — the track holds the content twice, so translating exactly -50%

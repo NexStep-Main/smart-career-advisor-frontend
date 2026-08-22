@@ -20,7 +20,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="portal-student flex min-h-screen bg-background">
       <Sidebar />
 
       {/* Mobile sidebar drawer */}

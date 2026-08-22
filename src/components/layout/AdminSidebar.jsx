@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Route, Users } from "lucide-react";
+import { LayoutDashboard, Briefcase, Route, Users, ShieldCheck } from "lucide-react";
 import Logo from "@/components/common/Logo";
+import useAuthStore from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -10,11 +11,16 @@ const NAV_ITEMS = [
   { label: "Students", to: "/admin/students", icon: Users },
 ];
 
+const SUPERADMIN_NAV_ITEM = { label: "Admins", to: "/admin/admins", icon: ShieldCheck };
+
 /**
  * Left nav for the authenticated admin shell. Mirrors components/layout/Sidebar.jsx,
  * including the `mobile` prop needed so it renders inside AdminLayout's drawer.
  */
 export default function AdminSidebar({ mobile = false, onNavigate }) {
+  const isSuperadmin = useAuthStore((state) => state.user?.role === "superadmin");
+  const navItems = isSuperadmin ? [...NAV_ITEMS, SUPERADMIN_NAV_ITEM] : NAV_ITEMS;
+
   return (
     <aside
       className={cn(
@@ -30,7 +36,7 @@ export default function AdminSidebar({ mobile = false, onNavigate }) {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-4">
-        {NAV_ITEMS.map(({ label, to, icon: Icon }) => (
+        {navItems.map(({ label, to, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

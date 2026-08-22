@@ -55,6 +55,7 @@ export default function StudentEditModal({ open, student, onClose, onSubmit, isS
         email: student.email ?? "",
         educationLevel: student.educationLevel ?? "",
         stream: student.stream ?? "",
+        isTestAccount: student.isTestAccount ?? false,
       });
       // reset() doesn't re-run validation on its own — trigger it so
       // `isValid` (which gates the submit button below) reflects the
@@ -152,6 +153,14 @@ export default function StudentEditModal({ open, student, onClose, onSubmit, isS
               <FormError message={errors.stream?.message} />
             </div>
           </div>
+
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <input type="checkbox" className="size-4 rounded border-border" {...register("isTestAccount")} />
+            Mark as test account
+            <span className="text-xs text-slate-400 dark:text-slate-500">
+              (hidden from the list by default)
+            </span>
+          </label>
         </form>
 
         <div className="flex gap-3 border-t border-border px-6 py-4">

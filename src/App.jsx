@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import ProtectedRoute from "@/components/common/ProtectedRoute";
 import AdminRoute from "@/components/common/AdminRoute";
+import SuperAdminRoute from "@/components/common/SuperAdminRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -30,6 +31,8 @@ import BookmarksPage from "./pages/student/BookmarksPage";
 import ProfilePage from "./pages/student/ProfilePage";
 import CareerComparisonPage from "./pages/student/CareerComparisonPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminSetupPage from "./pages/admin/AdminSetupPage";
+import AdminManageAdminsPage from "./pages/admin/AdminManageAdminsPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminCareersPage from "./pages/admin/AdminCareersPage";
 import AdminRoadmapsPage from "./pages/admin/AdminRoadmapsPage";
@@ -45,11 +48,11 @@ function App() {
   // A persisted token only means the browser *remembers* one — it doesn't
   // mean the JWT is still valid server-side (expired, or the account was
   // deleted). The initial value is derived synchronously so there's nothing
-  // to verify (and no render-triggering setState) when there's no token or
-  // the dev bypass is active; only a real token needs the async check.
+  // to verify (and no render-triggering setState) when there's no token;
+  // only a real token needs the async check.
   const [checkingSession, setCheckingSession] = useState(() => {
     const { token } = useAuthStore.getState();
-    return !!token && !localStorage.getItem("sca-dev-bypass");
+    return !!token;
   });
 
   useEffect(() => {
@@ -88,9 +91,10 @@ function App() {
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
               </Route>
 
-              {/* Admin login — its own shell, not the student AuthLayout */}
+              {/* Admin login/setup — its own shell, not the student AuthLayout */}
               <Route element={<AdminAuthLayout />}>
                 <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/admin/setup" element={<AdminSetupPage />} />
               </Route>
 
               {/* Student — authenticated, every page shares the same DashboardLayout
@@ -122,6 +126,10 @@ function App() {
                   <Route path="/admin/roadmaps/:id/edit" element={<AdminRoadmapFormPage />} />
                   <Route path="/admin/students" element={<AdminStudentsPage />} />
                   <Route path="/admin/students/:id" element={<AdminStudentDetailPage />} />
+
+                  <Route element={<SuperAdminRoute />}>
+                    <Route path="/admin/admins" element={<AdminManageAdminsPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Routes>

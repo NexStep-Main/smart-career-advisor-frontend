@@ -1,19 +1,18 @@
 import { Outlet } from "react-router-dom";
 import Logo from "@/components/common/Logo";
-import ThemeToggle from "@/components/common/ThemeToggle";
 
 /**
- * Dedicated shell for /admin/login — deliberately not the student AuthLayout.
- * Admin is a different, internal audience: same boxed-card convention the
- * rest of the admin portal uses (Card, forms), steel blue accent instead of
- * emerald, so the login screen already looks like the control panel it leads
- * into instead of the public marketing/student shell.
+ * Dedicated shell for /admin/login and /admin/setup — deliberately not the
+ * student AuthLayout. Admin is a different, internal audience: same boxed-
+ * card convention the rest of the admin portal uses (Card, forms), the
+ * fixed charcoal-and-amber console skin instead of emerald, and no
+ * light/dark toggle — the console doesn't have a light mode — so the login
+ * screen already looks like the control panel it leads into instead of the
+ * public marketing/student shell.
  */
 export default function AdminAuthLayout() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <ThemeToggle className="absolute right-6 top-6" />
-
+    <div className="portal-admin dark relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
           <Logo size="lg" admin />

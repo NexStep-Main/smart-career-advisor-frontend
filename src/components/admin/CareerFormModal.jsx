@@ -1,12 +1,16 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
+import TagInput from "@/components/ui/TagInput";
+import { getCareerTagValues } from "@/services/admin";
 import { careerFormSchema } from "@/utils/schemas";
+import { DOMAINS } from "@/lib/constants";
 
 const EDUCATION_LEVELS = [
   { value: "class10", label: "Class 10" },
@@ -19,17 +23,16 @@ const BLANK_DEFAULTS = {
   domain: "",
   description: "",
   educationLevel: [],
-  streams: "",
+  streams: [],
   averageSalary: { min: 0, max: 0, currency: "INR" },
   demandLevel: "high",
-  skills: "",
-  topColleges: "",
+  skills: [],
+  topColleges: [],
   futureScope: "",
-  tags: "",
+  tags: [],
   isActive: true,
 };
 
-/** Populates the form from an existing career for edit mode — arrays become comma text. */
 function toFormValues(career) {
   if (!career) return BLANK_DEFAULTS;
   return {
@@ -37,32 +40,60 @@ function toFormValues(career) {
     domain: career.domain,
     description: career.description,
     educationLevel: career.educationLevel ?? [],
-    streams: (career.streams ?? []).join(", "),
+    streams: career.streams ?? [],
     averageSalary: {
       min: career.averageSalary?.min ?? 0,
       max: career.averageSalary?.max ?? 0,
       currency: career.averageSalary?.currency ?? "INR",
     },
     demandLevel: career.demandLevel ?? "high",
-    skills: (career.skills ?? []).join(", "),
-    topColleges: (career.topColleges ?? []).join(", "),
+    skills: career.skills ?? [],
+    topColleges: career.topColleges ?? [],
     futureScope: career.futureScope ?? "",
-    tags: (career.tags ?? []).join(", "),
+    tags: career.tags ?? [],
     isActive: career.isActive ?? true,
   };
 }
 
+// Fetches distinct existing values for one tag field so TagInput can
+// autocomplete against what's already in the DB — kept cached across
+// open/close since the suggestion pool doesn't change mid-session.
+function useTagSuggestions(field) {
+  const { data } = useQuery({
+    queryKey: ["admin", "careers", "tag-values", field],
+    queryFn: () => getCareerTagValues(field).then((res) => res.data.data.values),
+    staleTime: 5 * 60 * 1000,
+  });
+  return data ?? [];
+}
+
 export default function CareerFormModal({ open, career, onClose, onSubmit, isSubmitting }) {
+  const streamSuggestions = useTagSuggestions("streams");
+  const skillSuggestions = useTagSuggestions("skills");
+  const collegeSuggestions = useTagSuggestions("topColleges");
+
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(careerFormSchema), defaultValues: BLANK_DEFAULTS });
+    trigger,
+    control,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(careerFormSchema),
+    defaultValues: BLANK_DEFAULTS,
+    mode: "onChange",
+  });
 
   useEffect(() => {
-    if (open) reset(toFormValues(career));
-  }, [open, career, reset]);
+    if (open) {
+      reset(toFormValues(career));
+      // reset() doesn't re-run validation on its own — trigger it so
+      // `isValid` (gating the submit button below) reflects the prefilled
+      // data immediately instead of staying stale until the first edit.
+      trigger();
+    }
+  }, [open, career, reset, trigger]);
 
   if (!open) return null;
 
@@ -101,12 +132,21 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="domain">Domain</Label>
-              <Input
+              <select
                 id="domain"
-                placeholder="e.g. Technology"
-                error={!!errors.domain}
+                defaultValue=""
+                className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 {...register("domain")}
-              />
+              >
+                <option value="" disabled>
+                  Select a domain
+                </option>
+                {DOMAINS.map((domain) => (
+                  <option key={domain} value={domain}>
+                    {domain}
+                  </option>
+                ))}
+              </select>
               <FormError message={errors.domain?.message} />
             </div>
             <div>
@@ -158,12 +198,20 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
           </div>
 
           <div>
-            <Label htmlFor="streams">Streams (comma-separated)</Label>
-            <Input
-              id="streams"
-              placeholder="science, engineering"
-              error={!!errors.streams}
-              {...register("streams")}
+            <Label htmlFor="streams">Streams</Label>
+            <Controller
+              name="streams"
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id="streams"
+                  value={field.value}
+                  onChange={field.onChange}
+                  suggestions={streamSuggestions}
+                  placeholder="Type and press Enter — e.g. science, engineering"
+                  error={!!errors.streams}
+                />
+              )}
             />
             <FormError message={errors.streams?.message} />
           </div>
@@ -194,22 +242,40 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
           </div>
 
           <div>
-            <Label htmlFor="skills">Skills (comma-separated)</Label>
-            <Input
-              id="skills"
-              placeholder="JavaScript, Problem Solving"
-              error={!!errors.skills}
-              {...register("skills")}
+            <Label htmlFor="skills">Skills</Label>
+            <Controller
+              name="skills"
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id="skills"
+                  value={field.value}
+                  onChange={field.onChange}
+                  suggestions={skillSuggestions}
+                  placeholder="Type and press Enter — e.g. JavaScript, Problem Solving"
+                  error={!!errors.skills}
+                />
+              )}
             />
             <FormError message={errors.skills?.message} />
           </div>
 
           <div>
-            <Label htmlFor="topColleges">Top colleges (optional, comma-separated)</Label>
-            <Input
-              id="topColleges"
-              placeholder="IIT Delhi, NIT Trichy"
-              {...register("topColleges")}
+            <Label htmlFor="topColleges">
+              Top colleges <span className="font-normal text-slate-400">(optional)</span>
+            </Label>
+            <Controller
+              name="topColleges"
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id="topColleges"
+                  value={field.value}
+                  onChange={field.onChange}
+                  suggestions={collegeSuggestions}
+                  placeholder="Type and press Enter — e.g. IIT Delhi"
+                />
+              )}
             />
           </div>
 
@@ -225,8 +291,21 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
           </div>
 
           <div>
-            <Label htmlFor="tags">Tags (optional, comma-separated)</Label>
-            <Input id="tags" placeholder="trending, remote-friendly" {...register("tags")} />
+            <Label htmlFor="tags">
+              Tags <span className="font-normal text-slate-400">(optional)</span>
+            </Label>
+            <Controller
+              name="tags"
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id="tags"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Type and press Enter — e.g. trending, remote-friendly"
+                />
+              )}
+            />
           </div>
 
           <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -247,7 +326,7 @@ export default function CareerFormModal({ open, career, onClose, onSubmit, isSub
             variant="admin"
             className="flex-1"
             onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValid}
           >
             {isSubmitting ? "Saving…" : career ? "Save changes" : "Create career"}
           </Button>

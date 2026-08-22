@@ -264,7 +264,7 @@ export default function OnboardingQuizPage() {
 
   if (completed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+      <div className="portal-student flex min-h-screen items-center justify-center bg-background px-6 py-12">
         <SEOHead title="Quiz Complete" />
         <div className="max-w-md text-center">
           {/* Solid emerald, no gradient/glow — a genuinely semantic "done"
@@ -289,7 +289,7 @@ export default function OnboardingQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="portal-student min-h-screen bg-background">
       <SEOHead title="Career Quiz" />
 
       <nav className="fixed inset-x-0 top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">

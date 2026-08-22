@@ -35,7 +35,9 @@ const EDUCATION_LABELS = Object.fromEntries(EDUCATION_LEVELS.map((l) => [l.value
 const STREAM_LABELS = Object.fromEntries(STREAMS.map((s) => [s.value, s.label]));
 
 const STATUS_META = {
-  active: { label: "Active", variant: "accent" },
+  // Same reasoning as AdminStudentsPage — "Active" is routine, not a
+  // highlight, so it gets semantic green rather than the console accent.
+  active: { label: "Active", variant: "green" },
   suspended: { label: "Suspended", variant: "orange" },
   deleted: { label: "Deleted", variant: "danger" },
 };
@@ -143,13 +145,17 @@ export default function AdminStudentDetailPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+            Console / Students
+          </span>
+          <div className="mt-1 flex items-center gap-3">
             <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
               {user.fullName}
             </h1>
             <Badge variant={status.variant}>{status.label}</Badge>
+            {user.isTestAccount && <Badge variant="orange">Test account</Badge>}
           </div>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+          <p className="mt-1 font-mono text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -236,11 +242,13 @@ export default function AdminStudentDetailPage() {
               </div>
               <div className="flex justify-between gap-3 border-t border-border pt-2.5">
                 <dt className="text-slate-500 dark:text-slate-400">Joined</dt>
-                <dd className="text-slate-800 dark:text-slate-100">{timeAgo(user.createdAt)}</dd>
+                <dd className="font-mono text-xs text-slate-800 dark:text-slate-100">
+                  {timeAgo(user.createdAt)}
+                </dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-slate-500 dark:text-slate-400">Last active</dt>
-                <dd className="text-slate-800 dark:text-slate-100">
+                <dd className="font-mono text-xs text-slate-800 dark:text-slate-100">
                   {user.lastLoginAt ? timeAgo(user.lastLoginAt) : "Never logged in"}
                 </dd>
               </div>

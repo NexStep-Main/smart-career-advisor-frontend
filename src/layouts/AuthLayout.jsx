@@ -10,7 +10,7 @@ import ThemeToggle from "@/components/common/ThemeToggle";
  */
 export default function AuthLayout() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-paper px-6 py-12">
+    <div className="portal-student relative flex min-h-screen items-center justify-center bg-paper px-6 py-12">
       <ThemeToggle className="absolute right-6 top-6 rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
 
       <div className="w-full max-w-md">

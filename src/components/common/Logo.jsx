@@ -17,7 +17,7 @@ const SIZES = {
  * `mono` is the landing page's editorial register: a single ink colour
  * instead of the app's primary accent, so the brand mark doesn't reintroduce
  * colour into a strictly monochrome layout. `admin` swaps the accent to the
- * admin portal's steel blue instead of the student product's emerald, so the
+ * admin console's amber instead of the student product's emerald, so the
  * wordmark itself signals which surface you're on.
  */
 export default function Logo({ size = "md", to = "/", mono = false, admin = false, className }) {

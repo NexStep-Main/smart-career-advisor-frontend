@@ -14,3 +14,8 @@ export const STREAMS = [
   { value: "arts", label: "Arts" },
   { value: "engineering", label: "Engineering" },
 ];
+
+// Career.domain — was free text (typo could silently create a phantom
+// domain nothing could filter by). Mirrors Backend/src/constants/domains.js
+// exactly; keep both in sync by hand (different runtimes, no shared import).
+export const DOMAINS = ["Technology", "Healthcare", "Arts", "Commerce", "Science", "Law", "Design"];
