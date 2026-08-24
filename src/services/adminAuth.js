@@ -1,7 +1,15 @@
-import api from "./api";
+import adminApi from "./adminApi";
 
 // Unauthenticated admin-portal auth surface — separate from services/auth.js
-// (student) and services/admin.js (authenticated admin actions).
-export const getBootstrapStatus = () => api.get("/admin/auth/bootstrap-status");
-export const bootstrapSuperadmin = (payload) => api.post("/admin/auth/bootstrap", payload);
-export const adminLoginRequest = (payload) => api.post("/admin/auth/login", payload);
+// (student) and services/admin.js (authenticated admin actions). Routed
+// through adminApi (not api) so a successful login's token only ever needs
+// to flow into useAdminAuthStore, never the student store.
+export const getBootstrapStatus = () => adminApi.get("/admin/auth/bootstrap-status");
+export const bootstrapSuperadmin = (payload) => adminApi.post("/admin/auth/bootstrap", payload);
+export const adminLoginRequest = (payload) => adminApi.post("/admin/auth/login", payload);
+
+// GET /api/auth/me is role-agnostic (just returns req.user for whichever
+// token is attached) — reused here via adminApi so App.jsx's boot-time
+// session check can validate a persisted admin token independently of the
+// student one.
+export const adminMeRequest = () => adminApi.get("/auth/me");

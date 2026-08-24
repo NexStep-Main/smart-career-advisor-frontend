@@ -29,12 +29,10 @@ export const adminLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const adminAccountFields = {
+const adminIdentityFields = {
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
   username: usernameSchema,
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
 };
 const passwordsMatch = (data) => data.password === data.confirmPassword;
 const passwordsMatchRefinement = {
@@ -42,16 +40,20 @@ const passwordsMatchRefinement = {
   path: ["confirmPassword"],
 };
 
-// /admin/setup — one-time first-superadmin creation.
-export const superadminSetupSchema = z.object(adminAccountFields).refine(
-  passwordsMatch,
-  passwordsMatchRefinement,
-);
-
-// Superadmin creating another admin account from /admin/admins.
-export const createAdminSchema = z
-  .object(adminAccountFields)
+// /admin/setup — one-time first-superadmin creation. Self-service, so this
+// is the only admin-account form that still collects a password directly.
+export const superadminSetupSchema = z
+  .object({
+    ...adminIdentityFields,
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
   .refine(passwordsMatch, passwordsMatchRefinement);
+
+// Superadmin inviting another admin account from /admin/admins — no
+// password. The invitee sets their own via the emailed reset-password link,
+// so a superadmin never has to choose or transmit someone else's password.
+export const createAdminSchema = z.object(adminIdentityFields);
 
 export const registerSchema = z
   .object({

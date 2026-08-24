@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 
 /**
  * Gates /admin/admins to superadmin only. Nested inside AdminRoute (which
@@ -9,7 +9,7 @@ import useAuthStore from "@/store/useAuthStore";
  * allowed here.
  */
 export default function SuperAdminRoute() {
-  const user = useAuthStore((state) => state.user);
+  const user = useAdminAuthStore((state) => state.user);
 
   if (user?.role !== "superadmin") {
     return <Navigate to="/admin/dashboard" replace />;

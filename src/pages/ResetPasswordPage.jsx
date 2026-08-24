@@ -6,6 +6,7 @@ import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import AuthField from "@/components/common/AuthField";
+import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import { resetPasswordRequest } from "@/services/auth";
 import { resetPasswordSchema } from "@/utils/schemas";
@@ -15,18 +16,38 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [done, setDone] = useState(false);
+  // This link/flow is shared by a student's forgotten-password reset and an
+  // invited admin setting their first password — defaults to the student
+  // login since that's the common case, but flips once the response tells
+  // us who actually just reset their password.
+  const [loginPath, setLoginPath] = useState("/login");
 
   const {
     register,
     handleSubmit,
+    watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(resetPasswordSchema) });
+  const passwordValue = watch("password");
 
   const onSubmit = async (values) => {
     try {
-      await resetPasswordRequest(token, values);
+      const { data } = await resetPasswordRequest(token, values);
+      if (data.data?.role && data.data.role !== "student") setLoginPath("/admin/login");
       setDone(true);
     } catch (error) {
+      // The generic "Validation failed" message alone doesn't say WHICH
+      // rule failed — map the server's field-level detail onto the actual
+      // fields (same pattern as CreateAdminModal/AdminSetupPage) so the
+      // real reason shows up inline instead of a useless toast.
+      const fieldErrors = error.response?.data?.error?.fieldErrors;
+      if (fieldErrors) {
+        for (const [field, messages] of Object.entries(fieldErrors)) {
+          if (messages?.[0]) setError(field, { type: "server", message: messages[0] });
+        }
+        return;
+      }
       toast.error(error.response?.data?.message ?? "This reset link is invalid or has expired.");
     }
   };
@@ -49,7 +70,7 @@ export default function ResetPasswordPage() {
             variant="ink"
             size="lg"
             className="mt-8 w-full"
-            onClick={() => navigate("/login", { replace: true })}
+            onClick={() => navigate(loginPath, { replace: true })}
           >
             Continue to login
           </Button>
@@ -83,6 +104,7 @@ export default function ResetPasswordPage() {
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </AuthField>
+        <PasswordStrengthMeter password={passwordValue} />
 
         <AuthField
           label="Confirm new password"

@@ -6,6 +6,7 @@ import { Eye, EyeOff, ArrowRight, ChevronDown, UserRound } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import AuthField from "@/components/common/AuthField";
+import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import useAuthStore from "@/store/useAuthStore";
 import { registerRequest } from "@/services/auth";
@@ -26,8 +27,10 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(registerSchema) });
+  const passwordValue = watch("password");
 
   const onSubmit = async (values) => {
     try {
@@ -146,6 +149,7 @@ export default function RegisterPage() {
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </AuthField>
+        <PasswordStrengthMeter password={passwordValue} />
 
         <AuthField
           label="Confirm password"

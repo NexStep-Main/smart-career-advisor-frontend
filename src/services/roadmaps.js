@@ -1,5 +1,8 @@
 import api from "./api";
+import adminApi from "./adminApi";
 
 export const getRoadmapByCareer = (careerId) => api.get(`/roadmaps/${careerId}`);
-export const createRoadmap = (payload) => api.post("/roadmaps", payload);
-export const updateRoadmap = (id, payload) => api.put(`/roadmaps/${id}`, payload);
+
+// Admin mutations — require an admin-role JWT, so these go through adminApi.
+export const createRoadmap = (payload) => adminApi.post("/roadmaps", payload);
+export const updateRoadmap = (id, payload) => adminApi.put(`/roadmaps/${id}`, payload);

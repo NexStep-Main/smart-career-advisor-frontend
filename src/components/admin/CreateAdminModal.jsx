@@ -1,17 +1,18 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Eye, EyeOff } from "lucide-react";
+import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import { createAdminSchema } from "@/utils/schemas";
 
-/** Superadmin-only "create another admin" form, from /admin/admins. */
+/**
+ * Superadmin-only "invite another admin" form, from /admin/admins. No
+ * password field — the invitee sets their own via an emailed link, so a
+ * superadmin never has to choose or transmit someone else's credentials.
+ */
 export default function CreateAdminModal({ open, onClose, onSubmit, isSubmitting }) {
-  const [showPassword, setShowPassword] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -24,8 +25,8 @@ export default function CreateAdminModal({ open, onClose, onSubmit, isSubmitting
 
   const submit = async (values) => {
     try {
-      const { fullName, username, email, password } = values;
-      await onSubmit({ fullName, username, email, password });
+      const { fullName, username, email } = values;
+      await onSubmit({ fullName, username, email });
       reset();
     } catch (error) {
       const fieldErrors = error.response?.data?.error?.fieldErrors;
@@ -44,7 +45,7 @@ export default function CreateAdminModal({ open, onClose, onSubmit, isSubmitting
       <div className="w-full max-w-md rounded-xl border border-border bg-surface shadow-lg">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h3 className="font-display text-lg text-slate-900 dark:text-slate-50">
-            Create admin account
+            Invite an admin
           </h3>
           <button
             onClick={onClose}
@@ -78,40 +79,9 @@ export default function CreateAdminModal({ open, onClose, onSubmit, isSubmitting
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" error={!!errors.email} {...register("email")} />
             <FormError message={errors.email?.message} />
-          </div>
-
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="At least 8 characters"
-                error={!!errors.password}
-                className="pr-11"
-                {...register("password")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-              </button>
-            </div>
-            <FormError message={errors.password?.message} />
-          </div>
-
-          <div>
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <Input
-              id="confirmPassword"
-              type={showPassword ? "text" : "password"}
-              error={!!errors.confirmPassword}
-              {...register("confirmPassword")}
-            />
-            <FormError message={errors.confirmPassword?.message} />
+            <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+              We'll email an invite link here to set a password.
+            </p>
           </div>
         </form>
 
@@ -125,7 +95,7 @@ export default function CreateAdminModal({ open, onClose, onSubmit, isSubmitting
             onClick={handleSubmit(submit)}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating…" : "Create admin"}
+            {isSubmitting ? "Sending…" : "Send invite"}
           </Button>
         </div>
       </div>

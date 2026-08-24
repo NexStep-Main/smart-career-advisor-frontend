@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { Menu, LogOut, X } from "lucide-react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 
 /**
  * Shell for every authenticated admin page. Mirrors layouts/DashboardLayout.jsx,
@@ -14,7 +14,7 @@ import useAuthStore from "@/store/useAuthStore";
  */
 export default function AdminLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const { user, logout } = useAuthStore();
+  const { user, logout } = useAdminAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {

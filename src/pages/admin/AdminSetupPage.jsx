@@ -10,7 +10,7 @@ import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 import { bootstrapSuperadmin, getBootstrapStatus } from "@/services/adminAuth";
 import { superadminSetupSchema } from "@/utils/schemas";
 
@@ -23,7 +23,7 @@ import { superadminSetupSchema } from "@/utils/schemas";
 export default function AdminSetupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const login = useAdminAuthStore((state) => state.login);
 
   const { data: bootstrapStatus, isLoading: checkingSetup } = useQuery({
     queryKey: ["admin", "bootstrapStatus"],

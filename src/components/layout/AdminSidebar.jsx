@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Briefcase, Route, Users, ShieldCheck } from "lucide-react";
 import Logo from "@/components/common/Logo";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -18,7 +18,7 @@ const SUPERADMIN_NAV_ITEM = { label: "Admins", to: "/admin/admins", icon: Shield
  * including the `mobile` prop needed so it renders inside AdminLayout's drawer.
  */
 export default function AdminSidebar({ mobile = false, onNavigate }) {
-  const isSuperadmin = useAuthStore((state) => state.user?.role === "superadmin");
+  const isSuperadmin = useAdminAuthStore((state) => state.user?.role === "superadmin");
   const navItems = isSuperadmin ? [...NAV_ITEMS, SUPERADMIN_NAV_ITEM] : NAV_ITEMS;
 
   return (

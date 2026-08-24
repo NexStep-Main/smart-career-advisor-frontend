@@ -10,14 +10,14 @@ import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 import { adminLoginRequest, getBootstrapStatus } from "@/services/adminAuth";
 import { adminLoginSchema } from "@/utils/schemas";
 
 export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const login = useAdminAuthStore((state) => state.login);
 
   // No admin/superadmin account exists yet — send whoever lands here
   // straight to the one-time setup screen instead of a login form that

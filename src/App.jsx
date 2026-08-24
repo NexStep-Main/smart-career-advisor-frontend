@@ -14,7 +14,9 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import AdminLayout from "@/layouts/AdminLayout";
 import AdminAuthLayout from "@/layouts/AdminAuthLayout";
 import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 import { meRequest } from "@/services/auth";
+import { adminMeRequest } from "@/services/adminAuth";
 
 import LandingPage from "./pages/LandingPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -49,26 +51,48 @@ function App() {
   // mean the JWT is still valid server-side (expired, or the account was
   // deleted). The initial value is derived synchronously so there's nothing
   // to verify (and no render-triggering setState) when there's no token;
-  // only a real token needs the async check.
+  // only a real token needs the async check. Student and admin are two
+  // independent stores/tokens now, so each gets its own check — a stale
+  // admin token shouldn't block rendering while a valid student session is
+  // being verified, or vice versa.
   const [checkingSession, setCheckingSession] = useState(() => {
-    const { token } = useAuthStore.getState();
-    return !!token;
+    const { token: studentToken } = useAuthStore.getState();
+    const { token: adminToken } = useAdminAuthStore.getState();
+    return !!studentToken || !!adminToken;
   });
 
   useEffect(() => {
     if (!checkingSession) return;
-    const { setUser, logout } = useAuthStore.getState();
 
-    meRequest()
-      .then(({ data }) => setUser(data.data.user))
-      // Only a real 401 (invalid/expired token) means the session is dead.
-      // A network blip or the backend still starting up shouldn't nuke a
-      // perfectly valid login — api.js's interceptor already handles 401s
-      // from every other request for the rest of the session.
-      .catch((error) => {
-        if (error.response?.status === 401) logout();
-      })
-      .finally(() => setCheckingSession(false));
+    const { token: studentToken, setUser, logout } = useAuthStore.getState();
+    const { token: adminToken, setUser: setAdminUser, logout: adminLogout } =
+      useAdminAuthStore.getState();
+
+    const checks = [];
+    // Only a real 401 (invalid/expired token) means a session is dead. A
+    // network blip or the backend still starting up shouldn't nuke a
+    // perfectly valid login — each api client's interceptor already handles
+    // 401s from every other request for the rest of the session.
+    if (studentToken) {
+      checks.push(
+        meRequest()
+          .then(({ data }) => setUser(data.data.user))
+          .catch((error) => {
+            if (error.response?.status === 401) logout();
+          }),
+      );
+    }
+    if (adminToken) {
+      checks.push(
+        adminMeRequest()
+          .then(({ data }) => setAdminUser(data.data.user))
+          .catch((error) => {
+            if (error.response?.status === 401) adminLogout();
+          }),
+      );
+    }
+
+    Promise.all(checks).finally(() => setCheckingSession(false));
   }, [checkingSession]);
 
   if (checkingSession) return <LoadingSpinner fullPage />;

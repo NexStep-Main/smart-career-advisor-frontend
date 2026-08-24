@@ -11,7 +11,7 @@ import SEOHead from "@/components/common/SEOHead";
 import CreateAdminModal from "@/components/admin/CreateAdminModal";
 import { getAdminAdmins, createAdminUser } from "@/services/admin";
 import { timeAgo } from "@/lib/utils";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 
 const ROLE_META = {
   superadmin: { label: "Superadmin", variant: "accent" },
@@ -20,7 +20,7 @@ const ROLE_META = {
 
 export default function AdminManageAdminsPage() {
   const [createOpen, setCreateOpen] = useState(false);
-  const currentUser = useAuthStore((state) => state.user);
+  const currentUser = useAdminAuthStore((state) => state.user);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -31,12 +31,12 @@ export default function AdminManageAdminsPage() {
   const createMutation = useMutation({
     mutationFn: createAdminUser,
     onSuccess: () => {
-      toast.success("Admin account created");
+      toast.success("Invite sent");
       queryClient.invalidateQueries({ queryKey: ["admin", "admins"] });
       setCreateOpen(false);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message ?? "Couldn't create this admin account.");
+      toast.error(error.response?.data?.message ?? "Couldn't send this invite.");
     },
   });
 
@@ -58,7 +58,7 @@ export default function AdminManageAdminsPage() {
         </div>
         <Button variant="admin" onClick={() => setCreateOpen(true)}>
           <Plus size={16} />
-          Create admin
+          Invite admin
         </Button>
       </div>
 
