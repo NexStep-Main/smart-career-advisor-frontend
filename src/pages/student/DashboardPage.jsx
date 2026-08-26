@@ -50,25 +50,25 @@ export default function DashboardPage() {
   const quizCompleted = user?.quizCompleted;
   const completion = profileCompletion(user);
 
-  const { data: recommendations, isLoading: loadingRecs } = useQuery({
+  const { data: recommendations = [], isLoading: loadingRecs } = useQuery({
     queryKey: ["recommendations"],
-    queryFn: () => getRecommendations().then((res) => res.data.data.recommendations),
+    queryFn: () => getRecommendations().then((res) => res.data?.data?.recommendations ?? []),
     enabled: !!quizCompleted,
   });
 
-  const { data: bookmarks, isLoading: loadingBookmarks } = useQuery({
+  const { data: bookmarks = [], isLoading: loadingBookmarks } = useQuery({
     queryKey: ["bookmarks"],
-    queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    queryFn: () => getBookmarks().then((res) => res.data?.data?.careers ?? []),
   });
 
-  const { data: trending, isLoading: loadingTrending } = useQuery({
+  const { data: trending = [], isLoading: loadingTrending } = useQuery({
     queryKey: ["trendingCareers"],
-    queryFn: () => getTrendingCareers(3).then((res) => res.data.data.careers),
+    queryFn: () => getTrendingCareers(3).then((res) => res.data?.data?.careers ?? []),
   });
 
-  const { data: roadmapProgress, isLoading: loadingProgress } = useQuery({
+  const { data: roadmapProgress = [], isLoading: loadingProgress } = useQuery({
     queryKey: ["roadmapProgress"],
-    queryFn: () => getAllProgress().then((res) => res.data.data.progress),
+    queryFn: () => getAllProgress().then((res) => res.data?.data?.progress ?? []),
   });
 
   const activeRoadmap = roadmapProgress?.[0];
