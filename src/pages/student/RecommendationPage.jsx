@@ -13,9 +13,13 @@ import { getRecommendations } from "@/services/recommendations";
 export default function RecommendationPage() {
   const quizCompleted = useAuthStore((state) => state.user?.quizCompleted);
 
-  const { data: recommendations, isLoading } = useQuery({
+  const {
+    data: recommendations = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["recommendations"],
-    queryFn: () => getRecommendations().then((res) => res.data.data.recommendations),
+    queryFn: () => getRecommendations().then((res) => res.data?.data?.recommendations ?? []),
     enabled: !!quizCompleted,
   });
 
@@ -46,7 +50,18 @@ export default function RecommendationPage() {
             <Skeleton key={i} className="h-48 w-full" />
           ))}
         </div>
-      ) : recommendations?.length === 0 ? (
+      ) : isError ? (
+        <EmptyState
+          icon={Sparkles}
+          title="Unable to load recommendations"
+          description="We had trouble retrieving your matches. Please check your connection and try again."
+          action={
+            <Button asChild size="sm">
+              <Link to="/careers">Explore Careers</Link>
+            </Button>
+          }
+        />
+      ) : !recommendations || recommendations.length === 0 ? (
         <EmptyState
           icon={Sparkles}
           title="No matches yet"
@@ -60,7 +75,7 @@ export default function RecommendationPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {recommendations.map((career) => (
-            <CareerCard key={career.id} career={career} />
+            <CareerCard key={career.id || career._id} career={career} />
           ))}
         </div>
       )}

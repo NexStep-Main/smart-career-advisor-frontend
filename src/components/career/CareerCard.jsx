@@ -24,22 +24,29 @@ export default function CareerCard({ career }) {
   const { id, title, domain, matchPercent, salaryRange, bookmarkCount } = career;
   const queryClient = useQueryClient();
 
-  const { data: bookmarks } = useQuery({
+  const { data: bookmarks = [] } = useQuery({
     queryKey: ["bookmarks"],
-    queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    queryFn: () => getBookmarks().then((res) => res.data?.data?.careers ?? []),
   });
-  const isSaved = bookmarks?.some((c) => c.id === id) ?? false;
+  const careerId = id || career._id;
+  const isSaved = bookmarks.some((c) => (c.id || c._id) === careerId);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
 
   const addMutation = useMutation({
-    mutationFn: () => addBookmark(id),
-    onSuccess: invalidate,
+    mutationFn: () => addBookmark(careerId),
+    onSuccess: () => {
+      toast.success("Saved to bookmarks");
+      invalidate();
+    },
     onError: () => toast.error("Couldn't save this career."),
   });
   const removeMutation = useMutation({
-    mutationFn: () => removeBookmark(id),
-    onSuccess: invalidate,
+    mutationFn: () => removeBookmark(careerId),
+    onSuccess: () => {
+      toast.success("Removed from bookmarks");
+      invalidate();
+    },
     onError: () => toast.error("Couldn't remove this career."),
   });
 
