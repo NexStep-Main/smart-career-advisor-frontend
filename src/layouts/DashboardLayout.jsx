@@ -5,12 +5,21 @@ import Sidebar from "@/components/layout/Sidebar";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
 
+const SIDEBAR_COLLAPSED_KEY = "nexstep-sidebar-collapsed";
+
 /**
  * Shell for every authenticated student page: fixed Sidebar + topbar,
  * routed page renders in <Outlet/>. Guide § Reusable Components.
  */
 export default function DashboardLayout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -19,9 +28,22 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next));
+      } catch {
+        // localStorage unavailable (private mode, quota) — collapse state
+        // just won't persist across reloads, which is fine.
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
+    <div className="portal-student flex h-screen overflow-hidden bg-background">
+      <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
 
       {/* Mobile sidebar drawer */}
       {mobileNavOpen && (
@@ -36,8 +58,8 @@ export default function DashboardLayout() {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
           <button
             className="rounded-lg border border-border p-2 md:hidden"
             onClick={() => setMobileNavOpen((v) => !v)}
@@ -64,7 +86,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-6">
+        <main className="min-h-0 flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>
       </div>

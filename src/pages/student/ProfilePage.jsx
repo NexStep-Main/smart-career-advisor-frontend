@@ -79,11 +79,11 @@ export default function ProfilePage() {
         <div className="flex flex-col gap-4 lg:col-span-2">
           <Card>
             <CardContent className="flex items-center gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark font-heading text-xl font-bold text-white">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-border font-display text-2xl text-slate-900 dark:text-slate-50">
                 {(user?.fullName ?? "S").charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <div className="truncate font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
+                <div className="truncate font-display text-xl text-slate-900 dark:text-slate-50">
                   {user?.fullName}
                 </div>
                 <div className="truncate text-sm text-slate-500 dark:text-slate-400">
@@ -95,7 +95,7 @@ export default function ProfilePage() {
 
           <Card>
             <CardContent>
-              <h2 className="mb-4 font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
+              <h2 className="mb-4 font-display text-lg text-slate-900 dark:text-slate-50">
                 Account details
               </h2>
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
@@ -161,14 +161,14 @@ export default function ProfilePage() {
           {stats.map((stat) => (
             <Card key={stat.label}>
               <CardContent className="flex items-center gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-light">
-                  <stat.icon size={18} className="text-primary" strokeWidth={1.8} />
-                </div>
+                <stat.icon size={20} className="shrink-0 text-slate-400 dark:text-slate-500" strokeWidth={1.6} />
                 <div>
-                  <div className="font-heading text-lg font-bold text-slate-900 dark:text-slate-50">
+                  <div className="font-display text-2xl leading-none text-slate-900 dark:text-slate-50">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
+                  <div className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    {stat.label}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -178,7 +178,7 @@ export default function ProfilePage() {
             <CardContent>
               <div className="mb-3 flex items-center gap-2">
                 <User size={16} className="text-primary" />
-                <h3 className="font-heading text-sm font-semibold text-slate-900 dark:text-slate-50">
+                <h3 className="font-display text-base text-slate-900 dark:text-slate-50">
                   Career quiz
                 </h3>
               </div>

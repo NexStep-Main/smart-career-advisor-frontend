@@ -1,11 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom";
-import useAuthStore from "@/store/useAuthStore";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
 
-/** Redirects to /admin/login unless the session belongs to an admin user. */
+const ADMIN_ROLES = ["admin", "superadmin"];
+
+/** Redirects to /admin/login unless the session belongs to an admin/superadmin user. */
 export default function AdminRoute() {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user } = useAdminAuthStore();
 
-  if (!isAuthenticated || user?.role !== "admin") {
+  if (!isAuthenticated || !ADMIN_ROLES.includes(user?.role)) {
     return <Navigate to="/admin/login" replace />;
   }
   return <Outlet />;

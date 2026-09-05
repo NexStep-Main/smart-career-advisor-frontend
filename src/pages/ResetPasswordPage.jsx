@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Eye, EyeOff, KeyRound } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Label from "@/components/ui/Label";
-import FormError from "@/components/ui/FormError";
+import AuthField from "@/components/common/AuthField";
+import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import { resetPasswordRequest } from "@/services/auth";
 import { resetPasswordSchema } from "@/utils/schemas";
@@ -17,18 +16,38 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [done, setDone] = useState(false);
+  // This link/flow is shared by a student's forgotten-password reset and an
+  // invited admin setting their first password — defaults to the student
+  // login since that's the common case, but flips once the response tells
+  // us who actually just reset their password.
+  const [loginPath, setLoginPath] = useState("/login");
 
   const {
     register,
     handleSubmit,
+    watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(resetPasswordSchema) });
+  const passwordValue = watch("password");
 
   const onSubmit = async (values) => {
     try {
-      await resetPasswordRequest(token, values);
+      const { data } = await resetPasswordRequest(token, values);
+      if (data.data?.role && data.data.role !== "student") setLoginPath("/admin/login");
       setDone(true);
     } catch (error) {
+      // The generic "Validation failed" message alone doesn't say WHICH
+      // rule failed — map the server's field-level detail onto the actual
+      // fields (same pattern as CreateAdminModal/AdminSetupPage) so the
+      // real reason shows up inline instead of a useless toast.
+      const fieldErrors = error.response?.data?.error?.fieldErrors;
+      if (fieldErrors) {
+        for (const [field, messages] of Object.entries(fieldErrors)) {
+          if (messages?.[0]) setError(field, { type: "server", message: messages[0] });
+        }
+        return;
+      }
       toast.error(error.response?.data?.message ?? "This reset link is invalid or has expired.");
     }
   };
@@ -38,16 +57,21 @@ export default function ResetPasswordPage() {
       <>
         <SEOHead title="Password reset" />
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-accent-green/10">
-            <CheckCircle2 className="text-accent-green" size={26} strokeWidth={1.8} />
+          {/* Checkmark keeps full-strength emerald — a genuinely semantic
+              "done" state, not decoration. */}
+          <div className="flex size-12 items-center justify-center rounded-full border border-rule">
+            <CheckCircle2 className="text-accent-green" size={22} strokeWidth={1.5} />
           </div>
-          <h1 className="mt-5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Password reset
-          </h1>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          <h1 className="mt-5 font-display text-3xl text-ink">Password reset</h1>
+          <p className="mt-2 text-sm text-ink-muted">
             Your password has been updated. Log in with your new password.
           </p>
-          <Button className="mt-8 w-full" onClick={() => navigate("/login", { replace: true })}>
+          <Button
+            variant="ink"
+            size="lg"
+            className="mt-8 w-full"
+            onClick={() => navigate(loginPath, { replace: true })}
+          >
             Continue to login
           </Button>
         </div>
@@ -58,65 +82,52 @@ export default function ResetPasswordPage() {
   return (
     <>
       <SEOHead title="Reset password" />
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary-light">
-          <KeyRound className="text-primary" size={20} strokeWidth={1.8} />
-        </div>
-        <div>
-          <h1 className="font-heading text-xl font-bold text-slate-900 dark:text-slate-50">
-            Set a new password
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Choose something you haven't used before
-          </p>
-        </div>
-      </div>
+      <h1 className="mb-2 font-display text-4xl leading-tight text-ink">Set a new password</h1>
+      <p className="mb-8 text-sm text-ink-muted">Choose something you haven't used before.</p>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <div>
-          <Label htmlFor="password">New password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="At least 8 characters"
-              error={!!errors.password}
-              className="pr-11"
-              autoFocus
-              {...register("password")}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-            </button>
-          </div>
-          <FormError message={errors.password?.message} />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+        <AuthField label="New password" htmlFor="password" error={errors.password?.message}>
+          <input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="At least 8 characters"
+            autoFocus
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
+            {...register("password")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="shrink-0 text-ink-faint transition-colors hover:text-ink"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </AuthField>
+        <PasswordStrengthMeter password={passwordValue} />
 
-        <div>
-          <Label htmlFor="confirmPassword">Confirm new password</Label>
-          <Input
+        <AuthField
+          label="Confirm new password"
+          htmlFor="confirmPassword"
+          error={errors.confirmPassword?.message}
+        >
+          <input
             id="confirmPassword"
             type={showPassword ? "text" : "password"}
             placeholder="Re-enter password"
-            error={!!errors.confirmPassword}
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             {...register("confirmPassword")}
           />
-          <FormError message={errors.confirmPassword?.message} />
-        </div>
+        </AuthField>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
+        <Button type="submit" variant="ink" size="lg" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Resetting…" : "Reset password"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-8 text-center text-sm text-ink-muted">
         Remembered it after all?{" "}
-        <Link to="/login" className="font-medium text-primary hover:underline">
+        <Link to="/login" className="text-ink underline underline-offset-4 hover:text-ink/70">
           Log in
         </Link>
       </p>

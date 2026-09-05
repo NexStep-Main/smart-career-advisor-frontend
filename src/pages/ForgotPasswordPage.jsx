@@ -2,11 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, MailCheck, SendHorizonal } from "lucide-react";
+import { ArrowLeft, ArrowRight, MailCheck } from "lucide-react";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Label from "@/components/ui/Label";
-import FormError from "@/components/ui/FormError";
+import AuthField from "@/components/common/AuthField";
 import SEOHead from "@/components/common/SEOHead";
 import { forgotPasswordRequest } from "@/services/auth";
 import { forgotPasswordSchema } from "@/utils/schemas";
@@ -33,21 +31,18 @@ export default function ForgotPasswordPage() {
       <>
         <SEOHead title="Check your email" />
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-primary-light">
-            <MailCheck className="text-primary" size={26} strokeWidth={1.8} />
+          <div className="flex size-12 items-center justify-center rounded-full border border-rule">
+            <MailCheck className="text-ink-muted" size={22} strokeWidth={1.5} />
           </div>
-          <h1 className="mt-5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Check your inbox
-          </h1>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            If an account exists for{" "}
-            <span className="font-medium text-slate-700 dark:text-slate-200">{sentTo}</span>, we've
-            sent a link to reset your password. It expires in 30 minutes.
+          <h1 className="mt-5 font-display text-3xl text-ink">Check your inbox</h1>
+          <p className="mt-2 text-sm text-ink-muted">
+            If an account exists for <span className="text-ink">{sentTo}</span>, we've sent a
+            link to reset your password. It expires in 30 minutes.
           </p>
 
           <Link
             to="/login"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            className="mt-8 inline-flex items-center gap-2 text-sm text-ink-muted transition-colors hover:text-ink"
           >
             <ArrowLeft size={15} />
             Back to login
@@ -60,37 +55,35 @@ export default function ForgotPasswordPage() {
   return (
     <>
       <SEOHead title="Forgot password" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+      <h1 className="mb-2 font-display text-4xl leading-tight text-ink">
         Forgot your password?
       </h1>
-      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+      <p className="mb-8 text-sm text-ink-muted">
         Enter your email and we'll send you a link to reset it.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+        <AuthField label="Email" htmlFor="email" error={errors.email?.message}>
+          <input
             id="email"
             type="email"
             placeholder="you@example.com"
-            error={!!errors.email}
             autoFocus
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             {...register("email")}
           />
-          <FormError message={errors.email?.message} />
-        </div>
+        </AuthField>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-          <SendHorizonal size={16} />
+        <Button type="submit" variant="ink" size="lg" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Sending…" : "Send reset link"}
+          <ArrowRight size={16} />
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-8 text-center text-sm text-ink-muted">
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-ink-muted transition-colors hover:text-ink"
         >
           <ArrowLeft size={14} />
           Back to login

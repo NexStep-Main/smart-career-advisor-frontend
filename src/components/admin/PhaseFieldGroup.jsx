@@ -26,7 +26,7 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
   return (
     <div className="rounded-lg border border-border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h4 className="font-heading text-sm font-semibold text-slate-900 dark:text-slate-50">
+        <h4 className="font-display text-base text-slate-900 dark:text-slate-50">
           Phase {index + 1}
         </h4>
         {canRemove && (
@@ -94,7 +94,7 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
             <button
               type="button"
               onClick={() => appendResource({ name: "", url: "", type: "article" })}
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              className="flex items-center gap-1 text-xs font-medium text-admin-accent hover:underline"
             >
               <Plus size={13} />
               Add resource

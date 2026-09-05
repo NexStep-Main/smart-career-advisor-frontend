@@ -48,7 +48,7 @@ function PhaseCard({ phase, index, defaultOpen, completed, onToggleComplete }) {
           className="flex flex-1 items-center justify-between gap-4 text-left"
         >
           <div className="flex items-center gap-4">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-light font-heading text-sm font-bold text-primary-dark">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border font-mono text-sm text-slate-500 dark:text-slate-400">
               {index + 1}
             </span>
             <div>
@@ -222,7 +222,7 @@ export default function RoadmapPage() {
               <Route size={15} />
               {career?.title ?? "Career"}
             </div>
-            <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+            <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
               {roadmap.title}
             </h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -230,14 +230,16 @@ export default function RoadmapPage() {
               job-ready.
             </p>
 
+            {/* Hairline progress track, matching the dashboard's active-roadmap
+                strip — emerald stays confined to the fill, not a filled pill. */}
             <div className="mt-4 flex items-center gap-3">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-primary-light">
+              <div className="h-px flex-1 bg-border">
                 <div
-                  className="h-full rounded-full bg-accent-green transition-all duration-300"
+                  className="h-px bg-accent-green transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <span className="shrink-0 text-xs font-semibold text-slate-600 dark:text-slate-300">
+              <span className="shrink-0 font-mono text-xs text-slate-500 dark:text-slate-400">
                 {completedPhases.length}/{roadmap.phases.length} complete
               </span>
             </div>

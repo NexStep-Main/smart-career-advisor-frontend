@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, LogIn, UserPlus, UserRound } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, ChevronDown, UserRound } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Label from "@/components/ui/Label";
-import FormError from "@/components/ui/FormError";
+import AuthField from "@/components/common/AuthField";
+import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import useAuthStore from "@/store/useAuthStore";
 import { registerRequest } from "@/services/auth";
@@ -28,8 +27,10 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(registerSchema) });
+  const passwordValue = watch("password");
 
   const onSubmit = async (values) => {
     try {
@@ -52,30 +53,26 @@ export default function RegisterPage() {
       <>
         <SEOHead title="Account already exists" />
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-primary-light">
-            <UserRound className="text-primary" size={26} strokeWidth={1.8} />
+          <div className="flex size-12 items-center justify-center rounded-full border border-rule">
+            <UserRound className="text-ink-muted" size={22} strokeWidth={1.5} />
           </div>
-          <h1 className="mt-5 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-            You already have an account
-          </h1>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            <span className="font-medium text-slate-700 dark:text-slate-200">{existingEmail}</span>{" "}
-            is already registered. Log in instead, or use a different email to sign up.
+          <h1 className="mt-5 font-display text-3xl text-ink">You already have an account</h1>
+          <p className="mt-2 text-sm text-ink-muted">
+            <span className="text-ink">{existingEmail}</span> is already registered. Log in
+            instead, or use a different email to sign up.
           </p>
 
-          <Link
-            to="/login"
-            state={{ prefillEmail: existingEmail }}
-            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-          >
-            <LogIn size={16} />
-            Log in instead
-          </Link>
+          <Button asChild variant="ink" size="lg" className="mt-8 w-full">
+            <Link to="/login" state={{ prefillEmail: existingEmail }}>
+              Log in instead
+              <ArrowRight size={16} />
+            </Link>
+          </Button>
 
           <button
             type="button"
             onClick={() => setExistingEmail(null)}
-            className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:underline"
+            className="mt-4 text-sm text-ink-muted underline underline-offset-4 hover:text-ink"
           >
             Use a different email
           </button>
@@ -87,43 +84,40 @@ export default function RegisterPage() {
   return (
     <>
       <SEOHead title="Create Account" />
-      <h1 className="mb-1 font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
-        Create your account
-      </h1>
-      <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
+      <h1 className="mb-2 font-display text-4xl leading-tight text-ink">Create your account</h1>
+      <p className="mb-8 text-sm text-ink-muted">
         Free forever — get your personalised career roadmap.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
-        <div>
-          <Label htmlFor="fullName">Full name</Label>
-          <Input
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-6">
+        <AuthField label="Full name" htmlFor="fullName" error={errors.fullName?.message}>
+          <input
             id="fullName"
             placeholder="Riya Sharma"
-            error={!!errors.fullName}
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             {...register("fullName")}
           />
-          <FormError message={errors.fullName?.message} />
-        </div>
+        </AuthField>
 
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
+        <AuthField label="Email" htmlFor="email" error={errors.email?.message}>
+          <input
             id="email"
             type="email"
             placeholder="you@example.com"
-            error={!!errors.email}
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             {...register("email")}
           />
-          <FormError message={errors.email?.message} />
-        </div>
+        </AuthField>
 
-        <div>
-          <Label htmlFor="educationLevel">Education level</Label>
+        <AuthField
+          label="Education level"
+          htmlFor="educationLevel"
+          error={errors.educationLevel?.message}
+        >
           <select
             id="educationLevel"
             defaultValue=""
-            className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full min-w-0 appearance-none bg-transparent text-sm text-ink focus:outline-none"
             {...register("educationLevel")}
           >
             <option value="" disabled>
@@ -135,53 +129,51 @@ export default function RegisterPage() {
               </option>
             ))}
           </select>
-          <FormError message={errors.educationLevel?.message} />
-        </div>
+          <ChevronDown size={15} className="shrink-0 text-ink-faint" />
+        </AuthField>
 
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="At least 8 characters"
-              error={!!errors.password}
-              className="pr-11"
-              {...register("password")}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-            </button>
-          </div>
-          <FormError message={errors.password?.message} />
-        </div>
+        <AuthField label="Password" htmlFor="password" error={errors.password?.message}>
+          <input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="At least 8 characters"
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
+            {...register("password")}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="shrink-0 text-ink-faint transition-colors hover:text-ink"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </AuthField>
+        <PasswordStrengthMeter password={passwordValue} />
 
-        <div>
-          <Label htmlFor="confirmPassword">Confirm password</Label>
-          <Input
+        <AuthField
+          label="Confirm password"
+          htmlFor="confirmPassword"
+          error={errors.confirmPassword?.message}
+        >
+          <input
             id="confirmPassword"
             type={showPassword ? "text" : "password"}
             placeholder="Re-enter password"
-            error={!!errors.confirmPassword}
+            className="w-full min-w-0 bg-transparent text-sm text-ink placeholder:text-ink-faint focus:outline-none"
             {...register("confirmPassword")}
           />
-          <FormError message={errors.confirmPassword?.message} />
-        </div>
+        </AuthField>
 
-        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
-          <UserPlus size={16} />
+        <Button type="submit" variant="ink" size="lg" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? "Creating account…" : "Create account"}
+          <ArrowRight size={16} />
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-8 text-center text-sm text-ink-muted">
         Already have an account?{" "}
-        <Link to="/login" className="font-medium text-primary hover:underline">
+        <Link to="/login" className="text-ink underline underline-offset-4 hover:text-ink/70">
           Log in
         </Link>
       </p>

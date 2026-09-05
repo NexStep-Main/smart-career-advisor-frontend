@@ -5,6 +5,7 @@ import { Search, X, Filter } from "lucide-react";
 import CareerCard from "@/components/career/CareerCard";
 import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
+import Button from "@/components/ui/Button";
 import Pagination from "@/components/common/Pagination";
 import SEOHead from "@/components/common/SEOHead";
 import PageHeader from "@/components/common/PageHeader";
@@ -130,7 +131,7 @@ export default function CareerExplorerPage() {
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="flex shrink-0 items-center gap-1 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-3 py-2.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-100"
+              className="flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-500"
             >
               <X size={13} />
               Clear
@@ -168,12 +169,9 @@ export default function CareerExplorerPage() {
           description="Try a different search term or clear your filters."
           action={
             hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-dark"
-              >
+              <Button size="sm" onClick={clearFilters}>
                 Clear all filters
-              </button>
+              </Button>
             )
           }
         />
