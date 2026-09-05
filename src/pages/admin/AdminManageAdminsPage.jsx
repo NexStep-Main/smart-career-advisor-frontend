@@ -1,15 +1,22 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, ShieldCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Skeleton from "@/components/ui/Skeleton";
 import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 import SEOHead from "@/components/common/SEOHead";
 import CreateAdminModal from "@/components/admin/CreateAdminModal";
-import { getAdminAdmins, createAdminUser } from "@/services/admin";
+import EditAdminModal from "@/components/admin/EditAdminModal";
+import {
+  getAdminAdmins,
+  createAdminUser,
+  updateAdminAccount,
+  deleteAdminAccount,
+} from "@/services/admin";
 import { timeAgo } from "@/lib/utils";
 import useAdminAuthStore from "@/store/useAdminAuthStore";
 
@@ -20,6 +27,8 @@ const ROLE_META = {
 
 export default function AdminManageAdminsPage() {
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const currentUser = useAdminAuthStore((state) => state.user);
   const queryClient = useQueryClient();
 
@@ -28,11 +37,13 @@ export default function AdminManageAdminsPage() {
     queryFn: () => getAdminAdmins().then((res) => res.data.data.admins),
   });
 
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin", "admins"] });
+
   const createMutation = useMutation({
     mutationFn: createAdminUser,
     onSuccess: () => {
       toast.success("Invite sent");
-      queryClient.invalidateQueries({ queryKey: ["admin", "admins"] });
+      invalidate();
       setCreateOpen(false);
     },
     onError: (error) => {
@@ -40,7 +51,33 @@ export default function AdminManageAdminsPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }) => updateAdminAccount(id, payload),
+    onSuccess: () => {
+      toast.success("Admin updated");
+      invalidate();
+      setEditingAdmin(null);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message ?? "Couldn't update this admin.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteAdminAccount,
+    onSuccess: () => {
+      toast.success("Admin deleted");
+      invalidate();
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      setDeleteTarget(null);
+      toast.error(error.response?.data?.message ?? "Couldn't delete this admin.");
+    },
+  });
+
   const admins = data ?? [];
+  const superadminCount = admins.filter((a) => a.role === "superadmin").length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -81,17 +118,20 @@ export default function AdminManageAdminsPage() {
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Email</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Role</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Last active</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {admins.map((admin) => {
                   const meta = ROLE_META[admin.role] ?? ROLE_META.admin;
+                  const isSelf = admin.id === currentUser?.id;
+                  const isOnlySuperadmin = admin.role === "superadmin" && superadminCount <= 1;
                   return (
                     <tr key={admin.id} className="border-b border-border last:border-0">
                       <td className="px-4 py-2.5 sm:px-6">
                         <div className="font-medium text-slate-900 dark:text-slate-50">
                           {admin.fullName}
-                          {admin.id === currentUser?.id && (
+                          {isSelf && (
                             <span className="ml-2 text-xs font-normal text-slate-400 dark:text-slate-500">
                               (you)
                             </span>
@@ -110,6 +150,33 @@ export default function AdminManageAdminsPage() {
                       <td className="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-slate-500 dark:text-slate-400 sm:px-6">
                         {admin.lastLoginAt ? timeAgo(admin.lastLoginAt) : "Never"}
                       </td>
+                      <td className="px-4 py-2.5 sm:px-6">
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => setEditingAdmin(admin)}
+                            title="Edit admin"
+                            aria-label={`Edit ${admin.fullName}`}
+                            className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(admin)}
+                            disabled={isSelf || isOnlySuperadmin}
+                            title={
+                              isSelf
+                                ? "You can't delete your own account"
+                                : isOnlySuperadmin
+                                  ? "Can't delete the only superadmin"
+                                  : "Delete admin"
+                            }
+                            aria-label={`Delete ${admin.fullName}`}
+                            className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -124,6 +191,24 @@ export default function AdminManageAdminsPage() {
         onClose={() => setCreateOpen(false)}
         onSubmit={(payload) => createMutation.mutateAsync(payload)}
         isSubmitting={createMutation.isPending}
+      />
+
+      <EditAdminModal
+        open={!!editingAdmin}
+        admin={editingAdmin}
+        onClose={() => setEditingAdmin(null)}
+        onSubmit={(payload) => updateMutation.mutateAsync({ id: editingAdmin.id, payload })}
+        isSubmitting={updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={`Delete ${deleteTarget?.fullName}?`}
+        description="This permanently removes their admin account. This action cannot be undone."
+        confirmLabel="Delete"
+        loading={deleteMutation.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
       />
     </div>
   );

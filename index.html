@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Tells the browser this page fully manages its own light/dark colors,
+         so it doesn't run its own automatic dark-mode repaint heuristic on
+         top of ours — that heuristic can misfire on an already dark-styled
+         subtree (e.g. the always-dark admin console nested inside a
+         light-themed page), inconsistently recoloring individual elements
+         and producing invisible white-on-white text. -->
+    <meta name="color-scheme" content="light dark" />
     <title>NexStep — Find Your Perfect Career Path</title>
     <meta name="description" content="Free career guidance platform for Indian students after Class 10, 12, and Graduation. Personalised roadmaps, skill plans, and smart recommendations." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

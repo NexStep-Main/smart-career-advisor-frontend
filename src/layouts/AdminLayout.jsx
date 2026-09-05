@@ -3,6 +3,9 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { Menu, LogOut, X } from "lucide-react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import useAdminAuthStore from "@/store/useAdminAuthStore";
+import useForceColorScheme from "@/hooks/useForceColorScheme";
+
+const SIDEBAR_COLLAPSED_KEY = "nexstep-admin-sidebar-collapsed";
 
 /**
  * Shell for every authenticated admin page. Mirrors layouts/DashboardLayout.jsx,
@@ -13,7 +16,16 @@ import useAdminAuthStore from "@/store/useAdminAuthStore";
  * .portal-admin in styles/index.css).
  */
 export default function AdminLayout() {
+  useForceColorScheme("dark");
+
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
   const { user, logout } = useAdminAuthStore();
   const navigate = useNavigate();
 
@@ -22,9 +34,22 @@ export default function AdminLayout() {
     navigate("/admin/login");
   };
 
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next));
+      } catch {
+        // localStorage unavailable (private mode, quota) — collapse state
+        // just won't persist across reloads, which is fine.
+      }
+      return next;
+    });
+  };
+
   return (
-    <div className="portal-admin dark flex min-h-screen bg-background">
-      <AdminSidebar />
+    <div className="portal-admin dark flex h-screen overflow-hidden bg-background">
+      <AdminSidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
 
       {mobileNavOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
@@ -38,8 +63,8 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-surface px-6">
           <button
             className="rounded-lg border border-border p-2 md:hidden"
             onClick={() => setMobileNavOpen((v) => !v)}
@@ -65,7 +90,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

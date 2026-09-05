@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Logo from "@/components/common/Logo";
+import useForceColorScheme from "@/hooks/useForceColorScheme";
 
 /**
  * Dedicated shell for /admin/login and /admin/setup — deliberately not the
@@ -11,6 +12,8 @@ import Logo from "@/components/common/Logo";
  * public marketing/student shell.
  */
 export default function AdminAuthLayout() {
+  useForceColorScheme("dark");
+
   return (
     <div className="portal-admin dark relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
       <div className="w-full max-w-md">

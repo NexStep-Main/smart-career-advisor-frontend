@@ -151,6 +151,10 @@ function App() {
                   <Route path="/admin/students" element={<AdminStudentsPage />} />
                   <Route path="/admin/students/:id" element={<AdminStudentDetailPage />} />
 
+                  {/* Superadmin-only — managing admin-tier accounts. Every other
+                      admin page/resource above is open to any admin, view AND
+                      mutate; this is the one page a plain admin can't even
+                      reach (enforced for real on the backend too). */}
                   <Route element={<SuperAdminRoute />}>
                     <Route path="/admin/admins" element={<AdminManageAdminsPage />} />
                   </Route>

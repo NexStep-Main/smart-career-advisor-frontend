@@ -195,7 +195,20 @@
    `focus:border-primary`/`ring-primary` (a pre-existing leftover-emerald
    bug, never actually themed for admin even when the accent was steel
    blue), so this makes every one of those correctly resolve to the admin
-   accent instead of emerald. */
+   accent instead of emerald.
+
+   The --color-* names below (bg-surface, bg-background, border-border,
+   *-primary utilities) are ALSO redeclared here, not just their --nx-*
+   sources: @theme's `--color-surface: var(--nx-surface)` etc are only
+   declared once, on :root. A custom property's value is computed once
+   where it's declared and that resolved value is what descendants inherit
+   — it is not a live formula that re-resolves var() against whatever
+   --nx-surface happens to be further down the tree. Since .portal-admin
+   sits on a div nested *inside* :root rather than replacing :root itself
+   (the site-wide .dark toggle IS applied straight to <html>, which is why
+   it doesn't need this), --color-surface would otherwise stay frozen at
+   :root's light value even though --nx-surface correctly reads dark here
+   — exactly the white-card/invisible-text bug this file exists to avoid. */
 .portal-admin {
   --nx-background: var(--nx-admin-bg);
   --nx-surface: var(--nx-admin-surface);
@@ -203,6 +216,13 @@
   --nx-primary: var(--nx-admin-accent);
   --nx-primary-dark: var(--nx-admin-accent-dark);
   --nx-primary-light: var(--nx-admin-accent-light);
+
+  --color-background: var(--nx-background);
+  --color-surface: var(--nx-surface);
+  --color-border: var(--nx-border);
+  --color-primary: var(--nx-primary);
+  --color-primary-dark: var(--nx-primary-dark);
+  --color-primary-light: var(--nx-primary-light);
 }
 
 /* Thicker hairlines in admin only — thin editorial 1px rules read as

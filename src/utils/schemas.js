@@ -55,6 +55,19 @@ export const superadminSetupSchema = z
 // so a superadmin never has to choose or transmit someone else's password.
 export const createAdminSchema = z.object(adminIdentityFields);
 
+// Editing an existing admin-tier account from /admin/admins — same fields,
+// but every one optional (partial update) since a superadmin might only be
+// fixing a typo'd name.
+export const updateAdminSchema = z
+  .object({
+    fullName: adminIdentityFields.fullName.optional(),
+    username: adminIdentityFields.username.optional(),
+    email: adminIdentityFields.email.optional(),
+  })
+  .refine((data) => Object.values(data).some((v) => v !== undefined && v !== ""), {
+    message: "Change at least one field",
+  });
+
 export const registerSchema = z
   .object({
     fullName: z.string().min(2, "Name must be at least 2 characters"),

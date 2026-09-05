@@ -4,6 +4,10 @@ export const getAdminStats = () => adminApi.get("/admin/stats");
 
 export const getAdminAdmins = () => adminApi.get("/admin/admins");
 export const createAdminUser = (payload) => adminApi.post("/admin/admins", payload);
+// Named ...Account (not ...AdminUser) to stay unambiguous next to the
+// updateAdminUser/deleteAdminUser pair below, which edit a *student* record.
+export const updateAdminAccount = (id, payload) => adminApi.patch(`/admin/admins/${id}`, payload);
+export const deleteAdminAccount = (id) => adminApi.delete(`/admin/admins/${id}`);
 
 export const getAdminUsers = (params) => adminApi.get("/admin/users", { params });
 export const getAdminUser = (id) => adminApi.get(`/admin/users/${id}`);
