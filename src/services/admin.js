@@ -25,6 +25,12 @@ export const exportAdminUsers = (params) =>
 export const getAdminCareers = (params) => adminApi.get("/admin/careers", { params });
 export const getCareerTagValues = (field) =>
   adminApi.get("/admin/careers/tag-values", { params: { field } });
+// responseType: "blob" — this is a CSV file download, not a JSON API response.
+export const exportAdminCareers = (params) =>
+  adminApi.get("/admin/careers/export", { params, responseType: "blob" });
+// `careers` is already parsed into JSON row objects client-side (see
+// AdminCareersPage.jsx) — the backend never touches a raw CSV file.
+export const importAdminCareers = (careers) => adminApi.post("/admin/careers/import", { careers });
 
 export const getAdminRoadmaps = (params) => adminApi.get("/admin/roadmaps", { params });
 export const deleteAdminRoadmap = (id) => adminApi.delete(`/admin/roadmaps/${id}`);

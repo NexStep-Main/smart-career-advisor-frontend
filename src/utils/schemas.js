@@ -27,6 +27,7 @@ const usernameSchema = z
 export const adminLoginSchema = z.object({
   username: usernameSchema,
   password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
 });
 
 const adminIdentityFields = {
@@ -73,7 +74,7 @@ export const registerSchema = z
     fullName: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().min(1, "Email is required").email("Enter a valid email"),
     educationLevel: z.enum(["class10", "class12", "graduation"], {
-      errorMap: () => ({ message: "Select your education level" }),
+      message: "Select your education level",
     }),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -100,10 +101,10 @@ export const resetPasswordSchema = z
 export const profileFormSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
   educationLevel: z.enum(["class10", "class12", "graduation"], {
-    errorMap: () => ({ message: "Select your education level" }),
+    message: "Select your education level",
   }),
   stream: z.enum(["science", "commerce", "arts", "engineering"], {
-    errorMap: () => ({ message: "Select your stream" }),
+    message: "Select your stream",
   }),
 });
 
@@ -117,34 +118,15 @@ export const adminEditStudentSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
   educationLevel: z.enum(["class10", "class12", "graduation"], {
-    errorMap: () => ({ message: "Select an education level" }),
+    message: "Select an education level",
   }),
   stream: z.enum(["science", "commerce", "arts", "engineering"]).optional(),
   isTestAccount: z.boolean().optional(),
 });
 
-// Comma-separated text input → trimmed, non-empty string array. Still used
-// by the roadmap phase form (skills) below, which kept its plain text
-// input; the career form's tag-style fields (streams/skills) moved to
-// TagInput, which produces a real array directly, no CSV parsing needed.
-const csvOptional = () =>
-  z
-    .string()
-    .trim()
-    .optional()
-    .default("")
-    .transform((v) =>
-      v
-        ? v
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [],
-    );
-
 export const careerFormSchema = z.object({
   title: z.string().trim().min(2, "Title is required"),
-  domain: z.enum(DOMAINS, { errorMap: () => ({ message: "Select a domain" }) }),
+  domain: z.enum(DOMAINS, { message: "Select a domain" }),
   description: z.string().trim().min(10, "Description must be at least 10 characters"),
   educationLevel: z
     .array(z.enum(["class10", "class12", "graduation"]))
@@ -164,7 +146,7 @@ export const careerFormSchema = z.object({
     })
     .refine((d) => d.max >= d.min, { message: "Max must be ≥ min", path: ["max"] }),
   demandLevel: z.enum(["high", "medium", "low"], {
-    errorMap: () => ({ message: "Select a demand level" }),
+    message: "Select a demand level",
   }),
   skills: z.array(z.string().trim().min(1)).min(1, "Add at least one skill"),
   topColleges: z.array(z.string().trim().min(1)).default([]),
@@ -182,7 +164,7 @@ const resourceFormSchema = z.object({
 const phaseFormSchema = z.object({
   title: z.string().trim().min(1, "Phase title is required"),
   description: z.string().trim().min(1, "Phase description is required"),
-  skills: csvOptional(),
+  skills: z.array(z.string().trim().min(1)).default([]),
   durationWeeks: z.preprocess(
     (v) => (v === "" || v === undefined || v === null ? undefined : Number(v)),
     z.number().positive().optional(),
