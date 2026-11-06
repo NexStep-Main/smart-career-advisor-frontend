@@ -8,7 +8,7 @@ export const getBootstrapStatus = () => adminApi.get("/admin/auth/bootstrap-stat
 export const bootstrapSuperadmin = (payload) => adminApi.post("/admin/auth/bootstrap", payload);
 export const adminLoginRequest = (payload) => adminApi.post("/admin/auth/login", payload);
 // `credential` is the signed ID token JWT from Google Identity Services
-// (see components/admin/GoogleSignInButton.jsx) — the backend verifies it.
+// (see components/common/GoogleSignInButton.jsx) — the backend verifies it.
 export const googleAdminLoginRequest = (credential) =>
   adminApi.post("/admin/auth/google", { credential });
 

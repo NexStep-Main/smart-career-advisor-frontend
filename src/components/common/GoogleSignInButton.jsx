@@ -25,15 +25,19 @@ function loadGoogleScript() {
 /**
  * Renders Google's own "Sign in with Google" button (via Google Identity
  * Services, loaded on demand — not an npm package, same as the reCAPTCHA
- * widget). Entirely absent when VITE_GOOGLE_CLIENT_ID isn't set, so the
- * admin login page degrades to username/password-only with zero code
- * changes once the env var lands (see Backend/.env.example).
+ * widget). Entirely absent when VITE_GOOGLE_CLIENT_ID isn't set, so a login
+ * page degrades to username/password (or email/password)-only with zero
+ * code changes once the env var lands (see Backend/.env.example). Shared
+ * between the student and admin login pages — one Google OAuth client
+ * covers both, same origin.
  *
  * `onCredential` receives the signed ID token JWT string straight from
  * Google's callback — the caller is responsible for sending it to the
- * backend, which is the only place it's actually verified.
+ * backend, which is the only place it's actually verified. `theme` picks
+ * Google's own button skin ("filled_black" for the admin console's dark
+ * chrome, "outline" fits the student portal's lighter surfaces better).
  */
-export default function GoogleSignInButton({ onCredential, disabled }) {
+export default function GoogleSignInButton({ onCredential, disabled, theme = "filled_black" }) {
   const buttonRef = useRef(null);
   const [ready, setReady] = useState(false);
 
@@ -52,7 +56,7 @@ export default function GoogleSignInButton({ onCredential, disabled }) {
       })
       .catch(() => {
         // Network hiccup or the script host is blocked — the button just
-        // never appears; username/password login still works untouched.
+        // never appears; the password path still works untouched.
       });
 
     return () => {
@@ -65,21 +69,18 @@ export default function GoogleSignInButton({ onCredential, disabled }) {
     if (!ready || !buttonRef.current) return;
     window.google.accounts.id.renderButton(buttonRef.current, {
       type: "standard",
-      theme: "filled_black",
+      theme,
       size: "large",
       shape: "pill",
       width: 320,
       logo_alignment: "center",
     });
-  }, [ready]);
+  }, [ready, theme]);
 
   if (!GOOGLE_CLIENT_ID) return null;
 
   return (
-    <div
-      className={disabled ? "pointer-events-none opacity-50" : ""}
-      aria-disabled={disabled}
-    >
+    <div className={disabled ? "pointer-events-none opacity-50" : ""} aria-disabled={disabled}>
       <div ref={buttonRef} className="flex justify-center" />
     </div>
   );

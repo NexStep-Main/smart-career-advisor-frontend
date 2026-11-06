@@ -29,7 +29,9 @@ function loadRecaptchaScript() {
  * hidden via CSS, so we leave it visible rather than suppressing it).
  * Verification runs on submit via `execute()`, not on page load. Entirely
  * absent when VITE_RECAPTCHA_SITE_KEY isn't set — see Backend/.env.example
- * / utils/verifyRecaptcha.js for the matching server-side skip.
+ * / utils/verifyRecaptcha.js for the matching server-side skip. Shared
+ * between the student and admin login pages — one reCAPTCHA site key
+ * covers both, same origin.
  *
  * Register the site at google.com/recaptcha/admin as "reCAPTCHA v2 —
  * Invisible reCAPTCHA badge", not the checkbox variant.

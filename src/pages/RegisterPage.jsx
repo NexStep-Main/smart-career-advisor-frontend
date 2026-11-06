@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, ArrowRight, ChevronDown, UserRound } from "lucide-react";
@@ -22,6 +22,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [existingEmail, setExistingEmail] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((state) => state.login);
 
   const {
@@ -29,7 +30,15 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(registerSchema) });
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      // Set when a Google sign-in attempt on /login found no matching
+      // account — see LoginPage.jsx's handleGoogleCredential.
+      email: location.state?.prefillEmail ?? "",
+      fullName: location.state?.prefillFullName ?? "",
+    },
+  });
   const passwordValue = watch("password");
 
   const onSubmit = async (values) => {

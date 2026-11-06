@@ -11,8 +11,8 @@ import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
 import FadeIn from "@/components/common/FadeIn";
-import GoogleSignInButton from "@/components/admin/GoogleSignInButton";
-import Recaptcha from "@/components/admin/Recaptcha";
+import GoogleSignInButton from "@/components/common/GoogleSignInButton";
+import Recaptcha from "@/components/common/Recaptcha";
 import useAdminAuthStore from "@/store/useAdminAuthStore";
 import {
   adminLoginRequest,
