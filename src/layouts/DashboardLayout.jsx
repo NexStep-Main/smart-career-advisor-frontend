@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Search } from "lucide-react";
 import Sidebar from "@/components/layout/Sidebar";
 import { NAV_ITEMS } from "@/lib/navItems";
 import StreakChip from "@/components/layout/StreakChip";
+import CommandPalette from "@/components/layout/CommandPalette";
 import Logo from "@/components/common/Logo";
+import Avatar from "@/components/common/Avatar";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
 import { useDailyCheckIn } from "@/hooks/useProgress";
@@ -29,6 +31,19 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   useDailyCheckIn();
 
+  // Ctrl/Cmd+K opens the quick finder from anywhere in the portal.
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -46,8 +61,6 @@ export default function DashboardLayout() {
     });
   };
 
-  const initial = (user?.fullName ?? "S").charAt(0).toUpperCase();
-
   return (
     <div className="portal-student flex h-screen overflow-hidden bg-background">
       <Sidebar collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
@@ -59,11 +72,19 @@ export default function DashboardLayout() {
           </div>
 
           <div className="ml-auto flex items-center gap-2.5 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setPaletteOpen(true)}
+              aria-label="Open quick finder (Ctrl+K)"
+              className="flex items-center gap-2 rounded-full border-2 border-ink bg-surface px-3 py-1.5 text-sm font-bold text-ink-muted transition-all hover:bg-sunny/30 hover:text-ink"
+            >
+              <Search size={15} />
+              <span className="hidden lg:inline">Search</span>
+              <kbd className="hidden rounded-md border border-ink/30 px-1 text-[10px] lg:inline">Ctrl K</kbd>
+            </button>
             <StreakChip />
             <span className="hidden text-sm font-bold text-ink sm:inline">{user?.fullName ?? "Student"}</span>
-            <div className="flex size-9 items-center justify-center rounded-full border-2 border-ink bg-bubblegum text-sm font-bold text-night">
-              {initial}
-            </div>
+            <Avatar name={user?.fullName} avatar={user?.avatar} size={36} />
             <ThemeToggle className="size-9 rounded-full border-2 border-ink bg-surface text-ink hover:bg-sunny/40 hover:text-ink dark:hover:bg-sunny/20" />
             <button
               onClick={handleLogout}
@@ -114,6 +135,8 @@ export default function DashboardLayout() {
           ))}
         </nav>
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onLogout={handleLogout} />
     </div>
   );
 }

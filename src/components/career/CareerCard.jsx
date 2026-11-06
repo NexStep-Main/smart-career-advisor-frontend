@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, TrendingUp, Scale, Flame } from "lucide-react";
+import { Bookmark, Check, TrendingUp, Scale, Flame } from "lucide-react";
 import toast from "react-hot-toast";
 import DomainBadge from "./DomainBadge";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
  * rather than as a child of the Link.
  */
 export default function CareerCard({ career }) {
-  const { id, title, domain, matchPercent, salaryRange, bookmarkCount } = career;
+  const { id, title, domain, matchPercent, salaryRange, bookmarkCount, reasons } = career;
   const queryClient = useQueryClient();
 
   const { isAuthenticated, requireAuth } = useRequireAuth();
@@ -120,6 +120,20 @@ export default function CareerCard({ career }) {
         <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-mint px-2.5 py-0.5 text-xs font-bold text-night">
           <TrendingUp size={13} />
           {matchPercent}% match
+        </div>
+      )}
+
+      {reasons?.length > 0 && (
+        <div className="mt-3 border-t-2 border-dashed border-rule pt-3">
+          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Why it fits you</div>
+          <ul className="flex flex-col gap-1">
+            {reasons.map((reason) => (
+              <li key={reason} className="flex items-start gap-1.5 text-xs font-semibold leading-snug text-ink-muted">
+                <Check size={13} strokeWidth={3} className="mt-px shrink-0 text-mint" />
+                {reason}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
