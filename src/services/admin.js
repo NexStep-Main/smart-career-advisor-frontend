@@ -9,3 +9,5 @@ export const getAdminCareers = (params) => api.get("/admin/careers", { params })
 
 export const getAdminRoadmaps = (params) => api.get("/admin/roadmaps", { params });
 export const deleteAdminRoadmap = (id) => api.delete(`/admin/roadmaps/${id}`);
+export const generateRoadmapDraft = (careerId) =>
+	api.post("/roadmaps/generate-draft", { careerId });
