@@ -72,7 +72,7 @@ export default function CareerCard({ career }) {
   };
 
   return (
-    <div className="group relative rounded-xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group relative rounded-2xl border-2 border-ink bg-surface p-5 shadow-pop-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-pop">
       <Link to={`/careers/${id}`} className="absolute inset-0 z-0" aria-label={title} />
 
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -108,7 +108,7 @@ export default function CareerCard({ career }) {
 
       {/* Inter, not the display serif: card titles sit in scan-heavy grids
           and read as data here, per the dashboard type split. */}
-      <h3 className="mb-1 text-base font-semibold text-slate-900 group-hover:text-primary dark:text-slate-50">
+      <h3 className="mb-1 font-display text-lg font-semibold leading-snug text-ink group-hover:text-grape dark:group-hover:text-primary">
         {title}
       </h3>
 
@@ -117,8 +117,8 @@ export default function CareerCard({ career }) {
       )}
 
       {typeof matchPercent === "number" && (
-        <div className="flex items-center gap-2 text-sm font-medium text-accent-green">
-          <TrendingUp size={15} />
+        <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-mint px-2.5 py-0.5 text-xs font-bold text-night">
+          <TrendingUp size={13} />
           {matchPercent}% match
         </div>
       )}

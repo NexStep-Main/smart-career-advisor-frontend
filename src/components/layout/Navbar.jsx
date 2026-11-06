@@ -35,7 +35,7 @@ export default function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
       <nav
         className={cn(
-          "mx-auto flex h-16 max-w-6xl items-center justify-between rounded-full border-2 border-ink bg-surface/90 px-4 backdrop-blur-md transition-shadow duration-300 sm:px-6",
+          "mx-auto flex h-16 max-w-6xl items-center justify-between rounded-full border-2 border-ink bg-surface px-4 transition-shadow duration-300 sm:px-6",
           scrolled ? "shadow-pop" : "shadow-pop-sm",
         )}
       >

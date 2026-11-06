@@ -22,10 +22,12 @@ const EDUCATION_LEVELS = [
   { value: "graduation", label: "Graduation" },
 ];
 const STREAMS = [
-  { value: "science", label: "Science" },
+  { value: "science", label: "Science (PCM)" },
+  { value: "science_bio", label: "Science (PCB)" },
   { value: "commerce", label: "Commerce" },
-  { value: "arts", label: "Arts" },
+  { value: "arts", label: "Arts / Humanities" },
   { value: "engineering", label: "Engineering" },
+  { value: "other", label: "Other" },
 ];
 
 export default function ProfilePage() {
@@ -76,14 +78,14 @@ export default function ProfilePage() {
       <PageHeader eyebrow="Account" title="My Profile" subtitle="Manage your account details." />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-4 lg:col-span-2">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
           <Card>
             <CardContent className="flex items-center gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-full border border-border font-display text-2xl text-slate-900 dark:text-slate-50">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-bubblegum font-display text-2xl font-bold text-night">
                 {(user?.fullName ?? "S").charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <div className="truncate font-display text-xl text-slate-900 dark:text-slate-50">
+                <div className="truncate font-display text-xl font-semibold text-ink">
                   {user?.fullName}
                 </div>
                 <div className="truncate text-sm text-slate-500 dark:text-slate-400">

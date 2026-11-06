@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, RotateCcw, X } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Confetti from "@/components/common/Confetti";
 import { DOMAIN_META } from "@/lib/landingDomains";
 
 const SIZE = 320;
@@ -9,7 +10,6 @@ const C = SIZE / 2;
 const R = 150;
 const SEGMENTS = 8;
 const FILLS = ["#7c3aed", "#ff5c8a", "#ffc933", "#2dd4a7", "#38bdf8", "#ff8a3d"];
-const CONFETTI = ["#7c3aed", "#ff5c8a", "#ffc933", "#2dd4a7", "#38bdf8", "#ff8a3d"];
 
 const point = (angleDeg, radius) => {
   const a = (angleDeg * Math.PI) / 180; // 0° is straight up, clockwise
@@ -42,40 +42,6 @@ function pickCareers(careers, n) {
   return picked.sort(() => Math.random() - 0.5);
 }
 
-function Confetti() {
-  const [pieces] = useState(() =>
-    Array.from({ length: 44 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 0.4,
-      duration: 1.6 + Math.random() * 1.2,
-      color: CONFETTI[i % CONFETTI.length],
-      size: 6 + Math.random() * 6,
-      round: i % 3 === 0,
-    })),
-  );
-
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {pieces.map((p) => (
-        <span
-          key={p.id}
-          className="animate-confetti absolute -top-3 block"
-          style={{
-            left: `${p.left}%`,
-            width: p.size,
-            height: p.size * 1.4,
-            background: p.color,
-            borderRadius: p.round ? "50%" : "2px",
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 /**
  * "Surprise me" — a prize wheel of 8 random careers. Spins with a long CSS
  * ease-out, lands on a pre-chosen winner (the rotation is computed so that
@@ -96,6 +62,22 @@ export default function SpinWheel({ careers, onClose }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  // Freeze the page behind the modal. Scrolling it while a full-screen overlay
+  // and a spinning wheel are on top forces the browser to re-composite the
+  // whole page every frame (that was the lag). Padding replaces the vanished
+  // scrollbar so the layout doesn't jump sideways.
+  useEffect(() => {
+    const html = document.documentElement;
+    const scrollbar = window.innerWidth - html.clientWidth;
+    const prev = { overflow: html.style.overflow, paddingRight: html.style.paddingRight };
+    html.style.overflow = "hidden";
+    if (scrollbar > 0) html.style.paddingRight = `${scrollbar}px`;
+    return () => {
+      html.style.overflow = prev.overflow;
+      html.style.paddingRight = prev.paddingRight;
+    };
+  }, []);
 
   const spin = () => {
     if (spinning) return;
@@ -131,7 +113,7 @@ export default function SpinWheel({ careers, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="Spin the career wheel"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-night/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-night/80 p-4"
       onClick={onClose}
     >
       <div
@@ -166,6 +148,8 @@ export default function SpinWheel({ careers, onClose }) {
             viewBox={`0 0 ${SIZE} ${SIZE}`}
             className="block w-full overflow-visible rounded-full border-4 border-ink"
             style={{
+              // Own GPU layer: the spin is then pure compositor work, no repaint.
+              willChange: "transform",
               transform: `rotate(${rotation}deg)`,
               transition: spinning
                 ? `transform ${reduceMotion ? 0.5 : 5}s cubic-bezier(0.12, 0.7, 0.12, 1)`

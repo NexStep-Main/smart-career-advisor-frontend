@@ -282,6 +282,25 @@
   padding: 2px 7px;
 }
 
+/* Student portal card skin: the shared <Card> gets the same chunky outline and
+   hard shadow as the landing page, but only inside .portal-student, so the
+   admin console (which also uses <Card>) keeps its own look. */
+.portal-student .nx-card {
+  border-width: 2px;
+  border-color: var(--nx-ink);
+  border-radius: 1.25rem;
+  box-shadow: 3px 3px 0 0 var(--nx-ink);
+}
+.portal-student .nx-card-hover {
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.portal-student .nx-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 0 var(--nx-ink);
+}
+
 .portal-student ::-webkit-scrollbar,
 .portal-admin ::-webkit-scrollbar {
   width: 8px;
@@ -432,6 +451,16 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+  }
+
+  /* A <select>'s open list is drawn by the browser on its own (white) surface
+     but its options inherit the select's text colour — light text on dark
+     themes, i.e. an unreadable list. Give options an explicit background and
+     colour from the active theme tokens so the popup always matches. */
+  select option,
+  select optgroup {
+    background-color: var(--nx-surface);
+    color: var(--nx-ink);
   }
 
   html,

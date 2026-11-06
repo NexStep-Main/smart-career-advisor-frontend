@@ -13,6 +13,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AppShell from "@/layouts/AppShell";
 import ScrollManager from "@/components/common/ScrollManager";
+import BadgeListener from "@/components/common/BadgeListener";
 import AdminLayout from "@/layouts/AdminLayout";
 import AdminAuthLayout from "@/layouts/AdminAuthLayout";
 import useAuthStore from "@/store/useAuthStore";
@@ -105,6 +106,7 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <ScrollManager />
+            <BadgeListener />
             <Toaster position="top-center" toastOptions={{ duration: 3500 }} />
             <Routes>
               {/* Public */}

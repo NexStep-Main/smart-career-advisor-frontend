@@ -103,7 +103,7 @@ export const profileFormSchema = z.object({
   educationLevel: z.enum(["class10", "class12", "graduation"], {
     message: "Select your education level",
   }),
-  stream: z.enum(["science", "commerce", "arts", "engineering"], {
+  stream: z.enum(["science", "science_bio", "commerce", "arts", "engineering", "other"], {
     message: "Select your stream",
   }),
 });
@@ -120,7 +120,7 @@ export const adminEditStudentSchema = z.object({
   educationLevel: z.enum(["class10", "class12", "graduation"], {
     message: "Select an education level",
   }),
-  stream: z.enum(["science", "commerce", "arts", "engineering"]).optional(),
+  stream: z.enum(["science", "science_bio", "commerce", "arts", "engineering", "other"]).optional(),
   isTestAccount: z.boolean().optional(),
 });
 
