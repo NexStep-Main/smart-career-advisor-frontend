@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Quote } from "lucide-react";
 import FadeIn from "@/components/common/FadeIn";
+import EditorialHeading from "@/components/common/EditorialHeading";
 import { cn } from "@/lib/utils";
 
 const TESTIMONIALS = [
@@ -10,24 +11,28 @@ const TESTIMONIALS = [
     role: "Class 12 Science, Kolkata",
     quote:
       "I had no idea what to do after boards. NexStep showed me options in my stream I hadn't even heard of.",
+    avatar: "bg-bubblegum",
   },
   {
     name: "Arjun Das",
     role: "B.Tech CSE, Final Year",
     quote:
       "The skill roadmap for Full Stack development is incredibly detailed. I know exactly what to learn this semester.",
+    avatar: "bg-sky",
   },
   {
     name: "Sneha Roy",
     role: "Commerce Student, Delhi",
     quote:
       "Compared CA vs MBA vs CFA in one click. The comparison table made my decision so much easier.",
+    avatar: "bg-sunny",
   },
   {
     name: "Rahul Sharma",
     role: "Class 10, Pune",
     quote:
       "I was scared about stream selection. The quiz understood my interests better than my own teachers did.",
+    avatar: "bg-mint",
   },
 ];
 
@@ -51,49 +56,74 @@ export default function TestimonialsSection() {
   }, [paused, go]);
 
   const active = TESTIMONIALS[index];
+  const initials = active.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
 
   return (
     <section
       id="testimonials"
-      className="border-b border-rule px-6 py-24 sm:py-32"
+      className="scroll-mt-24 bg-sunny/20 px-6 py-20 sm:py-28 dark:bg-sunny/10"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="mx-auto max-w-5xl">
-        <FadeIn className="mb-12 flex items-baseline gap-3 font-mono text-xs uppercase tracking-[0.2em] text-ink-muted">
-          <span className="text-ink-faint">§ 04</span>
-          <span>Student stories</span>
+      <div className="mx-auto max-w-4xl">
+        <FadeIn>
+          <EditorialHeading
+            align="center"
+            tone="sky"
+            eyebrow="Student stories"
+            title="Students like you, finding their way."
+          />
         </FadeIn>
 
-        <FadeIn>
+        <FadeIn delay={0.1} className="mt-14">
           {/* Fixed min-height so rotating between quotes of different lengths
               doesn't make the whole section jump. */}
-          <div className="min-h-64 sm:min-h-72">
+          <div className="relative min-h-80 rounded-[2rem] border-2 border-ink bg-surface p-7 shadow-pop-lg sm:min-h-72 sm:p-10">
+            <Quote
+              aria-hidden
+              size={56}
+              strokeWidth={1.5}
+              className="absolute -top-6 left-8 rotate-6 rounded-2xl border-2 border-ink bg-grape p-3 text-white"
+            />
             <AnimatePresence mode="wait">
               <motion.blockquote
                 key={index}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="pt-6"
               >
-                <p className="font-display text-3xl leading-[1.15] tracking-tight text-ink sm:text-5xl md:text-6xl">
+                <p className="font-display text-2xl font-medium leading-snug text-ink sm:text-3xl">
                   &ldquo;{active.quote}&rdquo;
                 </p>
-                <footer className="mt-8 font-mono text-xs uppercase tracking-[0.18em] text-ink-muted">
-                  {active.name}
-                  <span className="text-ink-faint"> · {active.role}</span>
+                <footer className="mt-8 flex items-center gap-4">
+                  <span
+                    className={cn(
+                      "flex size-12 items-center justify-center rounded-full border-2 border-ink font-display text-lg font-bold text-night",
+                      active.avatar,
+                    )}
+                  >
+                    {initials}
+                  </span>
+                  <span>
+                    <span className="block font-bold text-ink">{active.name}</span>
+                    <span className="block text-sm text-ink-muted">{active.role}</span>
+                  </span>
                 </footer>
               </motion.blockquote>
             </AnimatePresence>
           </div>
         </FadeIn>
 
-        <FadeIn delay={0.1}>
-          <div className="mt-10 flex items-center justify-between border-t border-rule pt-6">
-            <div className="flex gap-2">
+        <FadeIn delay={0.15}>
+          <div className="mt-8 flex items-center justify-between">
+            <div className="flex gap-2.5">
               {TESTIMONIALS.map((t, i) => (
                 <button
                   key={t.name}
@@ -101,28 +131,25 @@ export default function TestimonialsSection() {
                   aria-label={`Show testimonial from ${t.name}`}
                   aria-current={i === index}
                   className={cn(
-                    "h-px w-10 transition-colors",
-                    i === index ? "bg-ink" : "bg-rule hover:bg-ink-faint",
+                    "h-4 rounded-full border-2 border-ink transition-all duration-300",
+                    i === index ? "w-10 bg-grape" : "w-4 bg-surface hover:bg-sunny",
                   )}
                 />
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <span className="font-mono text-xs text-ink-faint">
-                {String(index + 1).padStart(2, "0")} / {String(TESTIMONIALS.length).padStart(2, "0")}
-              </span>
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => go(-1)}
                 aria-label="Previous testimonial"
-                className="text-ink transition-opacity hover:opacity-50"
+                className="flex size-11 items-center justify-center rounded-full border-2 border-ink bg-surface text-ink shadow-pop-sm transition-all hover:-translate-y-0.5 hover:bg-sunny hover:text-night hover:shadow-pop active:translate-y-0.5 active:shadow-none"
               >
                 <ArrowLeft size={18} />
               </button>
               <button
                 onClick={() => go(1)}
                 aria-label="Next testimonial"
-                className="text-ink transition-opacity hover:opacity-50"
+                className="flex size-11 items-center justify-center rounded-full border-2 border-ink bg-surface text-ink shadow-pop-sm transition-all hover:-translate-y-0.5 hover:bg-sunny hover:text-night hover:shadow-pop active:translate-y-0.5 active:shadow-none"
               >
                 <ArrowRight size={18} />
               </button>

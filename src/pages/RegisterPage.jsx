@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, ArrowRight, ChevronDown, UserRound } from "lucide-react";
@@ -9,6 +9,8 @@ import AuthField from "@/components/common/AuthField";
 import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import useAuthStore from "@/store/useAuthStore";
+import { applyPendingQuiz } from "@/lib/pendingQuiz";
+import { mergeSwipes } from "@/store/useSwipeStore";
 import { registerRequest } from "@/services/auth";
 import { registerSchema } from "@/utils/schemas";
 
@@ -22,6 +24,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [existingEmail, setExistingEmail] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((state) => state.login);
 
   const {
@@ -29,14 +32,26 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(registerSchema) });
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      // Set when a Google sign-in attempt on /login found no matching
+      // account — see LoginPage.jsx's handleGoogleCredential.
+      email: location.state?.prefillEmail ?? "",
+      fullName: location.state?.prefillFullName ?? "",
+    },
+  });
   const passwordValue = watch("password");
 
   const onSubmit = async (values) => {
     try {
       const { data } = await registerRequest(values);
       login(data.data.user, data.data.token);
-      navigate("/onboarding", { replace: true });
+      // A guest who already took the quiz doesn't repeat it — their saved
+      // answers are submitted now and they land on their matches.
+      const applied = await applyPendingQuiz();
+      await mergeSwipes(); // guest right-swipes → bookmarks
+      navigate(applied ? "/recommendations" : "/onboarding", { replace: true });
     } catch (error) {
       if (error.response?.status === 409) {
         setExistingEmail(values.email);

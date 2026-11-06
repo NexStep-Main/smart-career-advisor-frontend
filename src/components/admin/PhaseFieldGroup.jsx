@@ -1,8 +1,11 @@
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, Controller } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { Trash2, Plus } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
+import TagInput from "@/components/ui/TagInput";
+import { getCareerTagValues } from "@/services/admin";
 
 const RESOURCE_TYPES = ["video", "article", "course"];
 
@@ -19,6 +22,14 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
   } = useFieldArray({
     control,
     name: `phases.${index}.resources`,
+  });
+
+  // Same distinct-values-from-the-DB suggestion source the Career form's
+  // skills TagInput uses — one shared vocabulary, no separate endpoint.
+  const { data: skillSuggestions } = useQuery({
+    queryKey: ["admin", "careers", "tag-values", "skills"],
+    queryFn: () => getCareerTagValues("skills").then((res) => res.data.data.values),
+    staleTime: 5 * 60 * 1000,
   });
 
   const phaseErrors = errors?.phases?.[index];
@@ -67,11 +78,19 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <Label htmlFor={`phases.${index}.skills`}>Skills (comma-separated)</Label>
-            <Input
-              id={`phases.${index}.skills`}
-              placeholder="HTML, CSS"
-              {...register(`phases.${index}.skills`)}
+            <Label htmlFor={`phases.${index}.skills`}>Skills</Label>
+            <Controller
+              name={`phases.${index}.skills`}
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id={`phases.${index}.skills`}
+                  value={field.value}
+                  onChange={field.onChange}
+                  suggestions={skillSuggestions ?? []}
+                  placeholder="Type and press Enter — e.g. HTML, CSS"
+                />
+              )}
             />
           </div>
           <div>

@@ -1,6 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Pencil, Trash2, Briefcase, SlidersHorizontal, X, Archive } from "lucide-react";
+import Papa from "papaparse";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Briefcase,
+  SlidersHorizontal,
+  X,
+  Archive,
+  Download,
+  Upload,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -11,10 +23,52 @@ import Pagination from "@/components/common/Pagination";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import SEOHead from "@/components/common/SEOHead";
 import CareerFormModal from "@/components/admin/CareerFormModal";
-import { getAdminCareers } from "@/services/admin";
+import CareerImportResultDialog from "@/components/admin/CareerImportResultDialog";
+import { getAdminCareers, exportAdminCareers, importAdminCareers } from "@/services/admin";
 import { createCareer, updateCareer, deleteCareer } from "@/services/careers";
 import { DOMAINS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Mirrors CAREER_EXPORT_COLUMNS in admin.controller.js — array-valued cells
+// are semicolon-joined on export and split back apart the same way here, so
+// exporting the current catalog and re-importing it unchanged is a no-op.
+const splitList = (cell) =>
+  (cell ?? "")
+    .split(";")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+function csvRowToCareer(row) {
+  return {
+    title: (row["Title"] ?? "").trim(),
+    domain: (row["Domain"] ?? "").trim(),
+    description: (row["Description"] ?? "").trim(),
+    educationLevel: splitList(row["Education level"]),
+    streams: splitList(row["Streams"]),
+    averageSalary: {
+      min: Number(row["Salary min"]) || 0,
+      max: Number(row["Salary max"]) || 0,
+      currency: (row["Currency"] ?? "INR").trim() || "INR",
+    },
+    demandLevel: (row["Demand level"] ?? "").trim().toLowerCase(),
+    skills: splitList(row["Skills"]),
+    topColleges: splitList(row["Top colleges"]),
+    futureScope: (row["Future scope"] ?? "").trim() || undefined,
+    tags: splitList(row["Tags"]),
+    isActive: !/^(no|false|0)$/i.test((row["Published"] ?? "yes").trim()),
+  };
+}
 
 const DEMAND_VARIANT = { high: "green", medium: "orange", low: "neutral" };
 const DEMAND_LEVELS = [
@@ -42,6 +96,9 @@ export default function AdminCareersPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingCareer, setEditingCareer] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const fileInputRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -136,6 +193,47 @@ export default function AdminCareersPage() {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: importAdminCareers,
+    onSuccess: ({ data }) => {
+      setImportResult(data.data);
+      invalidate();
+    },
+    onError: () => toast.error("Couldn't import that file. Check it's a valid CSV and try again."),
+  });
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await exportAdminCareers(filters);
+      downloadBlob(res.data, `careers-${new Date().toISOString().slice(0, 10)}.csv`);
+    } catch {
+      toast.error("Couldn't export careers.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file after a fix-and-retry
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const rows = results.data.map(csvRowToCareer).filter((c) => c.title);
+        if (rows.length === 0) {
+          toast.error("That file has no rows to import.");
+          return;
+        }
+        importMutation.mutate(rows);
+      },
+      error: () => toast.error("Couldn't read that file."),
+    });
+  };
+
   const handleFormSubmit = (values) => {
     if (editingCareer) {
       updateMutation.mutate({ id: editingCareer.id, payload: values });
@@ -176,16 +274,38 @@ export default function AdminCareersPage() {
             {data?.total ?? 0} career{data?.total === 1 ? "" : "s"} matching current filters
           </p>
         </div>
-        <Button
-          variant="admin"
-          onClick={() => {
-            setEditingCareer(null);
-            setFormOpen(true);
-          }}
-        >
-          <Plus size={16} />
-          Add Career
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting}>
+            <Download size={14} />
+            {exporting ? "Exporting…" : "Export CSV"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importMutation.isPending}
+          >
+            <Upload size={14} />
+            {importMutation.isPending ? "Importing…" : "Import CSV"}
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={handleImportFile}
+          />
+          <Button
+            variant="admin"
+            onClick={() => {
+              setEditingCareer(null);
+              setFormOpen(true);
+            }}
+          >
+            <Plus size={16} />
+            Add Career
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4">
@@ -413,6 +533,12 @@ export default function AdminCareersPage() {
         loading={deleteMutation.isPending}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
+      />
+
+      <CareerImportResultDialog
+        open={!!importResult}
+        result={importResult}
+        onClose={() => setImportResult(null)}
       />
     </div>
   );

@@ -2,45 +2,49 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  sm: "text-base",
-  md: "text-lg",
-  lg: "text-2xl",
+  sm: { text: "text-lg", mark: "size-6" },
+  md: { text: "text-xl", mark: "size-8" },
+  lg: { text: "text-3xl", mark: "size-10" },
 };
 
 /**
- * Shared brand mark — a typographic wordmark, no icon/badge. Echoes the
- * footer's oversized "NexStep" and the landing hero's italic "next step."
- * motif, so the mark reads as part of the same editorial system wherever
- * it's rendered (Navbar/Sidebar/AuthLayout/Footer), instead of a leftover
- * icon-in-a-box.
+ * Brand mark — three ascending "steps" in the playful palette (the product is
+ * literally the next step up) followed by a rounded wordmark.
  *
- * `mono` is the landing page's editorial register: a single ink colour
- * instead of the app's primary accent, so the brand mark doesn't reintroduce
- * colour into a strictly monochrome layout. `admin` swaps the accent to the
- * admin console's amber instead of the student product's emerald, so the
- * wordmark itself signals which surface you're on.
+ * `mono` is kept for existing call sites (landing/auth chrome) and now simply
+ * means "use the theme ink for the wordmark"; the stair mark always keeps its
+ * colours since that is the brand. `admin` swaps the accent to the admin
+ * console's amber so the mark signals which surface you're on.
  */
 export default function Logo({ size = "md", to = "/", mono = false, admin = false, className }) {
-  const accentClass = mono ? "text-ink" : admin ? "text-admin-accent" : "text-primary";
+  const s = SIZES[size];
+  const accentClass = admin ? "text-admin-accent" : "text-grape dark:text-primary";
 
   const content = (
-    <span
-      className={cn(
-        "inline-flex items-baseline font-heading font-bold tracking-tight",
-        mono ? "text-ink" : "text-slate-900 dark:text-slate-50",
-        SIZES[size],
-        className,
-      )}
-    >
-      Nex
-      <span className={cn("font-display italic", accentClass)}>Step</span>
+    <span className={cn("inline-flex items-center gap-2", className)}>
+      <svg
+        viewBox="0 0 32 32"
+        className={cn("shrink-0", s.mark)}
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      >
+        <g className={admin ? "text-admin-bg" : "text-night dark:text-ink"}>
+          <rect x="2" y="19" width="9" height="11" rx="2.5" fill={admin ? "#e0a940" : "#2dd4a7"} />
+          <rect x="11.5" y="11" width="9" height="19" rx="2.5" fill={admin ? "#c8932c" : "#ffc933"} />
+          <rect x="21" y="3" width="9" height="27" rx="2.5" fill={admin ? "#e0a940" : "#ff5c8a"} />
+        </g>
+      </svg>
       <span
         className={cn(
-          "font-display not-italic",
-          mono ? "text-ink-faint" : "text-slate-300 dark:text-slate-600",
+          "font-display font-bold leading-none tracking-tight",
+          mono ? "text-ink" : "text-slate-900 dark:text-slate-50",
+          s.text,
         )}
       >
-        .
+        Nex<span className={accentClass}>Step</span>
       </span>
     </span>
   );

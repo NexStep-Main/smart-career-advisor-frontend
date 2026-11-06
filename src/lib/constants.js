@@ -9,10 +9,12 @@ export const EDUCATION_LEVELS = [
 ];
 
 export const STREAMS = [
-  { value: "science", label: "Science" },
+  { value: "science", label: "Science (PCM)" },
+  { value: "science_bio", label: "Science (PCB)" },
   { value: "commerce", label: "Commerce" },
-  { value: "arts", label: "Arts" },
+  { value: "arts", label: "Arts / Humanities" },
   { value: "engineering", label: "Engineering" },
+  { value: "other", label: "Other" },
 ];
 
 // Career.domain — was free text (typo could silently create a phantom

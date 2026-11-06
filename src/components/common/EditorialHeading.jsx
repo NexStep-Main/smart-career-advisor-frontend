@@ -1,21 +1,27 @@
 import { cn } from "@/lib/utils";
 
+// Eyebrow sticker colours cycle by section so the page doesn't read as one hue.
+const TONES = {
+  grape: "bg-grape text-white",
+  pink: "bg-bubblegum text-night",
+  sunny: "bg-sunny text-night",
+  mint: "bg-mint text-night",
+  sky: "bg-sky text-night",
+  tangerine: "bg-tangerine text-night",
+};
+
 /**
- * Editorial section heading — the landing page's replacement for
- * SectionHeading (which is centre-locked and carries gradient rules that
- * don't belong in a monochrome layout).
- *
- * Differences that matter here: alignment is a prop rather than hardcoded
- * centre, the eyebrow is a plain indexed label instead of a decorated pill,
- * and the title uses the display serif at a much larger scale — the type
- * does the work that colour and ornament used to.
+ * Landing-page section heading: a tilted colour "sticker" eyebrow, a big
+ * rounded display title, and an optional subtitle. Alignment is a prop.
+ * `index` (e.g. "§ 01" in the old design) is accepted and ignored so existing
+ * call sites keep working.
  */
 export default function EditorialHeading({
-  index,
   eyebrow,
   title,
   subtitle,
   align = "left",
+  tone = "grape",
   className,
   titleClassName,
 }) {
@@ -23,21 +29,20 @@ export default function EditorialHeading({
 
   return (
     <div className={cn("max-w-2xl", centered && "mx-auto text-center", className)}>
-      {(eyebrow || index) && (
-        <div
+      {eyebrow && (
+        <span
           className={cn(
-            "mb-6 flex items-baseline gap-3 text-xs uppercase tracking-[0.2em] text-ink-muted",
-            centered && "justify-center",
+            "mb-5 inline-block -rotate-2 rounded-full border-2 border-ink px-4 py-1 text-sm font-bold shadow-pop-sm",
+            TONES[tone],
           )}
         >
-          {index && <span className="font-mono text-ink-faint">{index}</span>}
-          {eyebrow && <span>{eyebrow}</span>}
-        </div>
+          {eyebrow}
+        </span>
       )}
 
       <h2
         className={cn(
-          "font-display text-4xl leading-[1.05] tracking-tight text-ink sm:text-5xl md:text-6xl",
+          "font-display text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl",
           titleClassName,
         )}
       >
@@ -47,7 +52,7 @@ export default function EditorialHeading({
       {subtitle && (
         <p
           className={cn(
-            "mt-5 max-w-xl text-base leading-relaxed text-ink-muted",
+            "mt-5 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg",
             centered && "mx-auto",
           )}
         >
