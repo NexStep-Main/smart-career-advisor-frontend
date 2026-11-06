@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   ArrowLeft,
@@ -34,7 +34,8 @@ import Logo from "@/components/common/Logo";
 import SEOHead from "@/components/common/SEOHead";
 import ThemeToggle from "@/components/common/ThemeToggle";
 import useAuthStore from "@/store/useAuthStore";
-import { submitQuiz } from "@/services/recommendations";
+import { submitQuiz, previewQuiz } from "@/services/recommendations";
+import { savePendingQuiz } from "@/lib/pendingQuiz";
 import { cn } from "@/lib/utils";
 
 const QUIZ_STEPS = [
@@ -212,6 +213,9 @@ const QUIZ_STEPS = [
 export default function OnboardingQuizPage() {
   const navigate = useNavigate();
   const updateProfile = useAuthStore((state) => state.updateProfile);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // Guests get their matches straight away; saving them needs an account.
+  const [guestMatches, setGuestMatches] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -252,8 +256,15 @@ export default function OnboardingQuizPage() {
 
     setSubmitting(true);
     try {
-      const { data } = await submitQuiz(answers);
-      updateProfile(data.data.user);
+      if (isAuthenticated) {
+        const { data } = await submitQuiz(answers);
+        updateProfile(data.data.user);
+      } else {
+        const { data } = await previewQuiz(answers);
+        setGuestMatches(data.data.recommendations);
+        // Kept so signing up / logging in applies these answers automatically.
+        savePendingQuiz(answers);
+      }
       setCompleted(true);
     } catch {
       toast.error("Couldn't submit your quiz. Please try again.");
@@ -261,6 +272,68 @@ export default function OnboardingQuizPage() {
       setSubmitting(false);
     }
   };
+
+  if (completed && !isAuthenticated) {
+    return (
+      <div className="portal-student flex min-h-screen items-center justify-center bg-background px-6 py-12">
+        <SEOHead title="Your Matches" />
+        <div className="w-full max-w-xl text-center">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary">
+            <CheckCircle size={32} className="text-white" strokeWidth={1.8} />
+          </div>
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
+            Here are your top matches!
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-slate-500 dark:text-slate-400">
+            Based on your answers. Create a free account to save them, track roadmaps, and get
+            sharper recommendations.
+          </p>
+
+          {guestMatches.length > 0 && (
+            <ul className="mt-8 flex flex-col gap-3 text-left">
+              {guestMatches.slice(0, 4).map((career) => (
+                <li key={career.id}>
+                  <Link
+                    to={`/careers/${career.id}`}
+                    className="flex items-center justify-between gap-4 rounded-2xl border-2 border-ink bg-surface p-4 shadow-pop-sm transition-all hover:-translate-y-0.5 hover:shadow-pop"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-display text-lg font-semibold text-ink">
+                        {career.title}
+                      </span>
+                      <span className="block text-sm text-ink-muted">{career.domain}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full border-2 border-ink bg-mint px-3 py-1 text-sm font-bold text-night">
+                      {career.matchPercent}% match
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="ink" size="lg">
+              <Link to="/register">
+                Save my results
+                <ArrowRight size={18} />
+              </Link>
+            </Button>
+            <Button asChild variant="inkOutline" size="lg">
+              <Link to="/careers">Keep exploring</Link>
+            </Button>
+          </div>
+          <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">
+            Already have an account?{" "}
+            <Link to="/login" className="font-bold text-primary hover:underline">
+              Log in
+            </Link>{" "}
+            and we'll save these for you.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (completed) {
     return (
@@ -289,7 +362,7 @@ export default function OnboardingQuizPage() {
   }
 
   return (
-    <div className="portal-student min-h-screen bg-background">
+    <div className="portal-student min-h-screen bg-background pt-16">
       <SEOHead title="Career Quiz" />
 
       <nav className="fixed inset-x-0 top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
@@ -299,6 +372,14 @@ export default function OnboardingQuizPage() {
             <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
               Step <span className="text-primary">{currentStep + 1}</span> of {QUIZ_STEPS.length}
             </span>
+            {!isAuthenticated && (
+              <Link
+                to="/login"
+                className="text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300"
+              >
+                Log in
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>

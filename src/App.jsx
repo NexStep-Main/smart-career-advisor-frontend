@@ -11,6 +11,8 @@ import SuperAdminRoute from "@/components/common/SuperAdminRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import AppShell from "@/layouts/AppShell";
+import ScrollManager from "@/components/common/ScrollManager";
 import AdminLayout from "@/layouts/AdminLayout";
 import AdminAuthLayout from "@/layouts/AdminAuthLayout";
 import useAuthStore from "@/store/useAuthStore";
@@ -102,6 +104,7 @@ function App() {
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
+            <ScrollManager />
             <Toaster position="top-center" toastOptions={{ duration: 3500 }} />
             <Routes>
               {/* Public */}
@@ -127,18 +130,28 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route element={<DashboardLayout />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/careers" element={<CareerExplorerPage />} />
-                  <Route path="/careers/:id" element={<CareerDetailsPage />} />
-                  <Route path="/roadmap/:id" element={<RoadmapPage />} />
                   <Route path="/recommendations" element={<RecommendationPage />} />
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/compare" element={<CareerComparisonPage />} />
                 </Route>
-
-                {/* Standalone focused flow — no sidebar/topbar by design. */}
-                <Route path="/onboarding" element={<OnboardingQuizPage />} />
               </Route>
+
+              {/* Browsable without an account — the landing page promises
+                  "explore without signing up", so careers, roadmaps and
+                  compare are public. AppShell picks the dashboard sidebar for
+                  signed-in students and the public navbar for guests; saving
+                  or tracking inside them prompts a login. */}
+              <Route element={<AppShell />}>
+                <Route path="/careers" element={<CareerExplorerPage />} />
+                <Route path="/careers/:id" element={<CareerDetailsPage />} />
+                <Route path="/roadmap/:id" element={<RoadmapPage />} />
+                <Route path="/compare" element={<CareerComparisonPage />} />
+              </Route>
+
+              {/* Standalone focused flow, no sidebar/topbar by design. Public:
+                  guests see matches right away and are asked to sign up to
+                  save them. */}
+              <Route path="/onboarding" element={<OnboardingQuizPage />} />
 
               {/* Admin — authenticated, AdminLayout shell (mirrors student DashboardLayout) */}
               <Route element={<AdminRoute />}>

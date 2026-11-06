@@ -21,7 +21,7 @@ import CtaSection from "./landing/CtaSection";
  */
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="min-h-screen overflow-x-clip bg-paper text-ink">
       <SEOHead
         title="Find Your Perfect Career Path"
         description="Free career guidance platform for Indian students after Class 10, 12, and Graduation. Personalised roadmaps, skill plans, and smart recommendations."

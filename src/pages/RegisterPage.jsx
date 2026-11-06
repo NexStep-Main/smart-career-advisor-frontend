@@ -9,6 +9,8 @@ import AuthField from "@/components/common/AuthField";
 import PasswordStrengthMeter from "@/components/common/PasswordStrengthMeter";
 import SEOHead from "@/components/common/SEOHead";
 import useAuthStore from "@/store/useAuthStore";
+import { applyPendingQuiz } from "@/lib/pendingQuiz";
+import { mergeSwipes } from "@/store/useSwipeStore";
 import { registerRequest } from "@/services/auth";
 import { registerSchema } from "@/utils/schemas";
 
@@ -45,7 +47,11 @@ export default function RegisterPage() {
     try {
       const { data } = await registerRequest(values);
       login(data.data.user, data.data.token);
-      navigate("/onboarding", { replace: true });
+      // A guest who already took the quiz doesn't repeat it — their saved
+      // answers are submitted now and they land on their matches.
+      const applied = await applyPendingQuiz();
+      await mergeSwipes(); // guest right-swipes → bookmarks
+      navigate(applied ? "/recommendations" : "/onboarding", { replace: true });
     } catch (error) {
       if (error.response?.status === 409) {
         setExistingEmail(values.email);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import FadeIn from "@/components/common/FadeIn";
 import EditorialHeading from "@/components/common/EditorialHeading";
 import { cn } from "@/lib/utils";
@@ -28,16 +29,16 @@ export default function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section id="faq" className="border-b border-rule px-6 py-24 sm:py-32">
-      <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-[0.75fr_1.25fr] lg:gap-24">
+    <section id="faq" className="scroll-mt-24 px-6 py-20 sm:py-28">
+      <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <FadeIn>
           <div className="lg:sticky lg:top-32">
-            <EditorialHeading index="§ 05" eyebrow="FAQ" title="Questions, answered." />
-            <p className="mt-8 text-sm leading-relaxed text-ink-muted">
+            <EditorialHeading tone="tangerine" eyebrow="FAQ" title="Got questions? We've got answers." />
+            <p className="mt-8 text-base leading-relaxed text-ink-muted">
               Still unsure?{" "}
               <Link
-                to="/register"
-                className="text-ink underline underline-offset-4 transition-opacity hover:opacity-60"
+                to="/onboarding"
+                className="font-bold text-grape underline decoration-sunny decoration-4 underline-offset-4 transition-opacity hover:opacity-70 dark:text-primary"
               >
                 Take the quiz
               </Link>{" "}
@@ -47,37 +48,33 @@ export default function FaqSection() {
         </FadeIn>
 
         <FadeIn delay={0.1}>
-          <div className="border-t border-rule">
+          <div className="flex flex-col gap-4">
             {FAQS.map((faq, i) => {
               const isOpen = openIndex === i;
               return (
-                <div key={faq.q} className="border-b border-rule">
+                <div
+                  key={faq.q}
+                  className={cn(
+                    "rounded-3xl border-2 border-ink bg-surface transition-shadow",
+                    isOpen ? "shadow-pop" : "shadow-pop-sm",
+                  )}
+                >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : i)}
                     aria-expanded={isOpen}
-                    className="flex w-full items-baseline gap-6 py-7 text-left"
+                    className="flex w-full items-center gap-4 p-5 text-left sm:p-6"
                   >
-                    <span className="font-mono text-xs text-ink-faint">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span
-                      className={cn(
-                        "flex-1 font-display text-2xl leading-snug transition-colors sm:text-3xl",
-                        isOpen ? "text-ink" : "text-ink-muted",
-                      )}
-                    >
+                    <span className="flex-1 font-display text-lg font-semibold leading-snug text-ink sm:text-xl">
                       {faq.q}
                     </span>
-                    {/* Plus/minus drawn from two rules — an icon glyph would
-                        reintroduce the line-icon language this design drops. */}
-                    <span aria-hidden className="relative mt-3 size-3 shrink-0">
-                      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-ink" />
-                      <span
-                        className={cn(
-                          "absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-ink transition-transform duration-300",
-                          isOpen ? "scale-y-0" : "scale-y-100",
-                        )}
-                      />
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "flex size-9 shrink-0 items-center justify-center rounded-full border-2 border-ink transition-all duration-300",
+                        isOpen ? "rotate-45 bg-bubblegum text-night" : "bg-sunny text-night",
+                      )}
+                    >
+                      <Plus size={18} strokeWidth={3} />
                     </span>
                   </button>
 
@@ -90,7 +87,7 @@ export default function FaqSection() {
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <p className="max-w-lg pb-8 pl-12 text-sm leading-relaxed text-ink-muted sm:text-base">
+                        <p className="px-5 pb-6 text-sm leading-relaxed text-ink-muted sm:px-6 sm:text-base">
                           {faq.a}
                         </p>
                       </motion.div>

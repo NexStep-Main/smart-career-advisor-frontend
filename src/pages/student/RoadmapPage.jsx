@@ -19,6 +19,7 @@ import Button from "@/components/ui/Button";
 import SEOHead from "@/components/common/SEOHead";
 import { getRoadmapByCareer } from "@/services/roadmaps";
 import { getCareerById } from "@/services/careers";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { getProgressByCareer, updateProgress as updateProgressRequest } from "@/services/roadmapProgress";
 import { cn } from "@/lib/utils";
 
@@ -153,10 +154,13 @@ export default function RoadmapPage() {
     retry: false,
   });
 
+  const { isAuthenticated, requireAuth } = useRequireAuth();
+
+  // Progress is per-account; guests see the roadmap read-only.
   const { data: completedPhases = [] } = useQuery({
     queryKey: ["roadmapProgress", id],
     queryFn: () => getProgressByCareer(id).then((res) => res.data.data.completedPhases),
-    enabled: !!roadmap,
+    enabled: !!roadmap && isAuthenticated,
   });
 
   const { mutate: toggleProgress } = useMutation({
@@ -253,7 +257,12 @@ export default function RoadmapPage() {
                 index={index}
                 defaultOpen={index === 0}
                 completed={completedPhases.includes(phase.phaseNumber)}
-                onToggleComplete={() => togglePhase(phase.phaseNumber)}
+                onToggleComplete={() =>
+                  requireAuth(
+                    () => togglePhase(phase.phaseNumber),
+                    "Log in to track your progress — it's free!",
+                  )
+                }
               />
             ))}
           </div>

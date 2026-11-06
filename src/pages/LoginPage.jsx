@@ -10,6 +10,8 @@ import SEOHead from "@/components/common/SEOHead";
 import GoogleSignInButton from "@/components/common/GoogleSignInButton";
 import Recaptcha from "@/components/common/Recaptcha";
 import useAuthStore from "@/store/useAuthStore";
+import { applyPendingQuiz } from "@/lib/pendingQuiz";
+import { mergeSwipes } from "@/store/useSwipeStore";
 import { loginRequest, googleLoginRequest } from "@/services/auth";
 import { loginSchema } from "@/utils/schemas";
 
@@ -34,8 +36,15 @@ export default function LoginPage() {
     defaultValues: { email: location.state?.prefillEmail ?? "", rememberMe: true },
   });
 
-  const goToDestination = () => {
-    navigate(location.state?.from?.pathname ?? "/dashboard", { replace: true });
+  const goToDestination = async () => {
+    // Guest quiz answers (taken before logging in) are saved to the account
+    // first, and take priority over the default landing spot.
+    const applied = await applyPendingQuiz();
+    // Careers they right-swiped as a guest become real bookmarks.
+    await mergeSwipes();
+    const from = location.state?.from;
+    const destination = from ? `${from.pathname}${from.search ?? ""}` : applied ? "/recommendations" : "/dashboard";
+    navigate(destination, { replace: true });
   };
 
   const onSubmit = async (values) => {
@@ -55,7 +64,7 @@ export default function LoginPage() {
     try {
       const { data } = await loginRequest({ ...values, recaptchaToken });
       login(data.data.user, data.data.token, values.rememberMe ?? true);
-      goToDestination();
+      await goToDestination();
     } catch (error) {
       toast.error(error.response?.data?.message ?? "Invalid email or password.");
       // reCAPTCHA tokens are single-use — a failed attempt needs a fresh one.
@@ -68,7 +77,7 @@ export default function LoginPage() {
     try {
       const { data } = await googleLoginRequest(credential);
       login(data.data.user, data.data.token, getValues("rememberMe") ?? true);
-      goToDestination();
+      await goToDestination();
     } catch (error) {
       if (error.response?.status === 404) {
         // No account for this Google identity — sign-in never creates one

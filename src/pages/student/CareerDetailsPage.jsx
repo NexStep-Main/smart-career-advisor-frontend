@@ -21,6 +21,7 @@ import SEOHead from "@/components/common/SEOHead";
 import { getCareerById } from "@/services/careers";
 import { getRoadmapByCareer } from "@/services/roadmaps";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const EDUCATION_LABELS = { class10: "Class 10", class12: "Class 12", graduation: "Graduation" };
 const DEMAND_VARIANT = { high: "green", medium: "orange", low: "neutral" };
@@ -48,9 +49,13 @@ export default function CareerDetailsPage() {
     throwOnError: false,
   });
 
+  const { isAuthenticated, requireAuth } = useRequireAuth();
+
+  // Guests can read everything here; saving needs an account.
   const { data: bookmarks } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    enabled: isAuthenticated,
   });
   const isSaved = bookmarks?.some((c) => c.id === id) ?? false;
 
@@ -150,7 +155,12 @@ export default function CareerDetailsPage() {
               <Button
                 variant={isSaved ? "secondary" : "outline"}
                 disabled={addMutation.isPending || removeMutation.isPending}
-                onClick={() => (isSaved ? removeMutation.mutate() : addMutation.mutate())}
+                onClick={() =>
+                  requireAuth(
+                    () => (isSaved ? removeMutation.mutate() : addMutation.mutate()),
+                    "Log in to save careers — it's free!",
+                  )
+                }
               >
                 <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
                 {isSaved ? "Saved" : "Save Career"}

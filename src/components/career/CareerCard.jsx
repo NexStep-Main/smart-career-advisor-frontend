@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import DomainBadge from "./DomainBadge";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
 import useCareerStore from "@/store/useCareerStore";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,9 +25,13 @@ export default function CareerCard({ career }) {
   const { id, title, domain, matchPercent, salaryRange, bookmarkCount } = career;
   const queryClient = useQueryClient();
 
+  const { isAuthenticated, requireAuth } = useRequireAuth();
+
+  // Guests have no bookmarks (the endpoint needs a login), so don't ask.
   const { data: bookmarks } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    enabled: isAuthenticated,
   });
   const isSaved = bookmarks?.some((c) => c.id === id) ?? false;
 
@@ -45,8 +50,10 @@ export default function CareerCard({ career }) {
 
   const handleToggle = (e) => {
     e.preventDefault();
-    if (isSaved) removeMutation.mutate();
-    else addMutation.mutate();
+    requireAuth(
+      () => (isSaved ? removeMutation.mutate() : addMutation.mutate()),
+      "Log in to save careers — it's free!",
+    );
   };
 
   const compareList = useCareerStore((state) => state.compareList);
