@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -13,7 +13,7 @@ import SEOHead from "@/components/common/SEOHead";
 import PhaseFieldGroup from "@/components/admin/PhaseFieldGroup";
 import RoadmapPhaseTimeline from "@/components/admin/RoadmapPhaseTimeline";
 import RoadmapTemplatePicker from "@/components/admin/RoadmapTemplatePicker";
-import { getAdminCareers } from "@/services/admin";
+import { generateRoadmapDraft, getAdminCareers } from "@/services/admin";
 import { createRoadmap, updateRoadmap } from "@/services/roadmaps";
 import { roadmapFormSchema } from "@/utils/schemas";
 
@@ -22,7 +22,8 @@ const BLANK_PHASE = { title: "", description: "", skills: [], durationWeeks: "",
 function toFormValues(roadmap) {
   if (!roadmap) return { careerId: "", title: "", phases: [BLANK_PHASE] };
   return {
-    careerId: roadmap.careerId?.id ?? "",
+    careerId:
+      typeof roadmap.careerId === "string" ? roadmap.careerId : roadmap.careerId?.id ?? "",
     title: roadmap.title,
     phases: (roadmap.phases ?? []).map((phase) => ({
       title: phase.title,
@@ -49,6 +50,7 @@ export default function AdminRoadmapFormPage() {
   const {
     register,
     control,
+    reset,
     handleSubmit,
     formState: { errors, isSubmitted },
   } = useForm({
@@ -57,6 +59,7 @@ export default function AdminRoadmapFormPage() {
   });
 
   const { fields, append, remove, move, replace } = useFieldArray({ control, name: "phases" });
+  const selectedCareerId = useWatch({ control, name: "careerId" });
   // Live phase titles/durations for the timeline node labels — separate
   // from `fields` (whose values are frozen at the last reset/append, not
   // reactive to keystrokes).
@@ -123,6 +126,17 @@ export default function AdminRoadmapFormPage() {
     },
   });
 
+  const draftMutation = useMutation({
+    mutationFn: generateRoadmapDraft,
+    onSuccess: ({ data }) => {
+      reset(toFormValues(data.data.draft));
+      toast.success("Groq draft generated. Review it before publishing.");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message ?? "Couldn't generate a Groq draft.");
+    },
+  });
+
   const onSubmit = (values) => {
     mutation.mutate({
       careerId: values.careerId,
@@ -162,21 +176,32 @@ export default function AdminRoadmapFormPage() {
                   {editingRoadmap.careerId?.title} · {editingRoadmap.careerId?.domain}
                 </p>
               ) : (
-                <select
-                  id="careerId"
-                  defaultValue=""
-                  className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  {...register("careerId")}
-                >
-                  <option value="" disabled>
-                    Select a career
-                  </option>
-                  {careers?.map((career) => (
-                    <option key={career.id} value={career.id}>
-                      {career.title} · {career.domain}
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <select
+                    id="careerId"
+                    defaultValue=""
+                    className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    {...register("careerId")}
+                  >
+                    <option value="" disabled>
+                      Select a career
                     </option>
-                  ))}
-                </select>
+                    {careers?.map((career) => (
+                      <option key={career.id} value={career.id}>
+                        {career.title} · {career.domain}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!selectedCareerId || draftMutation.isPending}
+                    onClick={() => draftMutation.mutate(selectedCareerId)}
+                  >
+                    <Sparkles size={16} />
+                    {draftMutation.isPending ? "Generating…" : "Generate draft"}
+                  </Button>
+                </div>
               )}
               <FormError message={errors.careerId?.message} />
             </div>

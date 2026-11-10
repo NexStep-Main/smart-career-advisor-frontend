@@ -34,3 +34,5 @@ export const importAdminCareers = (careers) => adminApi.post("/admin/careers/imp
 
 export const getAdminRoadmaps = (params) => adminApi.get("/admin/roadmaps", { params });
 export const deleteAdminRoadmap = (id) => adminApi.delete(`/admin/roadmaps/${id}`);
+export const generateRoadmapDraft = (careerId) =>
+  adminApi.post("/roadmaps/generate-draft", { careerId });
