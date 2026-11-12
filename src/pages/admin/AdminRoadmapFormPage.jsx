@@ -19,8 +19,8 @@ import { roadmapFormSchema } from "@/utils/schemas";
 
 const BLANK_PHASE = { title: "", description: "", skills: [], durationWeeks: "", resources: [] };
 
-function toFormValues(roadmap) {
-  if (!roadmap) return { careerId: "", title: "", phases: [BLANK_PHASE] };
+function toFormValues(roadmap, preselectedCareerId = "") {
+  if (!roadmap) return { careerId: preselectedCareerId, title: "", phases: [BLANK_PHASE] };
   return {
     careerId:
       typeof roadmap.careerId === "string" ? roadmap.careerId : roadmap.careerId?.id ?? "",
@@ -39,11 +39,15 @@ export default function AdminRoadmapFormPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const editingRoadmap = location.state?.roadmap ?? null;
+  const preselectedCareerId = location.state?.careerId ?? "";
   const isEdit = !!editingRoadmap;
 
-  const { data: careers } = useQuery({
-    queryKey: ["admin", "careers", "all"],
-    queryFn: () => getAdminCareers({ limit: 100 }).then((res) => res.data.data.careers),
+  const { data: careers, isLoading: loadingCareers } = useQuery({
+    queryKey: ["admin", "careers", "missing-roadmaps"],
+    queryFn: () =>
+      getAdminCareers({ limit: 1000, roadmapStatus: "without" }).then(
+        (res) => res.data.data.careers
+      ),
     enabled: !isEdit,
   });
 
@@ -55,8 +59,14 @@ export default function AdminRoadmapFormPage() {
     formState: { errors, isSubmitted },
   } = useForm({
     resolver: zodResolver(roadmapFormSchema),
-    defaultValues: toFormValues(editingRoadmap),
+    defaultValues: toFormValues(editingRoadmap, preselectedCareerId),
   });
+
+  useEffect(() => {
+    if (preselectedCareerId && !isEdit) {
+      reset(toFormValues(null, preselectedCareerId));
+    }
+  }, [preselectedCareerId, isEdit, reset]);
 
   const { fields, append, remove, move, replace } = useFieldArray({ control, name: "phases" });
   const selectedCareerId = useWatch({ control, name: "careerId" });
@@ -179,12 +189,15 @@ export default function AdminRoadmapFormPage() {
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <select
                     id="careerId"
-                    defaultValue=""
                     className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     {...register("careerId")}
                   >
                     <option value="" disabled>
-                      Select a career
+                      {loadingCareers
+                        ? "Loading careers without roadmap…"
+                        : careers?.length === 0
+                        ? "All careers already have roadmaps!"
+                        : "Select a career without roadmap"}
                     </option>
                     {careers?.map((career) => (
                       <option key={career.id} value={career.id}>

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Papa from "papaparse";
 import {
@@ -12,6 +13,7 @@ import {
   Archive,
   Download,
   Upload,
+  Route,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card } from "@/components/ui/Card";
@@ -82,15 +84,22 @@ const STATUS_FILTERS = [
   { value: "active", label: "Active only" },
   { value: "archived", label: "Archived only" },
 ];
+const ROADMAP_FILTERS = [
+  { value: "", label: "All roadmaps" },
+  { value: "with", label: "Has roadmap" },
+  { value: "without", label: "Missing roadmap" },
+];
 
 const selectClass =
   "h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-slate-700 dark:text-slate-200 focus:border-primary focus:outline-none sm:flex-none";
 
 export default function AdminCareersPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [domain, setDomain] = useState("");
   const [demandLevel, setDemandLevel] = useState("");
   const [status, setStatus] = useState("");
+  const [roadmapStatus, setRoadmapStatus] = useState("");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -107,8 +116,9 @@ export default function AdminCareersPage() {
     domain: domain || undefined,
     demandLevel: demandLevel || undefined,
     status: status || undefined,
+    roadmapStatus: roadmapStatus || undefined,
   };
-  const activeFilterCount = [domain, demandLevel, status].filter(Boolean).length;
+  const activeFilterCount = [domain, demandLevel, status, roadmapStatus].filter(Boolean).length;
   const hasFilters = !!search || activeFilterCount > 0;
 
   const { data, isLoading } = useQuery({
@@ -253,6 +263,7 @@ export default function AdminCareersPage() {
     setDomain("");
     setDemandLevel("");
     setStatus("");
+    setRoadmapStatus("");
     setPage(1);
   };
 
@@ -272,6 +283,9 @@ export default function AdminCareersPage() {
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {data?.total ?? 0} career{data?.total === 1 ? "" : "s"} matching current filters
+            {data?.totalRoadmaps !== undefined && (
+              <> · <span className="font-medium text-slate-700 dark:text-slate-300">{data.totalRoadmaps}</span> with roadmap</>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -397,6 +411,20 @@ export default function AdminCareersPage() {
               </option>
             ))}
           </select>
+          <select
+            value={roadmapStatus}
+            onChange={(e) => {
+              setRoadmapStatus(e.target.value);
+              setPage(1);
+            }}
+            className={selectClass}
+          >
+            {ROADMAP_FILTERS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </select>
 
           {hasFilters && (
             <button
@@ -443,6 +471,7 @@ export default function AdminCareersPage() {
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Domain</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Demand</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Salary</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Roadmap</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Status</th>
                   <th className="px-4 py-2.5 font-semibold sm:px-6">Actions</th>
                 </tr>
@@ -465,6 +494,27 @@ export default function AdminCareersPage() {
                     </td>
                     <td className="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-300 sm:px-6">
                       {career.salaryRange}
+                    </td>
+                    <td className="px-4 py-2.5 sm:px-6">
+                      {career.hasRoadmap ? (
+                        <Link
+                          to="/admin/roadmaps"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                          title="View in roadmaps console"
+                        >
+                          <Route size={12} strokeWidth={2.2} />
+                          <span>Has roadmap</span>
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => navigate("/admin/roadmaps/new", { state: { careerId: career.id } })}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 transition hover:border-amber-500/50 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40"
+                          title="Create roadmap for this career"
+                        >
+                          <Plus size={12} strokeWidth={2.2} />
+                          <span>Add roadmap</span>
+                        </button>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 sm:px-6">
                       <button

@@ -52,12 +52,19 @@ export default function AdminRoadmapsPage() {
             {data?.total ?? 0} roadmap{data?.total === 1 ? "" : "s"} published
           </p>
         </div>
-        <Button asChild variant="admin">
-          <Link to="/admin/roadmaps/new">
-            <Plus size={16} />
-            New Roadmap
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <Link to="/admin/careers">
+              Careers Coverage
+            </Link>
+          </Button>
+          <Button asChild variant="admin">
+            <Link to="/admin/roadmaps/new">
+              <Plus size={16} />
+              New Roadmap
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
