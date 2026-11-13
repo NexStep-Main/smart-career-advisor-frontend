@@ -1,76 +1,90 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, GitCompareArrows, Map, Search, WandSparkles } from "lucide-react";
 import FadeIn from "@/components/common/FadeIn";
+import useAuthStore from "@/store/useAuthStore";
 import EditorialHeading from "@/components/common/EditorialHeading";
 
 const FEATURES = [
   {
-    num: "01",
+    icon: Search,
     title: "Career Explorer",
     desc: "Every career path, filterable by stream, education level, and salary — so you stop scrolling forums and start comparing facts.",
     to: "/careers",
+    bg: "bg-sky",
+    span: "md:col-span-3",
   },
   {
-    num: "02",
+    icon: Map,
     title: "Skill Roadmaps",
     desc: "Phase-by-phase learning paths with the exact skills, order, and resources — no more guessing what to learn first.",
     to: "/careers",
+    bg: "bg-mint",
+    span: "md:col-span-3",
   },
   {
-    num: "03",
+    icon: WandSparkles,
     title: "Smart Recommendations",
     desc: "A matching engine that ranks careers against your education level, stream, and priorities — sharper the more you tell it.",
     to: "/recommendations",
+    bg: "bg-bubblegum",
+    span: "md:col-span-3",
   },
   {
-    num: "04",
+    icon: GitCompareArrows,
     title: "Career Comparison",
     desc: "Line up three careers side-by-side across salary, skills, demand, and future scope before you commit to one.",
     to: "/compare",
+    bg: "bg-sunny",
+    span: "md:col-span-3",
   },
 ];
 
-// Full-bleed ruled rows that reveal on hover — no cards, no icon boxes. The
-// heading sits right-aligned here so this section doesn't mirror Process's
-// left rail directly above it.
 export default function FeaturesSection() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   return (
-    <section id="features" className="border-b border-rule px-6 py-24 sm:py-32">
+    <section id="features" className="scroll-mt-24 bg-grape/10 px-6 py-20 sm:py-28 dark:bg-grape/15">
       <div className="mx-auto max-w-6xl">
-        <FadeIn className="mb-16 flex justify-end">
+        <FadeIn>
           <EditorialHeading
-            index="§ 02"
-            eyebrow="What we offer"
+            tone="sunny"
+            eyebrow="What you get"
             title="Everything you need, nothing you don't."
-            className="text-right"
+            subtitle="Four tools that work together to take you from curious to confident."
           />
         </FadeIn>
 
-        <div className="border-t border-rule">
-          {FEATURES.map((feature, i) => (
-            <FadeIn key={feature.title} delay={i * 0.06}>
-              <Link
-                to={feature.to}
-                className="group grid grid-cols-1 items-baseline gap-x-8 gap-y-3 border-b border-rule py-8 transition-colors hover:bg-ink/3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:py-10"
-              >
-                <span className="font-mono text-xs text-ink-faint sm:pl-2">{feature.num}</span>
-
-                <span className="flex items-baseline gap-4">
-                  <span className="font-display text-3xl text-ink transition-transform duration-300 group-hover:translate-x-1 sm:text-4xl">
+        <div className="mt-14 grid gap-6 md:grid-cols-6">
+          {FEATURES.map((feature, i) => {
+            const Icon = feature.icon;
+            // Recommendations need a profile — guests start with the quiz.
+            const to = feature.to === "/recommendations" && !isAuthenticated ? "/onboarding" : feature.to;
+            return (
+              <FadeIn key={feature.title} delay={i * 0.07} className={feature.span}>
+                <Link
+                  to={to}
+                  className="group flex h-full flex-col rounded-3xl border-2 border-ink bg-surface p-7 shadow-pop transition-all duration-300 hover:-translate-y-1.5 hover:shadow-pop-lg"
+                >
+                  <div className="flex items-start justify-between">
+                    <div
+                      className={`flex size-14 items-center justify-center rounded-2xl border-2 border-ink text-night transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110 ${feature.bg}`}
+                    >
+                      <Icon size={26} strokeWidth={2.3} />
+                    </div>
+                    <span className="flex size-10 items-center justify-center rounded-full border-2 border-ink bg-paper text-ink transition-colors group-hover:bg-sunny group-hover:text-night">
+                      <ArrowUpRight size={18} />
+                    </span>
+                  </div>
+                  <h3 className="mt-6 font-display text-2xl font-semibold text-ink sm:text-3xl">
                     {feature.title}
-                  </span>
-                  <ArrowUpRight
-                    size={20}
-                    className="shrink-0 text-ink-faint opacity-0 transition-all duration-300 group-hover:opacity-100"
-                  />
-                </span>
-
-                <span className="max-w-sm text-sm leading-relaxed text-ink-muted sm:pr-2">
-                  {feature.desc}
-                </span>
-              </Link>
-            </FadeIn>
-          ))}
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-muted sm:text-base">
+                    {feature.desc}
+                  </p>
+                </Link>
+              </FadeIn>
+            );
+          })}
         </div>
       </div>
     </section>

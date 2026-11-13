@@ -1,8 +1,11 @@
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, Controller } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { Trash2, Plus } from "lucide-react";
 import Input from "@/components/ui/Input";
 import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
+import TagInput from "@/components/ui/TagInput";
+import { getCareerTagValues } from "@/services/admin";
 
 const RESOURCE_TYPES = ["video", "article", "course"];
 
@@ -21,12 +24,20 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
     name: `phases.${index}.resources`,
   });
 
+  // Same distinct-values-from-the-DB suggestion source the Career form's
+  // skills TagInput uses — one shared vocabulary, no separate endpoint.
+  const { data: skillSuggestions } = useQuery({
+    queryKey: ["admin", "careers", "tag-values", "skills"],
+    queryFn: () => getCareerTagValues("skills").then((res) => res.data.data.values),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const phaseErrors = errors?.phases?.[index];
 
   return (
     <div className="rounded-lg border border-border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h4 className="font-heading text-sm font-semibold text-slate-900 dark:text-slate-50">
+        <h4 className="font-display text-base text-slate-900 dark:text-slate-50">
           Phase {index + 1}
         </h4>
         {canRemove && (
@@ -67,11 +78,19 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <Label htmlFor={`phases.${index}.skills`}>Skills (comma-separated)</Label>
-            <Input
-              id={`phases.${index}.skills`}
-              placeholder="HTML, CSS"
-              {...register(`phases.${index}.skills`)}
+            <Label htmlFor={`phases.${index}.skills`}>Skills</Label>
+            <Controller
+              name={`phases.${index}.skills`}
+              control={control}
+              render={({ field }) => (
+                <TagInput
+                  id={`phases.${index}.skills`}
+                  value={field.value}
+                  onChange={field.onChange}
+                  suggestions={skillSuggestions ?? []}
+                  placeholder="Type and press Enter — e.g. HTML, CSS"
+                />
+              )}
             />
           </div>
           <div>
@@ -94,7 +113,7 @@ export default function PhaseFieldGroup({ index, control, register, errors, onRe
             <button
               type="button"
               onClick={() => appendResource({ name: "", url: "", type: "article" })}
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              className="flex items-center gap-1 text-xs font-medium text-admin-accent hover:underline"
             >
               <Plus size={13} />
               Add resource

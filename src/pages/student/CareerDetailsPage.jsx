@@ -21,6 +21,7 @@ import SEOHead from "@/components/common/SEOHead";
 import { getCareerById } from "@/services/careers";
 import { getRoadmapByCareer } from "@/services/roadmaps";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 const EDUCATION_LABELS = { class10: "Class 10", class12: "Class 12", graduation: "Graduation" };
 const DEMAND_VARIANT = { high: "green", medium: "orange", low: "neutral" };
@@ -48,9 +49,13 @@ export default function CareerDetailsPage() {
     throwOnError: false,
   });
 
+  const { isAuthenticated, requireAuth } = useRequireAuth();
+
+  // Guests can read everything here; saving needs an account.
   const { data: bookmarks } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    enabled: isAuthenticated,
   });
   const isSaved = bookmarks?.some((c) => c.id === id) ?? false;
 
@@ -103,60 +108,67 @@ export default function CareerDetailsPage() {
         Back
       </button>
 
-      <div className="border-b border-border pb-6">
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-          <DomainBadge domain={career.domain} />
-          <Badge variant={DEMAND_VARIANT[career.demandLevel] ?? "neutral"}>
-            {career.demandLevel} demand
-          </Badge>
-        </div>
+      <Card>
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <DomainBadge domain={career.domain} />
+                <Badge variant={DEMAND_VARIANT[career.demandLevel] ?? "neutral"}>
+                  {career.demandLevel} demand
+                </Badge>
+              </div>
+              <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50 sm:text-3xl">
+                {career.title}
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                {career.description}
+              </p>
 
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="font-display text-3xl leading-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
-              {career.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-              {career.description}
-            </p>
-          </div>
+              <div className="mt-5 flex flex-wrap gap-5 text-sm text-slate-600 dark:text-slate-300">
+                {career.salaryRange && (
+                  <span className="flex items-center gap-1.5">
+                    <IndianRupee size={15} className="text-primary" />
+                    <strong className="text-slate-900 dark:text-slate-50">
+                      {career.salaryRange}
+                    </strong>
+                  </span>
+                )}
+                {career.educationLevel?.length > 0 && (
+                  <span className="flex items-center gap-1.5">
+                    <GraduationCap size={15} className="text-primary" />
+                    {career.educationLevel.map((l) => EDUCATION_LABELS[l] ?? l).join(", ")}
+                  </span>
+                )}
+              </div>
+            </div>
 
-          <div className="flex shrink-0 flex-wrap gap-2">
-            {roadmap && (
-              <Button asChild size="sm">
-                <Link to={`/roadmap/${id}`}>
-                  <Route size={16} />
-                  View Roadmap
-                </Link>
+            <div className="flex shrink-0 flex-col gap-2">
+              {roadmap && (
+                <Button asChild>
+                  <Link to={`/roadmap/${id}`}>
+                    <Route size={16} />
+                    View Roadmap
+                  </Link>
+                </Button>
+              )}
+              <Button
+                variant={isSaved ? "secondary" : "outline"}
+                disabled={addMutation.isPending || removeMutation.isPending}
+                onClick={() =>
+                  requireAuth(
+                    () => (isSaved ? removeMutation.mutate() : addMutation.mutate()),
+                    "Log in to save careers — it's free!",
+                  )
+                }
+              >
+                <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
+                {isSaved ? "Saved" : "Save Career"}
               </Button>
-            )}
-            <Button
-              variant={isSaved ? "secondary" : "outline"}
-              size="sm"
-              disabled={addMutation.isPending || removeMutation.isPending}
-              onClick={() => (isSaved ? removeMutation.mutate() : addMutation.mutate())}
-            >
-              <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
-              {isSaved ? "Saved" : "Save Career"}
-            </Button>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-5 flex flex-wrap gap-5 text-sm text-slate-600 dark:text-slate-300">
-          {career.salaryRange && (
-            <span className="flex items-center gap-1.5">
-              <IndianRupee size={15} className="text-primary" />
-              <strong className="text-slate-900 dark:text-slate-50">{career.salaryRange}</strong>
-            </span>
-          )}
-          {career.educationLevel?.length > 0 && (
-            <span className="flex items-center gap-1.5">
-              <GraduationCap size={15} className="text-primary" />
-              {career.educationLevel.map((l) => EDUCATION_LABELS[l] ?? l).join(", ")}
-            </span>
-          )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="flex flex-col gap-5 lg:col-span-2">

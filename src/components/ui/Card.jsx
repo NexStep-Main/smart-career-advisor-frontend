@@ -5,8 +5,8 @@ export function Card({ className, hover = false, ...props }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface shadow-sm",
-        hover && "transition-shadow hover:shadow-md",
+        "nx-card rounded-xl border border-border bg-surface shadow-sm",
+        hover && "nx-card-hover",
         className,
       )}
       {...props}

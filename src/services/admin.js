@@ -1,13 +1,38 @@
-import api from "./api";
+import adminApi from "./adminApi";
 
-export const getAdminStats = () => api.get("/admin/stats");
+export const getAdminStats = () => adminApi.get("/admin/stats");
 
-export const getAdminUsers = (params) => api.get("/admin/users", { params });
-export const deleteAdminUser = (id) => api.delete(`/admin/users/${id}`);
+export const getAdminAdmins = () => adminApi.get("/admin/admins");
+export const createAdminUser = (payload) => adminApi.post("/admin/admins", payload);
+// Named ...Account (not ...AdminUser) to stay unambiguous next to the
+// updateAdminUser/deleteAdminUser pair below, which edit a *student* record.
+export const updateAdminAccount = (id, payload) => adminApi.patch(`/admin/admins/${id}`, payload);
+export const deleteAdminAccount = (id) => adminApi.delete(`/admin/admins/${id}`);
 
-export const getAdminCareers = (params) => api.get("/admin/careers", { params });
+export const getAdminUsers = (params) => adminApi.get("/admin/users", { params });
+export const getAdminUser = (id) => adminApi.get(`/admin/users/${id}`);
+export const updateAdminUser = (id, payload) => adminApi.patch(`/admin/users/${id}`, payload);
+export const updateAdminUserStatus = (id, status) =>
+  adminApi.patch(`/admin/users/${id}/status`, { status });
+export const resetAdminUserQuiz = (id) => adminApi.post(`/admin/users/${id}/reset-quiz`);
+export const bulkUpdateAdminUserStatus = (ids, status) =>
+  adminApi.patch("/admin/users/bulk-status", { ids, status });
+export const deleteAdminUser = (id) => adminApi.delete(`/admin/users/${id}`);
+// responseType: "blob" — this is a CSV file download, not a JSON API response.
+export const exportAdminUsers = (params) =>
+  adminApi.get("/admin/users/export", { params, responseType: "blob" });
 
-export const getAdminRoadmaps = (params) => api.get("/admin/roadmaps", { params });
-export const deleteAdminRoadmap = (id) => api.delete(`/admin/roadmaps/${id}`);
+export const getAdminCareers = (params) => adminApi.get("/admin/careers", { params });
+export const getCareerTagValues = (field) =>
+  adminApi.get("/admin/careers/tag-values", { params: { field } });
+// responseType: "blob" — this is a CSV file download, not a JSON API response.
+export const exportAdminCareers = (params) =>
+  adminApi.get("/admin/careers/export", { params, responseType: "blob" });
+// `careers` is already parsed into JSON row objects client-side (see
+// AdminCareersPage.jsx) — the backend never touches a raw CSV file.
+export const importAdminCareers = (careers) => adminApi.post("/admin/careers/import", { careers });
+
+export const getAdminRoadmaps = (params) => adminApi.get("/admin/roadmaps", { params });
+export const deleteAdminRoadmap = (id) => adminApi.delete(`/admin/roadmaps/${id}`);
 export const generateRoadmapDraft = (careerId) =>
-	api.post("/roadmaps/generate-draft", { careerId });
+  adminApi.post("/roadmaps/generate-draft", { careerId });

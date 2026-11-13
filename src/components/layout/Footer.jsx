@@ -15,7 +15,7 @@ const COLUMNS = [
     links: [
       { label: "Career Explorer", to: "/careers" },
       { label: "Skill Roadmaps", to: "/careers" },
-      { label: "Recommendations", to: "/recommendations" },
+      { label: "Career Quiz", to: "/onboarding" },
       { label: "Compare Careers", to: "/compare" },
     ],
   },
@@ -60,16 +60,16 @@ function NewsletterForm() {
 
   if (status === "done") {
     return (
-      <div className="flex items-center gap-2 border-b border-ink pb-3 text-sm text-ink">
-        <Check size={15} />
-        You're on the list.
+      <div className="flex items-center gap-2 rounded-full border-2 border-ink bg-mint px-4 py-3 text-sm font-bold text-night shadow-pop-sm">
+        <Check size={16} />
+        You're on the list!
       </div>
     );
   }
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="flex items-center gap-3 border-b border-rule pb-3 transition-colors focus-within:border-ink">
+      <div className="flex items-center gap-2 rounded-full border-2 border-ink bg-surface p-1.5 pl-4 shadow-pop-sm transition-shadow focus-within:shadow-pop">
         <input
           type="email"
           required
@@ -82,43 +82,62 @@ function NewsletterForm() {
           type="submit"
           disabled={status === "loading"}
           aria-label="Subscribe"
-          className="shrink-0 text-ink transition-opacity hover:opacity-50 disabled:opacity-40"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-grape text-white transition-transform hover:scale-105 disabled:opacity-40"
         >
           <ArrowRight size={16} />
         </button>
       </div>
       <p className="mt-3 text-xs text-ink-faint">
-        One email when something worth knowing ships. No spam.
+        One email when something worth knowing ships. No spam, promise.
       </p>
     </form>
   );
 }
 
+// Each wordmark letter gets its own brand colour — the footer signs off with
+// the most playful version of the logo.
+const WORDMARK = [
+  ["N", "text-grape"],
+  ["e", "text-bubblegum"],
+  ["x", "text-tangerine"],
+  ["S", "text-sunny"],
+  ["t", "text-mint"],
+  ["e", "text-sky"],
+  ["p", "text-grape"],
+];
+
 export default function Footer() {
   return (
-    <footer className="border-t border-indigo-100 bg-white/80 px-6 py-16 shadow-[0_-10px_25px_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-950/60">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 md:grid-cols-4">
-        <div className="col-span-2 md:col-span-1">
-          <div className="mb-3">
-            <Logo size="md" />
+    <footer className="relative overflow-hidden rounded-t-[2.5rem] border-t-2 border-ink bg-surface px-6 pb-10 pt-16 sm:rounded-t-[4rem] sm:pt-20">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-14 flex flex-wrap items-end justify-between gap-6 border-b-2 border-dashed border-rule pb-12">
+          <div
+            aria-label="NexStep"
+            className="font-display text-[clamp(3.5rem,13vw,10rem)] font-bold leading-[0.85] tracking-tight"
+          >
+            {WORDMARK.map(([ch, color], i) => (
+              <span
+                key={i}
+                aria-hidden
+                className={`${color} inline-block transition-transform duration-300 hover:-translate-y-2 hover:rotate-6`}
+              >
+                {ch}
+              </span>
+            ))}
           </div>
-          <p className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            Free career guidance for Indian students after Class 10, 12, and Graduation.
-          </p>
+          <p className="font-hand text-3xl text-ink-muted sm:text-4xl">your next step starts here ↗</p>
         </div>
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
           {COLUMNS.map((col) => (
             <div key={col.heading}>
-              <div className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
-                {col.heading}
-              </div>
+              <div className="mb-5 font-display text-lg font-semibold text-ink">{col.heading}</div>
               <ul className="flex flex-col gap-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.to}
-                      className="text-sm text-ink-muted transition-colors hover:text-ink"
+                      className="text-sm font-medium text-ink-muted transition-colors hover:text-grape dark:hover:text-primary"
                     >
                       {link.label}
                     </Link>
@@ -127,17 +146,19 @@ export default function Footer() {
               </ul>
             </div>
           ))}
-          <div>
-            <div className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
-              Stay in the loop
-            </div>
+
+          <div className="col-span-2 md:col-span-1">
+            <div className="mb-5 font-display text-lg font-semibold text-ink">Stay in the loop</div>
             <NewsletterForm />
           </div>
         </div>
-      </div>
 
-      <div className="mx-auto mt-12 max-w-6xl border-t border-indigo-100 pt-6 text-sm text-slate-400 dark:border-slate-700 dark:text-slate-500">
-        © {new Date().getFullYear()} NexStep. Final Year Project — B.Tech CSE.
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t-2 border-dashed border-rule pt-8">
+          <Logo size="sm" mono />
+          <p className="text-xs font-medium text-ink-faint">
+            © {new Date().getFullYear()} NexStep — Final Year Project, B.Tech CSE.
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -11,14 +11,16 @@ import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
 import PhaseFieldGroup from "@/components/admin/PhaseFieldGroup";
+import RoadmapPhaseTimeline from "@/components/admin/RoadmapPhaseTimeline";
+import RoadmapTemplatePicker from "@/components/admin/RoadmapTemplatePicker";
 import { generateRoadmapDraft, getAdminCareers } from "@/services/admin";
 import { createRoadmap, updateRoadmap } from "@/services/roadmaps";
 import { roadmapFormSchema } from "@/utils/schemas";
 
-const BLANK_PHASE = { title: "", description: "", skills: "", durationWeeks: "", resources: [] };
+const BLANK_PHASE = { title: "", description: "", skills: [], durationWeeks: "", resources: [] };
 
-function toFormValues(roadmap) {
-  if (!roadmap) return { careerId: "", title: "", phases: [BLANK_PHASE] };
+function toFormValues(roadmap, preselectedCareerId = "") {
+  if (!roadmap) return { careerId: preselectedCareerId, title: "", phases: [BLANK_PHASE] };
   return {
     careerId:
       typeof roadmap.careerId === "string" ? roadmap.careerId : roadmap.careerId?.id ?? "",
@@ -26,7 +28,7 @@ function toFormValues(roadmap) {
     phases: (roadmap.phases ?? []).map((phase) => ({
       title: phase.title,
       description: phase.description,
-      skills: (phase.skills ?? []).join(", "),
+      skills: phase.skills ?? [],
       durationWeeks: phase.durationWeeks ?? "",
       resources: phase.resources ?? [],
     })),
@@ -37,11 +39,15 @@ export default function AdminRoadmapFormPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const editingRoadmap = location.state?.roadmap ?? null;
+  const preselectedCareerId = location.state?.careerId ?? "";
   const isEdit = !!editingRoadmap;
 
-  const { data: careers } = useQuery({
-    queryKey: ["admin", "careers", "all"],
-    queryFn: () => getAdminCareers({ limit: 100 }).then((res) => res.data.data.careers),
+  const { data: careers, isLoading: loadingCareers } = useQuery({
+    queryKey: ["admin", "careers", "missing-roadmaps"],
+    queryFn: () =>
+      getAdminCareers({ limit: 1000, roadmapStatus: "without" }).then(
+        (res) => res.data.data.careers
+      ),
     enabled: !isEdit,
   });
 
@@ -50,14 +56,62 @@ export default function AdminRoadmapFormPage() {
     control,
     reset,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm({
     resolver: zodResolver(roadmapFormSchema),
-    defaultValues: toFormValues(editingRoadmap),
+    defaultValues: toFormValues(editingRoadmap, preselectedCareerId),
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "phases" });
+  useEffect(() => {
+    if (preselectedCareerId && !isEdit) {
+      reset(toFormValues(null, preselectedCareerId));
+    }
+  }, [preselectedCareerId, isEdit, reset]);
+
+  const { fields, append, remove, move, replace } = useFieldArray({ control, name: "phases" });
   const selectedCareerId = useWatch({ control, name: "careerId" });
+  // Live phase titles/durations for the timeline node labels — separate
+  // from `fields` (whose values are frozen at the last reset/append, not
+  // reactive to keystrokes).
+  const watchedPhases = useWatch({ control, name: "phases" });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Only true for a brand-new, still-untouched roadmap — the one moment a
+  // template can be applied without risk of silently wiping real work.
+  const isPristine =
+    !isEdit &&
+    fields.length === 1 &&
+    !watchedPhases?.[0]?.title &&
+    !watchedPhases?.[0]?.description;
+
+  const handleApplyTemplate = (templatePhases) => {
+    replace(templatePhases);
+    setSelectedIndex(0);
+  };
+
+  const handleAddPhase = () => {
+    append(BLANK_PHASE);
+    setSelectedIndex(fields.length);
+  };
+
+  const handleRemovePhase = (index) => {
+    remove(index);
+    setSelectedIndex((current) => {
+      if (index < current) return current - 1;
+      if (index === current) return Math.max(0, current - 1);
+      return current;
+    });
+  };
+
+  const handleReorderPhase = (fromIndex, toIndex) => {
+    move(fromIndex, toIndex);
+    setSelectedIndex((current) => {
+      if (current === fromIndex) return toIndex;
+      if (fromIndex < current && toIndex >= current) return current - 1;
+      if (fromIndex > current && toIndex <= current) return current + 1;
+      return current;
+    });
+  };
 
   // Editing a roadmap requires the row data passed via navigate() state (the
   // API has no get-roadmap-by-id endpoint) — bounce back if that's missing,
@@ -86,10 +140,10 @@ export default function AdminRoadmapFormPage() {
     mutationFn: generateRoadmapDraft,
     onSuccess: ({ data }) => {
       reset(toFormValues(data.data.draft));
-      toast.success("AI draft generated. Review it before publishing.");
+      toast.success("Groq draft generated. Review it before publishing.");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message ?? "Couldn't generate an AI draft.");
+      toast.error(error.response?.data?.message ?? "Couldn't generate a Groq draft.");
     },
   });
 
@@ -114,7 +168,10 @@ export default function AdminRoadmapFormPage() {
           <ArrowLeft size={15} />
           Back to roadmaps
         </button>
-        <h1 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-50">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+          Console / Roadmaps
+        </span>
+        <h1 className="mt-1 font-display text-3xl text-slate-900 dark:text-slate-50">
           {isEdit ? "Edit Roadmap" : "New Roadmap"}
         </h1>
       </div>
@@ -132,12 +189,15 @@ export default function AdminRoadmapFormPage() {
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <select
                     id="careerId"
-                    defaultValue=""
                     className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     {...register("careerId")}
                   >
                     <option value="" disabled>
-                      Select a career
+                      {loadingCareers
+                        ? "Loading careers without roadmap…"
+                        : careers?.length === 0
+                        ? "All careers already have roadmaps!"
+                        : "Select a career without roadmap"}
                     </option>
                     {careers?.map((career) => (
                       <option key={career.id} value={career.id}>
@@ -172,35 +232,42 @@ export default function AdminRoadmapFormPage() {
           </CardContent>
         </Card>
 
-        <div className="flex flex-col gap-4">
-          {fields.map((field, index) => (
-            <PhaseFieldGroup
-              key={field.id}
-              index={index}
-              control={control}
-              register={register}
-              errors={errors}
-              canRemove={fields.length > 1}
-              onRemove={() => remove(index)}
-            />
-          ))}
-          {typeof errors.phases?.message === "string" && (
-            <FormError message={errors.phases.message} />
-          )}
+        <Card>
+          <CardContent className="flex flex-col gap-4">
+            <div>
+              <Label className="mb-3">Phases</Label>
+              {isPristine && <RoadmapTemplatePicker onApply={handleApplyTemplate} />}
+              <RoadmapPhaseTimeline
+                phases={watchedPhases ?? []}
+                ids={fields.map((f) => f.id)}
+                selectedIndex={selectedIndex}
+                onSelect={setSelectedIndex}
+                onReorder={handleReorderPhase}
+                onAdd={handleAddPhase}
+                onRemove={handleRemovePhase}
+                phaseErrors={isSubmitted ? errors.phases : undefined}
+              />
+              {typeof errors.phases?.message === "string" && (
+                <FormError message={errors.phases.message} />
+              )}
+            </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="self-start"
-            onClick={() => append(BLANK_PHASE)}
-          >
-            <Plus size={16} />
-            Add phase
-          </Button>
-        </div>
+            <div className="border-t border-border pt-4">
+              <PhaseFieldGroup
+                key={fields[selectedIndex]?.id}
+                index={selectedIndex}
+                control={control}
+                register={register}
+                errors={errors}
+                canRemove={fields.length > 1}
+                onRemove={() => handleRemovePhase(selectedIndex)}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button type="submit" variant="admin" disabled={mutation.isPending}>
             {mutation.isPending ? "Saving…" : isEdit ? "Save changes" : "Create roadmap"}
           </Button>
           <Button type="button" variant="outline" onClick={() => navigate("/admin/roadmaps")}>

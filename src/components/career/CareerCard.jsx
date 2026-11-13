@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, TrendingUp, Scale, Flame } from "lucide-react";
+import { Bookmark, Check, TrendingUp, Scale, Flame } from "lucide-react";
 import toast from "react-hot-toast";
 import DomainBadge from "./DomainBadge";
 import { getBookmarks, addBookmark, removeBookmark } from "@/services/bookmarks";
 import useCareerStore from "@/store/useCareerStore";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,12 +22,16 @@ import { cn } from "@/lib/utils";
  * rather than as a child of the Link.
  */
 export default function CareerCard({ career }) {
-  const { id, title, domain, matchPercent, salaryRange, bookmarkCount } = career;
+  const { id, title, domain, matchPercent, salaryRange, bookmarkCount, reasons } = career;
   const queryClient = useQueryClient();
 
+  const { isAuthenticated, requireAuth } = useRequireAuth();
+
+  // Guests have no bookmarks (the endpoint needs a login), so don't ask.
   const { data: bookmarks } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: () => getBookmarks().then((res) => res.data.data.careers),
+    enabled: isAuthenticated,
   });
   const isSaved = bookmarks?.some((c) => c.id === id) ?? false;
 
@@ -45,8 +50,10 @@ export default function CareerCard({ career }) {
 
   const handleToggle = (e) => {
     e.preventDefault();
-    if (isSaved) removeMutation.mutate();
-    else addMutation.mutate();
+    requireAuth(
+      () => (isSaved ? removeMutation.mutate() : addMutation.mutate()),
+      "Log in to save careers — it's free!",
+    );
   };
 
   const compareList = useCareerStore((state) => state.compareList);
@@ -65,7 +72,7 @@ export default function CareerCard({ career }) {
   };
 
   return (
-    <div className="group relative rounded-xl border border-border bg-surface p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group relative rounded-2xl border-2 border-ink bg-surface p-5 shadow-pop-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-pop">
       <Link to={`/careers/${id}`} className="absolute inset-0 z-0" aria-label={title} />
 
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -101,7 +108,7 @@ export default function CareerCard({ career }) {
 
       {/* Inter, not the display serif: card titles sit in scan-heavy grids
           and read as data here, per the dashboard type split. */}
-      <h3 className="mb-1 text-base font-semibold text-slate-900 group-hover:text-primary dark:text-slate-50">
+      <h3 className="mb-1 font-display text-lg font-semibold leading-snug text-ink group-hover:text-grape dark:group-hover:text-primary">
         {title}
       </h3>
 
@@ -110,9 +117,23 @@ export default function CareerCard({ career }) {
       )}
 
       {typeof matchPercent === "number" && (
-        <div className="flex items-center gap-2 text-sm font-medium text-accent-green">
-          <TrendingUp size={15} />
+        <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-mint px-2.5 py-0.5 text-xs font-bold text-night">
+          <TrendingUp size={13} />
           {matchPercent}% match
+        </div>
+      )}
+
+      {reasons?.length > 0 && (
+        <div className="mt-3 border-t-2 border-dashed border-rule pt-3">
+          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Why it fits you</div>
+          <ul className="flex flex-col gap-1">
+            {reasons.map((reason) => (
+              <li key={reason} className="flex items-start gap-1.5 text-xs font-semibold leading-snug text-ink-muted">
+                <Check size={13} strokeWidth={3} className="mt-px shrink-0 text-mint" />
+                {reason}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

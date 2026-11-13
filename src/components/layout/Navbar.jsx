@@ -9,14 +9,17 @@ import { cn } from "@/lib/utils";
 
 // NOTE: routes match the app's existing registered paths (App.jsx), which
 // differ slightly from the Guide's route names (e.g. /careers vs /explore).
-// See "Route naming" in the migration punch-list.
 const NAV_LINKS = [
   { label: "Explore", to: "/careers" },
+  { label: "Take the quiz", to: "/onboarding" },
   { label: "How it works", to: "/#process" },
   { label: "FAQ", to: "/#faq" },
 ];
 
-/** Sticky, auth-aware top navbar shared by the public marketing pages. */
+const toggleClass =
+  "size-10 rounded-full border-2 border-ink bg-surface text-ink hover:bg-sunny/40 hover:text-ink dark:hover:bg-sunny/20";
+
+/** Floating pill navbar shared by the public marketing pages. */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,32 +32,29 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-200",
-        scrolled
-          ? "border-b border-indigo-100/80 bg-white/80 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-950/80"
-          : "bg-transparent",
-      )}
-    >
-      <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
+      <nav
+        className={cn(
+          "mx-auto flex h-16 max-w-6xl items-center justify-between rounded-full border-2 border-ink bg-surface px-4 transition-shadow duration-300 sm:px-6",
+          scrolled ? "shadow-pop" : "shadow-pop-sm",
+        )}
+      >
         <Logo size="md" mono />
 
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
+              className="rounded-full px-4 py-2 text-sm font-bold text-ink-muted transition-colors hover:bg-sunny/40 hover:text-ink dark:hover:bg-sunny/20"
             >
               {link.label}
-              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-ink transition-transform duration-300 group-hover:scale-x-100" />
             </NavLink>
           ))}
         </div>
 
-        <div className="hidden items-center gap-5 md:flex">
-          <ThemeToggle className="rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
+        <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle className={toggleClass} />
           {isAuthenticated ? (
             <Button asChild variant="ink" size="sm">
               <Link to="/dashboard">Dashboard</Link>
@@ -63,7 +63,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-slate-50"
+                className="rounded-full px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-sunny/40 dark:hover:bg-sunny/20"
               >
                 Login
               </Link>
@@ -75,11 +75,12 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle className="rounded-none border-rule text-ink-muted hover:bg-transparent hover:text-ink" />
+          <ThemeToggle className={toggleClass} />
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="flex items-center justify-center rounded-lg border border-indigo-100 bg-white/80 p-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200"
+            className="flex size-10 items-center justify-center rounded-full border-2 border-ink bg-sunny text-night"
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -87,33 +88,33 @@ export default function Navbar() {
       </nav>
 
       {menuOpen && (
-        <div className="border-t border-indigo-100 bg-white/95 px-6 py-4 shadow-lg backdrop-blur-md md:hidden dark:border-slate-700 dark:bg-slate-950/95">
-          <div className="flex flex-col gap-4">
+        <div className="mx-auto mt-3 max-w-6xl rounded-3xl border-2 border-ink bg-surface p-5 shadow-pop md:hidden">
+          <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300"
+                className="rounded-2xl px-4 py-3 font-display text-xl font-medium text-ink hover:bg-sunny/30"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </NavLink>
             ))}
-            <div className="flex flex-col gap-2 border-t border-indigo-100 pt-4 dark:border-slate-700">
+            <div className="mt-3 flex flex-col gap-3 border-t-2 border-dashed border-rule pt-5">
               {isAuthenticated ? (
-                <Button asChild variant="ink" size="sm">
+                <Button asChild variant="ink" size="md">
                   <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
                     Dashboard
                   </Link>
                 </Button>
               ) : (
                 <>
-                  <Button asChild variant="inkOutline" size="sm">
+                  <Button asChild variant="inkOutline" size="md">
                     <Link to="/login" onClick={() => setMenuOpen(false)}>
                       Login
                     </Link>
                   </Button>
-                  <Button asChild variant="ink" size="sm">
+                  <Button asChild variant="ink" size="md">
                     <Link to="/register" onClick={() => setMenuOpen(false)}>
                       Get Started
                     </Link>

@@ -1,8 +1,9 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Bookmark, ClipboardCheck, RefreshCw, User } from "lucide-react";
+import { Award, Bookmark, Flame, Footprints, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -11,9 +12,17 @@ import Label from "@/components/ui/Label";
 import FormError from "@/components/ui/FormError";
 import SEOHead from "@/components/common/SEOHead";
 import PageHeader from "@/components/common/PageHeader";
+import SectionHeader from "@/components/common/SectionHeader";
+import Avatar from "@/components/common/Avatar";
+import AvatarBuilder from "@/components/profile/AvatarBuilder";
+import PersonalityCard from "@/components/profile/PersonalityCard";
 import useAuthStore from "@/store/useAuthStore";
+import { useProgress } from "@/hooks/useProgress";
 import { updateProfileRequest } from "@/services/auth";
 import { getBookmarks } from "@/services/bookmarks";
+import { getAllProgress } from "@/services/roadmapProgress";
+import { computePersonality } from "@/lib/personality";
+import { STREAMS } from "@/lib/constants";
 import { profileFormSchema } from "@/utils/schemas";
 
 const EDUCATION_LEVELS = [
@@ -21,21 +30,26 @@ const EDUCATION_LEVELS = [
   { value: "class12", label: "Class 12" },
   { value: "graduation", label: "Graduation" },
 ];
-const STREAMS = [
-  { value: "science", label: "Science" },
-  { value: "commerce", label: "Commerce" },
-  { value: "arts", label: "Arts" },
-  { value: "engineering", label: "Engineering" },
-];
+
+const selectClass =
+  "h-11 w-full rounded-2xl border-2 border-ink bg-surface px-4 text-sm text-ink focus:outline-none focus:ring-4 focus:ring-grape/25";
 
 export default function ProfilePage() {
   const user = useAuthStore((state) => state.user);
   const updateProfile = useAuthStore((state) => state.updateProfile);
+  const { data: progress } = useProgress();
 
   const { data: bookmarks } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: () => getBookmarks().then((res) => res.data.data.careers),
   });
+  const { data: roadmapProgress } = useQuery({
+    queryKey: ["roadmapProgress"],
+    queryFn: () => getAllProgress().then((res) => res.data.data.progress),
+  });
+
+  const personality = useMemo(() => computePersonality(user, bookmarks ?? []), [user, bookmarks]);
+  const phasesDone = roadmapProgress?.reduce((sum, r) => sum + r.completedPhases.length, 0);
 
   const {
     register,
@@ -61,43 +75,61 @@ export default function ProfilePage() {
   };
 
   const stats = [
-    { icon: Bookmark, label: "Careers saved", value: bookmarks?.length ?? "—" },
-    {
-      icon: ClipboardCheck,
-      label: "Quiz status",
-      value: user?.quizCompleted ? "Completed" : "Pending",
-    },
+    { icon: Bookmark, label: "Careers saved", value: bookmarks?.length ?? "—", bg: "bg-sunny" },
+    { icon: Footprints, label: "Phases done", value: phasesDone ?? "—", bg: "bg-mint" },
+    { icon: Flame, label: "Best streak", value: progress?.bestStreak ?? "—", bg: "bg-tangerine" },
+    { icon: Award, label: "Badges", value: progress ? `${progress.badges.length}/${progress.catalog.length}` : "—", bg: "bg-bubblegum" },
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <SEOHead title="My Profile" />
 
-      <PageHeader eyebrow="Account" title="My Profile" subtitle="Manage your account details." />
+      <PageHeader eyebrow="Account" title="My Profile" subtitle="Make it yours: your details, your look and your career personality." />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="flex flex-col gap-4 lg:col-span-2">
-          <Card>
-            <CardContent className="flex items-center gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark font-heading text-xl font-bold text-white">
-                {(user?.fullName ?? "S").charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <div className="truncate font-heading text-lg font-semibold text-slate-900 dark:text-slate-50">
-                  {user?.fullName}
-                </div>
-                <div className="truncate text-sm text-slate-500 dark:text-slate-400">
-                  {user?.email}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Identity + lifetime stats */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="min-w-0 lg:col-span-1">
+          <CardContent className="flex items-center gap-4">
+            <Avatar name={user?.fullName} avatar={user?.avatar} size={64} className="mt-2" />
+            <div className="min-w-0">
+              <div className="truncate font-display text-xl font-semibold text-ink">{user?.fullName}</div>
+              <div className="truncate text-sm text-ink-muted">{user?.email}</div>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="grid min-w-0 grid-cols-2 gap-4 sm:grid-cols-4 lg:col-span-2">
+          {stats.map(({ icon: Icon, label, value, bg }) => (
+            <div key={label} className={`rounded-3xl border-2 border-ink p-4 text-night shadow-pop-sm ${bg}`}>
+              <Icon size={18} strokeWidth={2.4} />
+              <div className="mt-2 font-display text-3xl font-bold leading-none">{value}</div>
+              <div className="mt-1.5 text-xs font-bold">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <section className="min-w-0">
+          <SectionHeader title="Your career personality" />
+          <PersonalityCard name={user?.fullName?.split(" ")[0] ?? "My"} personality={personality} />
+        </section>
+
+        <section className="min-w-0">
+          <SectionHeader title="Your avatar" />
           <Card>
             <CardContent>
-              <h2 className="mb-4 font-heading text-base font-semibold text-slate-900 dark:text-slate-50">
-                Account details
-              </h2>
+              <AvatarBuilder key={JSON.stringify(user?.avatar ?? {})} user={user} />
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <section className="min-w-0 lg:col-span-2">
+          <SectionHeader title="Account details" />
+          <Card>
+            <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
                 <div>
                   <Label htmlFor="fullName">Full name</Label>
@@ -113,11 +145,7 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <Label htmlFor="educationLevel">Education level</Label>
-                    <select
-                      id="educationLevel"
-                      className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      {...register("educationLevel")}
-                    >
+                    <select id="educationLevel" className={selectClass} {...register("educationLevel")}>
                       <option value="" disabled>
                         Select
                       </option>
@@ -131,11 +159,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <Label htmlFor="stream">Stream</Label>
-                    <select
-                      id="stream"
-                      className="h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm text-slate-900 dark:text-slate-50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      {...register("stream")}
-                    >
+                    <select id="stream" className={selectClass} {...register("stream")}>
                       <option value="" disabled>
                         Select
                       </option>
@@ -149,53 +173,32 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <Button type="submit" disabled={!isDirty || isSubmitting} className="self-start">
+                <Button type="submit" variant="ink" size="md" disabled={!isDirty || isSubmitting} className="self-start">
                   {isSubmitting ? "Saving…" : "Save changes"}
                 </Button>
               </form>
             </CardContent>
           </Card>
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-4">
-          {stats.map((stat) => (
-            <Card key={stat.label}>
-              <CardContent className="flex items-center gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-light">
-                  <stat.icon size={18} className="text-primary" strokeWidth={1.8} />
-                </div>
-                <div>
-                  <div className="font-heading text-lg font-bold text-slate-900 dark:text-slate-50">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
+        <section className="min-w-0">
+          <SectionHeader title="Career quiz" />
           <Card>
             <CardContent>
-              <div className="mb-3 flex items-center gap-2">
-                <User size={16} className="text-primary" />
-                <h3 className="font-heading text-sm font-semibold text-slate-900 dark:text-slate-50">
-                  Career quiz
-                </h3>
-              </div>
-              <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mb-4 text-sm text-ink-muted">
                 {user?.quizCompleted
-                  ? "Retake the quiz any time — your recommendations update automatically."
+                  ? "Retake the quiz any time. Your matches and personality update automatically."
                   : "Take the quiz to unlock personalised career recommendations."}
               </p>
-              <Button asChild variant="outline" size="sm">
+              <Button asChild variant="inkOutline" size="md">
                 <Link to="/onboarding">
                   <RefreshCw size={14} />
-                  {user?.quizCompleted ? "Retake Quiz" : "Take Quiz"}
+                  {user?.quizCompleted ? "Retake quiz" : "Take quiz"}
                 </Link>
               </Button>
             </CardContent>
           </Card>
-        </div>
+        </section>
       </div>
     </div>
   );

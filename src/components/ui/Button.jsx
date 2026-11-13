@@ -11,14 +11,24 @@ const VARIANTS = {
   ghost:
     "bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-primary",
 
-  // Editorial variants — landing page only. Squared instead of pill, no
-  // colour, no lift/glow: the monochrome layout gets its emphasis from the
-  // ink/paper inversion on hover rather than motion or shadow. The overrides
-  // after each palette resolve against the shared base classes below
-  // (tailwind-merge, last wins).
-  ink: "bg-ink text-paper hover:bg-ink/85 focus-visible:outline-ink rounded-none hover:translate-y-0 active:translate-y-0 active:scale-100",
+  // Admin portal only — amber/gold console accent instead of emerald,
+  // otherwise identical shape/motion to `primary` so admin buttons still
+  // feel like the same component family, just a different surface.
+  admin:
+    "bg-admin-accent text-white shadow-sm hover:bg-admin-accent-dark hover:shadow-lg hover:shadow-admin-accent/25 focus-visible:outline-admin-accent",
+
+  // "Sticker" variants — landing page + auth screens. Chunky ink outline and
+  // a hard offset shadow that grows on hover and collapses on press, so the
+  // button feels like a physical sticker/key being pushed. Fixed brand
+  // fills (not the theme-flipping `primary`) keep the white/dark label
+  // contrast correct in both themes.
+  ink: "bg-grape text-white border-2 border-ink shadow-pop hover:shadow-pop-lg hover:bg-grape-dark focus-visible:outline-grape active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm active:scale-100",
   inkOutline:
-    "bg-transparent text-ink border border-ink hover:bg-ink hover:text-paper focus-visible:outline-ink rounded-none hover:translate-y-0 active:translate-y-0 active:scale-100",
+    "bg-surface text-ink border-2 border-ink shadow-pop hover:shadow-pop-lg hover:bg-sunny/30 focus-visible:outline-grape active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm active:scale-100",
+  sunny:
+    "bg-sunny text-night border-2 border-ink shadow-pop hover:shadow-pop-lg focus-visible:outline-grape active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-sm active:scale-100",
+  white:
+    "bg-white text-night border-2 border-night shadow-[4px_4px_0_0_#1b1640] hover:shadow-[7px_7px_0_0_#1b1640] focus-visible:outline-white active:translate-x-0.5 active:translate-y-0.5 active:shadow-[2px_2px_0_0_#1b1640] active:scale-100",
 };
 
 const SIZES = {
@@ -35,7 +45,7 @@ const Button = forwardRef(function Button(
   ref,
 ) {
   const buttonClassName = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200",
+    "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200",
     "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-sm",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",

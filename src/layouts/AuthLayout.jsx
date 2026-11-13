@@ -2,20 +2,35 @@ import { Outlet } from "react-router-dom";
 import Logo from "@/components/common/Logo";
 import ThemeToggle from "@/components/common/ThemeToggle";
 
-/** Centered card shell shared by /login, /register and /admin/login. */
+/**
+ * Centered shell shared by /login, /register and the password-reset pages.
+ * Same playful register as the landing page: cream dotted paper, soft colour
+ * blobs behind, and the form sitting on a chunky "sticker" card.
+ */
 export default function AuthLayout() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_35%),linear-gradient(to_bottom,_#f8f7fc_0%,_#eef2ff_100%)] px-6 py-12 dark:bg-[radial-gradient(circle_at_top,_rgba(129,140,248,0.18),_transparent_35%),linear-gradient(to_bottom,_#0b0a12_0%,_#14131c_100%)]">
-      <div className="absolute -left-12 top-14 h-52 w-52 rounded-full bg-primary/10 blur-3xl dark:bg-primary/15" />
-      <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-indigo-200/40 blur-3xl dark:bg-indigo-500/10" />
-      <ThemeToggle className="absolute right-6 top-6 z-10" />
+    <div className="portal-student relative flex min-h-screen items-center justify-center overflow-hidden bg-paper bg-dots px-4 py-12 sm:px-6">
+      {/* Decorative blobs and shapes — purely visual, hidden from assistive tech. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-24 -top-24 size-80 rounded-full bg-grape/25 blur-3xl" />
+        <div className="absolute -bottom-24 -right-16 size-96 rounded-full bg-bubblegum/25 blur-3xl" />
+        <div className="absolute right-1/4 top-10 size-48 rounded-full bg-sunny/30 blur-3xl" />
+        <div
+          className="animate-float absolute left-[8%] top-[62%] hidden size-10 rounded-xl border-2 border-ink bg-mint sm:block"
+          style={{ "--r": "12deg" }}
+        />
+        <div className="animate-float-slow absolute right-[9%] top-[22%] hidden size-8 rounded-full border-2 border-ink bg-sky sm:block" />
+        <div className="animate-wiggle absolute bottom-[12%] left-[14%] hidden size-7 rounded-md border-2 border-ink bg-sunny sm:block" />
+      </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <ThemeToggle className="absolute right-4 top-4 size-10 rounded-full border-2 border-ink bg-surface text-ink hover:bg-sunny/40 hover:text-ink sm:right-6 sm:top-6" />
+
+      <div className="relative w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <Logo size="lg" />
+          <Logo size="lg" mono />
         </div>
 
-        <div className="rounded-2xl border border-indigo-100 bg-white/90 p-8 shadow-[0_22px_60px_-28px_rgba(79,70,229,0.42)] ring-1 ring-slate-200/60 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/75 dark:shadow-[0_22px_60px_-28px_rgba(99,102,241,0.35)] dark:ring-slate-800/80">
+        <div className="rounded-3xl border-2 border-ink bg-surface p-6 shadow-pop-lg sm:p-9">
           <Outlet />
         </div>
       </div>

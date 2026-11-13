@@ -1,0 +1,215 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import toast from "react-hot-toast";
+import { Card } from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
+import Skeleton from "@/components/ui/Skeleton";
+import EmptyState from "@/components/common/EmptyState";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import SEOHead from "@/components/common/SEOHead";
+import CreateAdminModal from "@/components/admin/CreateAdminModal";
+import EditAdminModal from "@/components/admin/EditAdminModal";
+import {
+  getAdminAdmins,
+  createAdminUser,
+  updateAdminAccount,
+  deleteAdminAccount,
+} from "@/services/admin";
+import { timeAgo } from "@/lib/utils";
+import useAdminAuthStore from "@/store/useAdminAuthStore";
+
+const ROLE_META = {
+  superadmin: { label: "Superadmin", variant: "accent" },
+  admin: { label: "Admin", variant: "neutral" },
+};
+
+export default function AdminManageAdminsPage() {
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const currentUser = useAdminAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "admins"],
+    queryFn: () => getAdminAdmins().then((res) => res.data.data.admins),
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin", "admins"] });
+
+  const createMutation = useMutation({
+    mutationFn: createAdminUser,
+    onSuccess: () => {
+      toast.success("Invite sent");
+      invalidate();
+      setCreateOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message ?? "Couldn't send this invite.");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }) => updateAdminAccount(id, payload),
+    onSuccess: () => {
+      toast.success("Admin updated");
+      invalidate();
+      setEditingAdmin(null);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message ?? "Couldn't update this admin.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteAdminAccount,
+    onSuccess: () => {
+      toast.success("Admin deleted");
+      invalidate();
+      setDeleteTarget(null);
+    },
+    onError: (error) => {
+      setDeleteTarget(null);
+      toast.error(error.response?.data?.message ?? "Couldn't delete this admin.");
+    },
+  });
+
+  const admins = data ?? [];
+  const superadminCount = admins.filter((a) => a.role === "superadmin").length;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <SEOHead title="Manage Admins" />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+            Console / Admins
+          </span>
+          <h1 className="mt-1 font-display text-3xl text-slate-900 dark:text-slate-50">Admins</h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {admins.length} admin account{admins.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <Button variant="admin" onClick={() => setCreateOpen(true)}>
+          <Plus size={16} />
+          Invite admin
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex flex-col gap-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      ) : admins.length === 0 ? (
+        <EmptyState icon={ShieldCheck} title="No admin accounts" description="This shouldn't be possible — you're logged in as one." />
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border font-mono text-[10.5px] uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Name</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Username</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Email</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Role</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Last active</th>
+                  <th className="px-4 py-2.5 font-semibold sm:px-6">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {admins.map((admin) => {
+                  const meta = ROLE_META[admin.role] ?? ROLE_META.admin;
+                  const isSelf = admin.id === currentUser?.id;
+                  const isOnlySuperadmin = admin.role === "superadmin" && superadminCount <= 1;
+                  return (
+                    <tr key={admin.id} className="border-b border-border last:border-0">
+                      <td className="px-4 py-2.5 sm:px-6">
+                        <div className="font-medium text-slate-900 dark:text-slate-50">
+                          {admin.fullName}
+                          {isSelf && (
+                            <span className="ml-2 text-xs font-normal text-slate-400 dark:text-slate-500">
+                              (you)
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-300 sm:px-6">
+                        {admin.username}
+                      </td>
+                      <td className="px-4 py-2.5 font-mono text-xs text-slate-600 dark:text-slate-300 sm:px-6">
+                        {admin.email}
+                      </td>
+                      <td className="px-4 py-2.5 sm:px-6">
+                        <Badge variant={meta.variant}>{meta.label}</Badge>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-slate-500 dark:text-slate-400 sm:px-6">
+                        {admin.lastLoginAt ? timeAgo(admin.lastLoginAt) : "Never"}
+                      </td>
+                      <td className="px-4 py-2.5 sm:px-6">
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => setEditingAdmin(admin)}
+                            title="Edit admin"
+                            aria-label={`Edit ${admin.fullName}`}
+                            className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(admin)}
+                            disabled={isSelf || isOnlySuperadmin}
+                            title={
+                              isSelf
+                                ? "You can't delete your own account"
+                                : isOnlySuperadmin
+                                  ? "Can't delete the only superadmin"
+                                  : "Delete admin"
+                            }
+                            aria-label={`Delete ${admin.fullName}`}
+                            className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:pointer-events-none disabled:opacity-40"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      <CreateAdminModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={(payload) => createMutation.mutateAsync(payload)}
+        isSubmitting={createMutation.isPending}
+      />
+
+      <EditAdminModal
+        open={!!editingAdmin}
+        admin={editingAdmin}
+        onClose={() => setEditingAdmin(null)}
+        onSubmit={(payload) => updateMutation.mutateAsync({ id: editingAdmin.id, payload })}
+        isSubmitting={updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title={`Delete ${deleteTarget?.fullName}?`}
+        description="This permanently removes their admin account. This action cannot be undone."
+        confirmLabel="Delete"
+        loading={deleteMutation.isPending}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => deleteMutation.mutate(deleteTarget.id)}
+      />
+    </div>
+  );
+}

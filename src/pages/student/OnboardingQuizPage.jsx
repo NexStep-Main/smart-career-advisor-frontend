@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   ArrowLeft,
@@ -29,12 +29,13 @@ import {
   TrendingUp,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import Button from "@/components/ui/Button";
 import Logo from "@/components/common/Logo";
 import SEOHead from "@/components/common/SEOHead";
 import ThemeToggle from "@/components/common/ThemeToggle";
-import Button from "@/components/ui/Button";
 import useAuthStore from "@/store/useAuthStore";
-import { submitQuiz } from "@/services/recommendations";
+import { submitQuiz, previewQuiz } from "@/services/recommendations";
+import { savePendingQuiz } from "@/lib/pendingQuiz";
 import { cn } from "@/lib/utils";
 
 const QUIZ_STEPS = [
@@ -212,6 +213,9 @@ const QUIZ_STEPS = [
 export default function OnboardingQuizPage() {
   const navigate = useNavigate();
   const updateProfile = useAuthStore((state) => state.updateProfile);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  // Guests get their matches straight away; saving them needs an account.
+  const [guestMatches, setGuestMatches] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -252,8 +256,15 @@ export default function OnboardingQuizPage() {
 
     setSubmitting(true);
     try {
-      const { data } = await submitQuiz(answers);
-      updateProfile(data.data.user);
+      if (isAuthenticated) {
+        const { data } = await submitQuiz(answers);
+        updateProfile(data.data.user);
+      } else {
+        const { data } = await previewQuiz(answers);
+        setGuestMatches(data.data.recommendations);
+        // Kept so signing up / logging in applies these answers automatically.
+        savePendingQuiz(answers);
+      }
       setCompleted(true);
     } catch {
       toast.error("Couldn't submit your quiz. Please try again.");
@@ -262,13 +273,77 @@ export default function OnboardingQuizPage() {
     }
   };
 
+  if (completed && !isAuthenticated) {
+    return (
+      <div className="portal-student flex min-h-screen items-center justify-center bg-background px-6 py-12">
+        <SEOHead title="Your Matches" />
+        <div className="w-full max-w-xl text-center">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary">
+            <CheckCircle size={32} className="text-white" strokeWidth={1.8} />
+          </div>
+          <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
+            Here are your top matches!
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-slate-500 dark:text-slate-400">
+            Based on your answers. Create a free account to save them, track roadmaps, and get
+            sharper recommendations.
+          </p>
+
+          {guestMatches.length > 0 && (
+            <ul className="mt-8 flex flex-col gap-3 text-left">
+              {guestMatches.slice(0, 4).map((career) => (
+                <li key={career.id}>
+                  <Link
+                    to={`/careers/${career.id}`}
+                    className="flex items-center justify-between gap-4 rounded-2xl border-2 border-ink bg-surface p-4 shadow-pop-sm transition-all hover:-translate-y-0.5 hover:shadow-pop"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-display text-lg font-semibold text-ink">
+                        {career.title}
+                      </span>
+                      <span className="block text-sm text-ink-muted">{career.domain}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full border-2 border-ink bg-mint px-3 py-1 text-sm font-bold text-night">
+                      {career.matchPercent}% match
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="ink" size="lg">
+              <Link to="/register">
+                Save my results
+                <ArrowRight size={18} />
+              </Link>
+            </Button>
+            <Button asChild variant="inkOutline" size="lg">
+              <Link to="/careers">Keep exploring</Link>
+            </Button>
+          </div>
+          <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">
+            Already have an account?{" "}
+            <Link to="/login" className="font-bold text-primary hover:underline">
+              Log in
+            </Link>{" "}
+            and we'll save these for you.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (completed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+      <div className="portal-student flex min-h-screen items-center justify-center bg-background px-6 py-12">
         <SEOHead title="Quiz Complete" />
         <div className="max-w-md text-center">
-          <div className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark shadow-lg shadow-primary/25">
-            <CheckCircle size={40} className="text-white" />
+          {/* Solid emerald, no gradient/glow — a genuinely semantic "done"
+              checkmark, not decoration. */}
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-primary">
+            <CheckCircle size={32} className="text-white" strokeWidth={1.8} />
           </div>
           <h1 className="font-display text-3xl text-slate-900 dark:text-slate-50">
             Your profile is ready!
@@ -277,11 +352,7 @@ export default function OnboardingQuizPage() {
             We've analysed your answers and matched you to career paths that fit. Check out your
             personalised recommendations.
           </p>
-          <Button
-            onClick={() => navigate("/recommendations")}
-            size="lg"
-            className="mt-8"
-          >
+          <Button size="lg" className="mt-8" onClick={() => navigate("/recommendations")}>
             View My Recommendations
             <ArrowRight size={18} />
           </Button>
@@ -291,56 +362,49 @@ export default function OnboardingQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="portal-student min-h-screen bg-background pt-16">
       <SEOHead title="Career Quiz" />
 
       <nav className="fixed inset-x-0 top-0 z-40 border-b border-border bg-surface/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
           <Logo size="md" to="/" />
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              Step <strong className="text-primary">{currentStep + 1}</strong> of{" "}
-              {QUIZ_STEPS.length}
+            <span className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              Step <span className="text-primary">{currentStep + 1}</span> of {QUIZ_STEPS.length}
             </span>
+            {!isAuthenticated && (
+              <Link
+                to="/login"
+                className="text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-300"
+              >
+                Log in
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>
       </nav>
 
-      <div className="sticky top-16 z-30 h-1 bg-primary-light">
+      {/* Hairline progress track, matching the dashboard/roadmap treatment
+          instead of a heavy filled bar. */}
+      <div className="sticky top-16 z-30 h-px bg-border">
         <div
-          className="h-full bg-primary transition-all duration-300"
+          className="h-px bg-primary transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pb-20 pt-12">
-        <div className="mb-10 flex gap-2">
-          {QUIZ_STEPS.map((_, i) => (
-            <span
-              key={i}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                i === currentStep
-                  ? "w-6 bg-primary"
-                  : i < currentStep
-                    ? "w-2 bg-primary"
-                    : "w-2 bg-primary-light",
-              )}
-            />
-          ))}
-        </div>
-
         <div className="mb-9 w-full text-center">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
             Question {currentStep + 1} of {QUIZ_STEPS.length}
           </span>
-          <h1 className="mt-2.5 font-display text-3xl leading-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
+          <h1 className="mt-2.5 font-display text-3xl text-slate-900 dark:text-slate-50 sm:text-4xl">
             {step.title}
           </h1>
           <p className="mt-2.5 text-sm text-slate-500 dark:text-slate-400">{step.subtitle}</p>
           {step.multiple && (
-            <span className="mt-2 inline-block rounded-full bg-primary-light px-3.5 py-1 text-xs font-semibold text-primary-dark">
+            <span className="mt-2 inline-block font-mono text-xs uppercase tracking-[0.14em] text-primary">
               Select all that apply
             </span>
           )}
@@ -358,28 +422,24 @@ export default function OnboardingQuizPage() {
               <button
                 key={opt.value}
                 onClick={() => select(opt.value)}
-                  className={cn(
-                    "flex items-center gap-4 rounded-xl border bg-surface p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
-                    selected ? "border-primary bg-primary-light/40 shadow-md" : "border-border",
-                  )}
+                className={cn(
+                  "flex items-center gap-4 rounded-xl border bg-surface p-4 text-left transition-colors",
+                  selected ? "border-primary" : "border-border hover:border-primary/40",
+                )}
               >
-                <span
+                <opt.icon
+                  size={22}
+                  strokeWidth={1.6}
                   className={cn(
-                    "flex size-12 shrink-0 items-center justify-center rounded-xl",
-                    selected ? "bg-primary-light" : "bg-background",
+                    "shrink-0",
+                    selected ? "text-primary" : "text-slate-400 dark:text-slate-500",
                   )}
-                >
-                  <opt.icon
-                    size={22}
-                    strokeWidth={1.8}
-                    className={selected ? "text-primary-dark" : "text-slate-500 dark:text-slate-400"}
-                  />
-                </span>
+                />
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block font-medium",
-                      selected ? "text-primary-dark" : "text-slate-900 dark:text-slate-50",
+                      "block text-sm font-semibold",
+                      selected ? "text-primary" : "text-slate-900 dark:text-slate-50",
                     )}
                   >
                     {opt.label}
@@ -388,7 +448,7 @@ export default function OnboardingQuizPage() {
                     {opt.desc}
                   </span>
                 </span>
-                {selected && <CheckCircle size={20} className="shrink-0 text-primary" />}
+                {selected && <CheckCircle size={18} className="shrink-0 text-accent-green" />}
               </button>
             );
           })}
@@ -397,20 +457,13 @@ export default function OnboardingQuizPage() {
         <div className="mt-10 flex w-full items-center justify-between">
           <div>
             {currentStep > 0 && (
-              <button
-                onClick={() => setCurrentStep((s) => s - 1)}
-                className="flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:border-primary/40 hover:text-primary"
-              >
+              <Button variant="outline" size="lg" onClick={() => setCurrentStep((s) => s - 1)}>
                 <ArrowLeft size={18} />
                 Back
-              </button>
+              </Button>
             )}
           </div>
-          <Button
-            onClick={handleNext}
-            disabled={!isStepValid || submitting}
-            size="lg"
-          >
+          <Button size="lg" disabled={!isStepValid || submitting} onClick={handleNext}>
             {submitting
               ? "Submitting…"
               : currentStep === QUIZ_STEPS.length - 1

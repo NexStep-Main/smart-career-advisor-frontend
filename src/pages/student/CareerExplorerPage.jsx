@@ -1,14 +1,33 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, Filter } from "lucide-react";
+import { Search, X, Filter, LayoutGrid, Layers, FlaskConical, Dices, Orbit, BarChart3, Lightbulb } from "lucide-react";
 import CareerCard from "@/components/career/CareerCard";
 import EmptyState from "@/components/common/EmptyState";
 import Skeleton from "@/components/ui/Skeleton";
+import Button from "@/components/ui/Button";
 import Pagination from "@/components/common/Pagination";
 import SEOHead from "@/components/common/SEOHead";
-import PageHeader from "@/components/common/PageHeader";
+import SwipeDeck from "@/components/explore/SwipeDeck";
+import SkillLab from "@/components/explore/SkillLab";
+import SpinWheel from "@/components/explore/SpinWheel";
+import CareerUniverse from "@/components/explore/CareerUniverse";
+import SalaryRace from "@/components/explore/SalaryRace";
+import Wishlist from "@/components/explore/Wishlist";
+import useAllCareers from "@/hooks/useAllCareers";
+import { cn } from "@/lib/utils";
 import { getCareers } from "@/services/careers";
+
+// Ways to explore the same catalogue. `view` lives in the URL so a view is
+// linkable and survives refresh / back-forward.
+const VIEWS = [
+  { key: "grid", label: "Browse", icon: LayoutGrid },
+  { key: "swipe", label: "Swipe", icon: Layers },
+  { key: "skills", label: "Skill Lab", icon: FlaskConical },
+  { key: "universe", label: "Universe", icon: Orbit },
+  { key: "race", label: "Salary Race", icon: BarChart3 },
+  { key: "wishlist", label: "Request a career", icon: Lightbulb },
+];
 
 const EDUCATION_LEVELS = [
   { value: "", label: "All levels" },
@@ -29,10 +48,32 @@ export default function CareerExplorerPage() {
   const [search, setSearch] = useState("");
   const [educationLevel, setEducationLevel] = useState("");
   const [demandLevel, setDemandLevel] = useState("");
-  // Seeded from the landing page's domain chips (/careers?domain=Technology) —
-  // read once on mount so a direct link/back-nav still reflects the URL.
-  const [domain, setDomain] = useState(() => searchParams.get("domain") ?? "");
+  // Lives in the URL (/careers?domain=Technology) so landing tiles, footer
+  // links and back/forward navigation all re-filter this page in place.
+  const domain = searchParams.get("domain") ?? "";
   const [page, setPage] = useState(1);
+  const [wheelOpen, setWheelOpen] = useState(false);
+
+  const viewParam = searchParams.get("view");
+  const view = VIEWS.some((v) => v.key === viewParam) ? viewParam : "grid";
+  const setView = (key) =>
+    setSearchParams((params) => {
+      if (key === "grid") params.delete("view");
+      else params.set("view", key);
+      params.delete("suggest");
+      return params;
+    });
+
+  // From an unexplored planet: jump to the wishlist with that field preselected.
+  const suggestIn = (domainName) =>
+    setSearchParams((params) => {
+      params.set("view", "wishlist");
+      params.set("suggest", domainName);
+      return params;
+    });
+
+  // Swipe, Skill Lab, Universe, Salary Race and the wheel need the whole catalogue (one cached call).
+  const { data: allCareers, isLoading: allLoading } = useAllCareers();
 
   const { data, isLoading } = useQuery({
     queryKey: ["careers", { search, educationLevel, demandLevel, domain, page }],
@@ -51,7 +92,6 @@ export default function CareerExplorerPage() {
   const hasFilters = search || educationLevel || demandLevel || domain;
 
   const clearDomain = () => {
-    setDomain("");
     setPage(1);
     setSearchParams((params) => {
       params.delete("domain");
@@ -70,12 +110,78 @@ export default function CareerExplorerPage() {
     <div className="flex flex-col gap-6">
       <SEOHead title="Explore Careers" />
 
-      <PageHeader
-        eyebrow="Explore"
-        title="Explore Careers"
-        subtitle="Browse career paths across every domain and education level."
-      />
+      {/* Hero — the page's personality lives here. */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-ink bg-grape p-6 text-white shadow-pop-lg sm:p-8">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-10 -top-10 size-48 rounded-full bg-bubblegum/60 blur-2xl" />
+          <div className="absolute -bottom-12 left-1/3 size-40 rounded-full bg-sunny/40 blur-2xl" />
+        </div>
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <span className="inline-block -rotate-2 rounded-full border-2 border-night bg-sunny px-3 py-0.5 text-xs font-bold text-night">
+              {allCareers ? `${allCareers.length} careers to discover` : "Explore"}
+            </span>
+            <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">
+              Find your thing.
+            </h1>
+            <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">
+              Browse, swipe, fly through the universe, or race salaries. There is no wrong way to explore.
+            </p>
+          </div>
+          <Button
+            variant="sunny"
+            size="lg"
+            onClick={() => setWheelOpen(true)}
+            disabled={!allCareers?.length}
+            className="shrink-0"
+          >
+            <Dices size={18} />
+            Surprise me
+          </Button>
+        </div>
+      </div>
 
+      {/* View switcher */}
+      <div role="tablist" aria-label="How to explore" className="flex flex-wrap gap-2">
+        {VIEWS.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            role="tab"
+            aria-selected={view === key}
+            onClick={() => setView(key)}
+            className={cn(
+              "flex items-center gap-2 rounded-full border-2 border-ink px-4 py-2 text-sm font-bold transition-all",
+              view === key
+                ? "bg-ink text-paper shadow-pop-sm"
+                : "bg-surface text-ink hover:-translate-y-0.5 hover:bg-sunny/30",
+            )}
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {wheelOpen && allCareers && (
+        <SpinWheel careers={allCareers} onClose={() => setWheelOpen(false)} />
+      )}
+
+      {view === "wishlist" ? (
+        <Wishlist key={searchParams.get("suggest") ?? ""} initialDomain={searchParams.get("suggest") ?? ""} />
+      ) : view !== "grid" ? (
+        allLoading || !allCareers ? (
+          <Skeleton className="h-96 w-full" />
+        ) : view === "swipe" ? (
+          <SwipeDeck careers={allCareers} />
+        ) : view === "universe" ? (
+          <CareerUniverse careers={allCareers} onSuggest={suggestIn} />
+        ) : view === "race" ? (
+          <SalaryRace careers={allCareers} />
+        ) : (
+          <SkillLab careers={allCareers} />
+        )
+      ) : (
+        <>
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search
@@ -130,7 +236,7 @@ export default function CareerExplorerPage() {
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="flex shrink-0 items-center gap-1 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-3 py-2.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-100"
+              className="flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-red-500"
             >
               <X size={13} />
               Clear
@@ -164,16 +270,17 @@ export default function CareerExplorerPage() {
       ) : careers.length === 0 ? (
         <EmptyState
           icon={Search}
-          title="No careers found"
-          description="Try a different search term or clear your filters."
+          title={domain && !search ? `No ${domain} careers yet` : "No careers found"}
+          description={
+            domain && !search
+              ? "We're still adding careers in this field. Clear the filter to see what's available."
+              : "Try a different search term or clear your filters."
+          }
           action={
             hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-dark"
-              >
+              <Button size="sm" onClick={clearFilters}>
                 Clear all filters
-              </button>
+              </Button>
             )
           }
         />
@@ -189,6 +296,8 @@ export default function CareerExplorerPage() {
               <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />
             </div>
           )}
+        </>
+      )}
         </>
       )}
     </div>
