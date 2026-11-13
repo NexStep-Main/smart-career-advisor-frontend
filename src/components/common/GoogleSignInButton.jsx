@@ -51,6 +51,7 @@ export default function GoogleSignInButton({ onCredential, disabled, theme = "fi
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: (response) => onCredential(response.credential),
+          use_fedcm_for_button: true,
         });
         setReady(true);
       })
